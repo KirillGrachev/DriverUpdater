@@ -357,7 +357,8 @@ CI runs Prettier, typecheck, unit tests, the Vite build, `cargo fmt`, `cargo che
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. In short:
+Read the [wiki](https://github.com/KirillGrachev/DriverUpdater/wiki),
+[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. In short:
 
 - keep TypeScript strict and run `npm run typecheck`;
 - format with `npm run format` (Prettier + `cargo fmt`);
