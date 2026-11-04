@@ -1,11 +1,14 @@
+mod backup;
 mod commands;
 mod detection;
 mod models;
 mod packages;
 mod process;
 mod repository;
+mod restore;
 mod security;
 mod storage;
+mod windows_update;
 
 use commands::AppRepository;
 use repository::DriverRepository;
@@ -36,11 +39,11 @@ fn apply_backup_folder_icon(dir: &std::path::Path) {
         return;
     }
 
-    let _ = std::process::Command::new("attrib")
+    let _ = std::process::Command::new(crate::process::system_executable("attrib.exe"))
         .creation_flags(CREATE_NO_WINDOW)
         .args(["+r", dir.to_string_lossy().as_ref()])
         .status();
-    let _ = std::process::Command::new("attrib")
+    let _ = std::process::Command::new(crate::process::system_executable("attrib.exe"))
         .creation_flags(CREATE_NO_WINDOW)
         .args(["+h", "+s", ini_path.to_string_lossy().as_ref()])
         .status();
@@ -49,6 +52,14 @@ fn apply_backup_folder_icon(dir: &std::path::Path) {
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_single_instance::init(
+            |app, _arguments, _cwd| {
+                if let Some(window) = app.get_webview_window("main") {
+                    let _ = window.show();
+                    let _ = window.set_focus();
+                }
+            },
+        ))
         .plugin(tauri_plugin_opener::init())
         .setup(|app| {
             let state_dir = app
@@ -94,6 +105,10 @@ pub fn run() {
             commands::detect_installed_components,
             commands::get_installed_components,
             commands::save_installed_components,
+            commands::list_driver_backups,
+            commands::create_driver_backup,
+            commands::restore_driver_backup,
+            commands::delete_driver_backup,
             commands::list_package_versions,
             commands::install_package,
             commands::get_system_info,

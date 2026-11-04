@@ -29,11 +29,11 @@
 </p>
 
 > [!NOTE]
-> **Project status: early.** Driver and software inventory is read from the real
-> Windows system. Driver update installation still goes through the simulated
-> repository layer while the Windows package backend is completed. Component
-> installation is real: it uses Windows Package Manager (winget) and supports
-> choosing a version.
+> **Project status: early.** Driver inventory, Windows Update driver discovery,
+> restore points and driver-package backups use real Windows APIs. Windows Update
+> is currently the only driver source; vendor-specific databases are not wired
+> in yet. Component installation uses Windows Package Manager (winget) and
+> supports choosing a version.
 
 ---
 

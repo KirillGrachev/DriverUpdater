@@ -17,8 +17,9 @@ installs selected component versions through winget and ships in 35 languages.
 ## Current status
 
 Driver and software inventory is read from the real Windows system. Driver
-update installation still uses the simulated repository layer. Component
-installation is real and goes through Windows Package Manager (winget).
+updates come from Windows Update, while restore points and driver backups use
+the native Windows providers. Component installation goes through Windows
+Package Manager (winget).
 
 The latest installer is available on the
 [Releases](https://github.com/KirillGrachev/DriverUpdater/releases) page.

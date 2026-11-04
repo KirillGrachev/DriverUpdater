@@ -33,6 +33,16 @@ pub struct Driver {
     pub device: String,
     pub released: String,
     pub description: LocalizedText,
+    #[serde(default)]
+    pub device_id: String,
+    #[serde(default)]
+    pub hardware_ids: Vec<String>,
+    #[serde(default)]
+    pub inf_name: String,
+    #[serde(default)]
+    pub update_id: Option<String>,
+    #[serde(default)]
+    pub reboot_required: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -46,7 +56,7 @@ pub struct RestorePoint {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
+#[serde(rename_all = "camelCase", default)]
 pub struct Settings {
     pub language: String,
     pub theme: String,
@@ -59,6 +69,24 @@ pub struct Settings {
     pub telemetry: bool,
     pub auto_restore_points: bool,
     pub restore_point_period: String,
+}
+
+impl Default for Settings {
+    fn default() -> Self {
+        Self {
+            language: "en".to_string(),
+            theme: "system".to_string(),
+            notifications: false,
+            auto_check: false,
+            check_interval: "daily".to_string(),
+            restore_point_before_install: true,
+            keep_backups: true,
+            backup_path: String::new(),
+            telemetry: false,
+            auto_restore_points: false,
+            restore_point_period: "weekly".to_string(),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -95,6 +123,8 @@ pub struct InitialData {
     pub settings: Settings,
     pub summary: Summary,
     pub system_info: SystemInfo,
+    #[serde(default)]
+    pub scan_error: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

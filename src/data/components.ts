@@ -11,7 +11,6 @@ export interface AppComponent {
     versions: string[];
     defaultVersion: string;
     sizeMb?: number;
-    installedByDefault?: boolean;
     noteKey?: string;
 }
 
@@ -33,7 +32,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['4.8.1', '4.8', '4.7.2'],
         defaultVersion: '4.8.1',
         sizeMb: 112,
-        installedByDefault: true,
     },
     {
         id: 'dotnet-framework-3-5',
@@ -67,7 +65,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['8.0.21'],
         defaultVersion: '8.0.21',
         sizeMb: 57,
-        installedByDefault: true,
     },
     {
         id: 'dotnet-desktop-9',
@@ -90,7 +87,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['9.29.1974'],
         defaultVersion: '9.29.1974',
         sizeMb: 96,
-        installedByDefault: true,
     },
     {
         id: 'vcredist-x64',
@@ -102,7 +98,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['14.44.35211'],
         defaultVersion: '14.44.35211',
         sizeMb: 25,
-        installedByDefault: true,
     },
     {
         id: 'vcredist-x86',
@@ -187,7 +182,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['3.12.10'],
         defaultVersion: '3.12.10',
         sizeMb: 27,
-        installedByDefault: true,
     },
     {
         id: 'python-3-13',
@@ -238,7 +232,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['21.0.8'],
         defaultVersion: '21.0.8',
         sizeMb: 190,
-        installedByDefault: true,
     },
     {
         id: 'openjdk-25',
@@ -269,7 +262,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         versions: ['1.90.0'],
         defaultVersion: '1.90.0',
         sizeMb: 320,
-        installedByDefault: true,
     },
     {
         id: 'php-8-2',

@@ -28,6 +28,15 @@ export interface Driver {
     device: string;
     released: string;
     description: LocalizedText;
+    /** Device instance id from Windows PnP. */
+    deviceId?: string;
+    /** Hardware ids reported by the driver. */
+    hardwareIds?: string[];
+    /** Published INF name when available. */
+    infName?: string;
+    /** Windows Update identity used to install this update. */
+    updateId?: string;
+    rebootRequired?: boolean;
 }
 
 export type RestorePointKind = 'auto' | 'schedule' | 'manual';
@@ -73,6 +82,14 @@ export interface SystemInfo {
     hostname: string;
 }
 
+export interface DriverBackup {
+    id: string;
+    createdAt: string;
+    path: string;
+    sizeMb: number;
+    packageCount: number;
+}
+
 export interface InstalledComponent {
     id: string;
     version: string;
@@ -86,6 +103,7 @@ export interface InitialData {
     settings: Settings;
     summary: Summary;
     systemInfo: SystemInfo;
+    scanError?: string | null;
 }
 
 export interface CheckUpdatesResult {

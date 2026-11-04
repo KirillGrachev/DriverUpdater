@@ -36,7 +36,7 @@ function CurrentPage() {
 }
 
 export function App() {
-    const { booting, bootError, route, t } = useApp();
+    const { booting, bootError, route, t, data } = useApp();
 
     useEffect(() => {
         /**
@@ -81,6 +81,14 @@ export function App() {
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
+                    {data?.scanError ? (
+                        <div className="notice-bar notice-error scan-error" role="alert">
+                            <div>
+                                <div className="notice-title">{t('common.scanError')}</div>
+                                <div className="notice-sub">{t('common.scanErrorHint')}</div>
+                            </div>
+                        </div>
+                    ) : null}
                     <Suspense
                         fallback={
                             <div className="page-loading">

@@ -1,7 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { IconCalendar, IconInfoFilled, IconPlusCircle, IconRestoreArrow, IconTrash } from '../components/icons';
 import { Button, Select, Spinner, Toggle } from '../components/ui';
-import type { RestorePointPeriod } from '../ipc/types';
+import type { DriverBackup, RestorePointPeriod } from '../ipc/types';
 import { useApp } from '../store/app';
 import { formatDateTime } from '../utils/format';
 
@@ -39,8 +39,33 @@ export function BackupsPage() {
         requestDeleteRestorePoint,
         requestRestorePoint,
         saveSettings,
+        listDriverBackups,
+        createDriverBackup,
+        restoreDriverBackup,
+        deleteDriverBackup,
+        openModal,
+        closeModal,
+        pushToast,
     } = useApp();
     const [creating, setCreating] = useState(false);
+    const [backups, setBackups] = useState<DriverBackup[]>([]);
+    const [backupsLoading, setBackupsLoading] = useState(true);
+    const [creatingBackup, setCreatingBackup] = useState(false);
+    const [busyBackup, setBusyBackup] = useState<string | null>(null);
+
+    useEffect(() => {
+        let cancelled = false;
+        void listDriverBackups()
+            .then((items) => {
+                if (!cancelled) setBackups(items);
+            })
+            .finally(() => {
+                if (!cancelled) setBackupsLoading(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [listDriverBackups]);
 
     if (!data) return null;
 
@@ -52,6 +77,64 @@ export function BackupsPage() {
     };
 
     const pointName = (point: (typeof data.restorePoints)[number]) => point.name[locale === 'ru' ? 'ru' : 'en'];
+
+    const createBackup = async () => {
+        setCreatingBackup(true);
+        try {
+            const backup = await createDriverBackup();
+            setBackups((current) => [backup, ...current]);
+            pushToast(t('backups.backupCreated'), 'success');
+        } catch (error) {
+            pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+        } finally {
+            setCreatingBackup(false);
+        }
+    };
+
+    const confirmRestoreBackup = (backup: DriverBackup) => {
+        openModal({
+            title: t('backups.confirmBackupRestoreTitle'),
+            text: t('backups.confirmBackupRestoreText'),
+            confirmLabel: t('backups.confirmOk'),
+            cancelLabel: t('backups.confirmCancel'),
+            tone: 'primary',
+            onConfirm: async () => {
+                closeModal();
+                setBusyBackup(backup.id);
+                try {
+                    await restoreDriverBackup(backup.id);
+                    pushToast(t('backups.backupRestored'), 'success');
+                } catch (error) {
+                    pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+                } finally {
+                    setBusyBackup(null);
+                }
+            },
+        });
+    };
+
+    const confirmDeleteBackup = (backup: DriverBackup) => {
+        openModal({
+            title: t('backups.confirmBackupDeleteTitle'),
+            text: t('backups.confirmBackupDeleteText', { name: backup.id }),
+            confirmLabel: t('backups.confirmOk'),
+            cancelLabel: t('backups.confirmCancel'),
+            tone: 'danger',
+            onConfirm: async () => {
+                closeModal();
+                setBusyBackup(backup.id);
+                try {
+                    await deleteDriverBackup(backup.id);
+                    setBackups((current) => current.filter((item) => item.id !== backup.id));
+                    pushToast(t('backups.backupDeleted'), 'info');
+                } catch (error) {
+                    pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+                } finally {
+                    setBusyBackup(null);
+                }
+            },
+        });
+    };
 
     return (
         <div className="page page-backups">
@@ -108,7 +191,9 @@ export function BackupsPage() {
                                         </div>
                                         <div className="backup-date">{formatDateTime(point.createdAt, locale)}</div>
                                         <div className="backup-size">
-                                            ~ {point.sizeMb} {t('common.mb')}
+                                            {point.sizeMb > 0
+                                                ? `~ ${point.sizeMb} ${t('common.mb')}`
+                                                : t('common.never')}
                                         </div>
                                         <Button
                                             variant="secondary"
@@ -136,6 +221,73 @@ export function BackupsPage() {
                         </ul>
                     )}
                 </AnimatedHeight>
+            </section>
+
+            <section className="card backups-card">
+                <div className="card-head">
+                    <div>
+                        <h2 className="card-title">{t('backups.driverBackups')}</h2>
+                        <p className="card-sub">{t('backups.driverBackupsSub')}</p>
+                    </div>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        icon={<IconPlusCircle size={16} />}
+                        loading={creatingBackup}
+                        onClick={() => void createBackup()}
+                    >
+                        {creatingBackup ? t('backups.creatingBackup') : t('backups.createBackup')}
+                    </Button>
+                </div>
+                {backupsLoading ? (
+                    <div className="backups-empty">
+                        <Spinner size={20} />
+                    </div>
+                ) : backups.length === 0 ? (
+                    <div className="backups-empty">
+                        <div className="backups-empty-title">{t('backups.backupEmpty')}</div>
+                        <div className="backups-empty-sub">{t('backups.backupEmptySub')}</div>
+                    </div>
+                ) : (
+                    <ul className="backup-list">
+                        {backups.map((backup) => {
+                            const busy = busyBackup === backup.id;
+                            return (
+                                <li key={backup.id} className="backup-row">
+                                    <div className="backup-ident">
+                                        <div className="backup-name">{backup.id}</div>
+                                        <div className="backup-kind">{backup.path}</div>
+                                    </div>
+                                    <div className="backup-date">{formatDateTime(backup.createdAt, locale)}</div>
+                                    <div className="backup-size">
+                                        {backup.sizeMb > 0 ? `~ ${backup.sizeMb} ${t('common.mb')}` : t('common.never')}
+                                        <br />
+                                        <small>{t('backups.backupPackages', { n: backup.packageCount })}</small>
+                                    </div>
+                                    <Button
+                                        variant="secondary"
+                                        size="sm"
+                                        icon={<IconRestoreArrow size={15} />}
+                                        loading={busy}
+                                        onClick={() => confirmRestoreBackup(backup)}
+                                    >
+                                        {t('backups.restoreBackup')}
+                                    </Button>
+                                    <button
+                                        type="button"
+                                        className="backup-delete"
+                                        title={t('backups.deleteBackup')}
+                                        aria-label={t('backups.deleteBackup')}
+                                        disabled={busy}
+                                        onClick={() => confirmDeleteBackup(backup)}
+                                    >
+                                        <IconTrash size={17} />
+                                    </button>
+                                </li>
+                            );
+                        })}
+                    </ul>
+                )}
             </section>
 
             <section className="card auto-card">

@@ -35,14 +35,8 @@ export function ComponentsPage() {
         listPackageVersions,
         installPackage,
     } = useApp();
-    const [installed, setInstalled] = useState<Set<string>>(
-        () => new Set(COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => item.id)),
-    );
-    const [installedVersions, setInstalledVersions] = useState<Record<string, string>>(() =>
-        Object.fromEntries(
-            COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => [item.id, item.defaultVersion]),
-        ),
-    );
+    const [installed, setInstalled] = useState<Set<string>>(() => new Set());
+    const [installedVersions, setInstalledVersions] = useState<Record<string, string>>({});
     const [selected, setSelected] = useState<Record<string, string>>(defaultSelection);
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
     const [installing, setInstalling] = useState<string[]>([]);
@@ -54,18 +48,9 @@ export function ComponentsPage() {
         void Promise.all([detectInstalledComponents(), getInstalledComponents()])
             .then(([detectedComponents, persistedIds]) => {
                 if (cancelled) return;
-                const next = new Set(
-                    COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => item.id),
-                );
+                const next = new Set<string>();
                 const nextSelected = defaultSelection();
-                const nextVersions: Record<string, string> = {
-                    ...Object.fromEntries(
-                        COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => [
-                            item.id,
-                            item.defaultVersion,
-                        ]),
-                    ),
-                };
+                const nextVersions: Record<string, string> = {};
                 for (const id of persistedIds) next.add(id);
                 for (const component of detectedComponents) {
                     next.add(component.id);
@@ -205,16 +190,16 @@ export function ComponentsPage() {
                                                                 setSelected((prev) => ({ ...prev, [item.id]: next }))
                                                             }
                                                             ariaLabel={`${item.name} ${t('components.version')}`}
-                                                            options={[
-                                                                ...(detectedVersion &&
-                                                                !options.includes(detectedVersion)
-                                                                    ? [detectedVersion]
-                                                                    : []),
-                                                                ...options,
-                                                            ].map((version) => ({
-                                                                value: version,
-                                                                label: `v${version}`,
-                                                            }))}
+                                                            options={[value, detectedVersion, ...options]
+                                                                .filter(
+                                                                    (version, index, list): version is string =>
+                                                                        Boolean(version) &&
+                                                                        list.indexOf(version) === index,
+                                                                )
+                                                                .map((version) => ({
+                                                                    value: version,
+                                                                    label: `v${version}`,
+                                                                }))}
                                                         />
                                                     )}
                                                     <div className="component-size">

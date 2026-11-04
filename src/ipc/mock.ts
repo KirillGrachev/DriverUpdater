@@ -1,5 +1,4 @@
 import driversFixture from '../../shared/fixtures/drivers.json';
-import metaFixture from '../../shared/fixtures/meta.json';
 import restoreFixture from '../../shared/fixtures/restore_points.json';
 import settingsFixture from '../../shared/fixtures/settings.json';
 import { COMPONENT_CATALOG } from '../data/components';
@@ -7,6 +6,7 @@ import type { Backend } from './backend';
 import type {
     CheckUpdatesResult,
     Driver,
+    DriverBackup,
     InitialData,
     InstalledComponent,
     LocalizedText,
@@ -27,6 +27,7 @@ interface MockState {
     settings: Settings;
     lastCheck: string | null;
     installedComponents: string[];
+    driverBackups: DriverBackup[];
 }
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -40,6 +41,7 @@ function defaultState(): MockState {
         settings: clone(settingsFixture) as Settings,
         lastCheck: new Date().toISOString(),
         installedComponents: [],
+        driverBackups: [],
     };
 }
 
@@ -66,6 +68,7 @@ function loadState(): MockState {
             installedComponents: Array.isArray(parsed.installedComponents)
                 ? parsed.installedComponents.filter((id): id is string => typeof id === 'string')
                 : [],
+            driverBackups: Array.isArray(parsed.driverBackups) ? parsed.driverBackups : [],
         };
     } catch {
         return defaultState();
@@ -108,8 +111,8 @@ export class MockBackend implements Backend {
     private summary(): Summary {
         const updatesAvailable = this.state.drivers.filter((d) => d.status === 'update').length;
         return {
-            devicesTotal: metaFixture.devicesTotal,
-            upToDate: metaFixture.devicesTotal - updatesAvailable,
+            devicesTotal: this.state.drivers.length,
+            upToDate: this.state.drivers.length - updatesAvailable,
             updatesAvailable,
             lastCheck: this.state.lastCheck,
         };
@@ -223,6 +226,37 @@ export class MockBackend implements Backend {
 
     async installPackage(): Promise<void> {
         await sleep(700);
+    }
+
+    async listDriverBackups(): Promise<DriverBackup[]> {
+        return clone(this.state.driverBackups);
+    }
+
+    async createDriverBackup(): Promise<DriverBackup> {
+        await sleep(900);
+        const backup: DriverBackup = {
+            id: `backup-${Date.now()}`,
+            createdAt: new Date().toISOString(),
+            path: `${MOCK_BACKUP_PATH}\\backup-${Date.now()}`,
+            sizeMb: 64,
+            packageCount: 12,
+        };
+        this.state.driverBackups.unshift(backup);
+        this.persist();
+        return clone(backup);
+    }
+
+    async restoreDriverBackup(id: string): Promise<void> {
+        await sleep(800);
+        if (!this.state.driverBackups.some((backup) => backup.id === id)) {
+            throw new Error(`Unknown driver backup: ${id}`);
+        }
+    }
+
+    async deleteDriverBackup(id: string): Promise<void> {
+        await latency();
+        this.state.driverBackups = this.state.driverBackups.filter((backup) => backup.id !== id);
+        this.persist();
     }
 
     async getSystemInfo(): Promise<SystemInfo> {

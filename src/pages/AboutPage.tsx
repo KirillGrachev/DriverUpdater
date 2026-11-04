@@ -23,7 +23,7 @@ export function AboutPage() {
                 <div className="about-identity-text">
                     <div className="about-name-row">
                         <h2>Driver Updater</h2>
-                        <span className="version-pill">v1.0.0</span>
+                        <span className="version-pill">v{__APP_VERSION__}</span>
                     </div>
                     <p>
                         {t('about.tagline1')}
@@ -55,11 +55,11 @@ export function AboutPage() {
                     <dl className="about-rows">
                         <div>
                             <dt>{t('about.version')}</dt>
-                            <dd>1.0.0</dd>
+                            <dd>{__APP_VERSION__}</dd>
                         </div>
                         <div>
                             <dt>{t('about.build')}</dt>
-                            <dd>2026.11.04</dd>
+                            <dd>{__BUILD_DATE__.slice(0, 10)}</dd>
                         </div>
                         <div>
                             <dt>{t('about.license')}</dt>

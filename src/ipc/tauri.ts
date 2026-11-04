@@ -3,6 +3,7 @@ import type { Backend } from './backend';
 import type {
     CheckUpdatesResult,
     Driver,
+    DriverBackup,
     InitialData,
     InstalledComponent,
     RestorePoint,
@@ -71,6 +72,22 @@ export class TauriBackend implements Backend {
 
     installPackage(packageId: string, version: string): Promise<void> {
         return invoke<void>('install_package', { packageId, version });
+    }
+
+    listDriverBackups(): Promise<DriverBackup[]> {
+        return invoke<DriverBackup[]>('list_driver_backups');
+    }
+
+    createDriverBackup(): Promise<DriverBackup> {
+        return invoke<DriverBackup>('create_driver_backup');
+    }
+
+    restoreDriverBackup(id: string): Promise<void> {
+        return invoke<void>('restore_driver_backup', { id });
+    }
+
+    deleteDriverBackup(id: string): Promise<void> {
+        return invoke<void>('delete_driver_backup', { id });
     }
 
     getSystemInfo(): Promise<SystemInfo> {

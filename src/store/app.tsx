@@ -1,7 +1,15 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { isSupportedLocale, loadLocale, translate, type TranslateParams } from '../i18n';
 import { createBackend, type Backend } from '../ipc/backend';
-import type { Driver, InitialData, InstalledComponent, Settings, SystemInfo, ThemeMode } from '../ipc/types';
+import type {
+    Driver,
+    DriverBackup,
+    InitialData,
+    InstalledComponent,
+    Settings,
+    SystemInfo,
+    ThemeMode,
+} from '../ipc/types';
 
 export type Route = 'home' | 'drivers' | 'components' | 'backups' | 'settings' | 'about';
 
@@ -55,6 +63,10 @@ interface AppContextValue extends AppState {
     saveInstalledComponents: (ids: string[]) => Promise<void>;
     listPackageVersions: (packageId: string) => Promise<string[]>;
     installPackage: (packageId: string, version: string) => Promise<void>;
+    listDriverBackups: () => Promise<DriverBackup[]>;
+    createDriverBackup: () => Promise<DriverBackup>;
+    restoreDriverBackup: (id: string) => Promise<void>;
+    deleteDriverBackup: (id: string) => Promise<void>;
     pushToast: (text: string, tone?: Toast['tone']) => void;
     dismissToast: (id: number) => void;
     openModal: (modal: ConfirmModal) => void;
@@ -215,14 +227,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const result = await backend.checkUpdates();
             const current = dataRef.current;
             if (current) {
-                dataRef.current = { ...current, drivers: result.drivers, summary: result.summary };
+                dataRef.current = {
+                    ...current,
+                    drivers: result.drivers,
+                    summary: result.summary,
+                    scanError: null,
+                };
             }
             setState((prev) =>
                 prev.data
                     ? {
                           ...prev,
                           scanning: false,
-                          data: { ...prev.data, drivers: result.drivers, summary: result.summary },
+                          data: {
+                              ...prev.data,
+                              drivers: result.drivers,
+                              summary: result.summary,
+                              scanError: null,
+                          },
                       }
                     : { ...prev, scanning: false },
             );
@@ -231,8 +253,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 count > 0 ? translate(locale, 'toasts.scanFound', { count }) : translate(locale, 'toasts.scanZero'),
                 count > 0 ? 'info' : 'success',
             );
-        } catch {
-            pushToast(translate(locale, 'toasts.error'), 'error');
+        } catch (error) {
+            const message = error instanceof Error ? error.message : String(error);
+            setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, scanError: message } } : prev));
+            pushToast(translate(locale, 'common.scanError'), 'error');
         } finally {
             scanningRef.current = false;
             patch({ scanning: false });
@@ -253,6 +277,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
                 await refreshSummary(drivers);
                 pushToast(translate(locale, 'toasts.driverUpdated', { name: updated.name }), 'success');
+                if (updated.rebootRequired) {
+                    pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
+                }
             } catch {
                 pushToast(translate(locale, 'toasts.error'), 'error');
             } finally {
@@ -283,6 +310,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
                 await refreshSummary(drivers);
                 pushToast(translate(locale, 'updates.doneToast', { count: ids.length }), 'success');
+                if (updatedList.some((driver) => driver.rebootRequired)) {
+                    pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
+                }
             } catch {
                 pushToast(translate(locale, 'toasts.error'), 'error');
             } finally {
@@ -412,7 +442,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 prev.data ? { ...prev, data: { ...prev.data, settings: { ...prev.data.settings, language } } } : prev,
             );
             try {
-                const saved = await enqueueSettingsWrite(() => backend.saveSettings({ ...current, language }));
+                const saved = await enqueueSettingsWrite(() =>
+                    backend.saveSettings({ ...(dataRef.current?.settings ?? current), language }),
+                );
                 if (seq !== languageSeqRef.current) return;
                 const latest = dataRef.current;
                 if (!latest) return;
@@ -452,7 +484,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             dataRef.current = dataRef.current ? { ...dataRef.current, settings: optimistic } : dataRef.current;
             setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, settings: optimistic } } : prev));
             try {
-                const saved = await enqueueSettingsWrite(() => backend.saveSettings(optimistic));
+                const saved = await enqueueSettingsWrite(() => {
+                    const latest = dataRef.current?.settings ?? optimistic;
+                    return backend.saveSettings({ ...latest, ...patchSettings });
+                });
                 const latest = dataRef.current;
                 if (!latest) return;
                 const next = { ...latest, settings: saved };
@@ -523,6 +558,34 @@ export function AppProvider({ children }: { children: ReactNode }) {
         await backend.installPackage(packageId, version);
     }, []);
 
+    const listDriverBackups = useCallback(async () => {
+        const backend = backendRef.current;
+        if (!backend) return [];
+        try {
+            return await backend.listDriverBackups();
+        } catch {
+            return [];
+        }
+    }, []);
+
+    const createDriverBackup = useCallback(async () => {
+        const backend = backendRef.current;
+        if (!backend) throw new Error('backend is not available');
+        return backend.createDriverBackup();
+    }, []);
+
+    const restoreDriverBackup = useCallback(async (id: string) => {
+        const backend = backendRef.current;
+        if (!backend) throw new Error('backend is not available');
+        await backend.restoreDriverBackup(id);
+    }, []);
+
+    const deleteDriverBackup = useCallback(async (id: string) => {
+        const backend = backendRef.current;
+        if (!backend) throw new Error('backend is not available');
+        await backend.deleteDriverBackup(id);
+    }, []);
+
     /**
      * Theme is previewed and persisted immediately, so the switch feels alive
      * without having to press "Save" first.
@@ -539,7 +602,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 prev.data ? { ...prev, data: { ...prev.data, settings: { ...prev.data.settings, theme } } } : prev,
             );
             try {
-                const saved = await enqueueSettingsWrite(() => backend.saveSettings({ ...current, theme }));
+                const saved = await enqueueSettingsWrite(() =>
+                    backend.saveSettings({ ...(dataRef.current?.settings ?? current), theme }),
+                );
                 if (seq !== themeSeqRef.current) return;
                 const latest = dataRef.current;
                 if (!latest) return;
@@ -552,6 +617,51 @@ export function AppProvider({ children }: { children: ReactNode }) {
         },
         [enqueueSettingsWrite],
     );
+
+    useEffect(() => {
+        const settings = state.data?.settings;
+        if (!settings?.autoCheck) return undefined;
+        const interval =
+            settings.checkInterval === 'hourly'
+                ? 60 * 60 * 1000
+                : settings.checkInterval === 'weekly'
+                  ? 7 * 24 * 60 * 60 * 1000
+                  : 24 * 60 * 60 * 1000;
+        const lastCheck = state.data?.summary.lastCheck;
+        if (!lastCheck || Date.now() - new Date(lastCheck).getTime() >= interval) {
+            void scan();
+        }
+        const timer = window.setInterval(() => {
+            void scan();
+        }, interval);
+        return () => window.clearInterval(timer);
+    }, [state.data?.settings, scan]);
+
+    useEffect(() => {
+        const settings = state.data?.settings;
+        if (!settings?.autoRestorePoints) return undefined;
+        const period =
+            settings.restorePointPeriod === 'daily'
+                ? 24 * 60 * 60 * 1000
+                : settings.restorePointPeriod === 'monthly'
+                  ? 30 * 24 * 60 * 60 * 1000
+                  : 7 * 24 * 60 * 60 * 1000;
+        const latest = state.data?.restorePoints[0]?.createdAt;
+        const due = !latest || Date.now() - new Date(latest).getTime() >= period;
+        if (due) {
+            void createRestorePoint({ silentSuccess: true });
+        }
+        const timer = window.setInterval(
+            () => {
+                const current = dataRef.current?.restorePoints[0]?.createdAt;
+                if (!current || Date.now() - new Date(current).getTime() >= period) {
+                    void createRestorePoint({ silentSuccess: true });
+                }
+            },
+            60 * 60 * 1000,
+        );
+        return () => window.clearInterval(timer);
+    }, [state.data?.settings, state.data?.restorePoints, createRestorePoint]);
 
     const value = useMemo<AppContextValue>(
         () => ({
@@ -575,6 +685,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             saveInstalledComponents,
             listPackageVersions,
             installPackage,
+            listDriverBackups,
+            createDriverBackup,
+            restoreDriverBackup,
+            deleteDriverBackup,
             pushToast,
             dismissToast,
             openModal,
@@ -601,6 +715,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             saveInstalledComponents,
             listPackageVersions,
             installPackage,
+            listDriverBackups,
+            createDriverBackup,
+            restoreDriverBackup,
+            deleteDriverBackup,
             pushToast,
             dismissToast,
             openModal,

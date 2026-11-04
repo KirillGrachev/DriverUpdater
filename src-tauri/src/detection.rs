@@ -7,15 +7,13 @@
 #[cfg(target_os = "windows")]
 use std::collections::HashSet;
 #[cfg(target_os = "windows")]
-use std::hash::{Hash, Hasher};
-#[cfg(target_os = "windows")]
 use std::time::Duration;
 
 #[cfg(target_os = "windows")]
 use crate::models::LocalizedText;
 use crate::models::{Driver, InstalledComponent, SystemInfo};
 #[cfg(target_os = "windows")]
-use crate::process;
+use sha2::{Digest, Sha256};
 
 /// Detects installed device drivers.
 pub trait DriverDetector: Send + Sync {
@@ -117,22 +115,13 @@ fn normalize_driver_date(raw: &str) -> String {
 /// @returns stdout on success, or `None` on timeout/failure
 #[cfg(target_os = "windows")]
 fn run_powershell(script: &str, timeout: Duration) -> Option<String> {
-    let mut command = std::process::Command::new("powershell.exe");
-    command.args([
-        "-NoProfile",
-        "-NonInteractive",
-        "-ExecutionPolicy",
-        "Bypass",
-        "-Command",
-        script,
-    ]);
-    let output = process::run(command, timeout).ok()?;
+    let output = crate::process::run_powershell(script, timeout).ok()?;
     output.success.then_some(output.stdout)
 }
 
 #[cfg(target_os = "windows")]
 fn detect_installed_drivers() -> Option<Vec<Driver>> {
-    let script = r#"[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -and $_.DriverVersion } | Select-Object DeviceName,DeviceClass,Manufacturer,DriverVersion,DriverDate,DeviceID | ConvertTo-Json -Compress"#;
+    let script = r#"[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -and $_.DriverVersion } | Select-Object DeviceName,DeviceClass,Manufacturer,DriverVersion,DriverDate,DeviceID,HardwareID,InfName | ConvertTo-Json -Compress"#;
     let stdout = run_powershell(script, Duration::from_secs(20))?;
     let value: serde_json::Value = serde_json::from_str(&stdout).ok()?;
     let rows: Vec<&serde_json::Value> = match &value {
@@ -149,6 +138,25 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             .to_string()
     }
 
+    fn text_list(row: &serde_json::Value, key: &str) -> Vec<String> {
+        match row.get(key) {
+            Some(serde_json::Value::String(value)) => value
+                .split(['\n', ','])
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(ToString::to_string)
+                .collect(),
+            Some(serde_json::Value::Array(values)) => values
+                .iter()
+                .filter_map(serde_json::Value::as_str)
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(ToString::to_string)
+                .collect(),
+            _ => Vec::new(),
+        }
+    }
+
     let mut seen = HashSet::new();
     let mut drivers = Vec::new();
     for row in rows {
@@ -158,8 +166,13 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             continue;
         }
         let manufacturer = text(row, "Manufacturer");
-        let dedupe_key = format!("{name}|{version}|{manufacturer}");
-        if !seen.insert(dedupe_key.clone()) {
+        let device_id = text(row, "DeviceID");
+        let stable_key = if device_id.is_empty() {
+            format!("{name}|{version}|{manufacturer}")
+        } else {
+            device_id.to_ascii_lowercase()
+        };
+        if !seen.insert(stable_key.clone()) {
             continue;
         }
 
@@ -172,9 +185,14 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             _ => ("chipset", "chip", "#f59e0b"),
         };
 
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        dedupe_key.hash(&mut hasher);
-        let id = format!("pnp-{:016x}", hasher.finish());
+        let digest = Sha256::digest(stable_key.as_bytes());
+        let id = format!(
+            "pnp-{}",
+            digest[..8]
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
         let vendor = if manufacturer.is_empty() {
             "Unknown".to_string()
         } else {
@@ -201,13 +219,18 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
                 ru: format!("Драйвер устройства {name}, установленный в системе."),
                 en: format!("Installed device driver for {name}."),
             },
+            device_id,
+            hardware_ids: text_list(row, "HardwareID"),
+            inf_name: text(row, "InfName"),
+            update_id: None,
+            reboot_required: false,
         });
     }
 
     if drivers.is_empty() {
         None
     } else {
-        drivers.sort_by(|a, b| a.name.to_lowercase().cmp(&b.name.to_lowercase()));
+        drivers.sort_by_key(|driver| driver.name.to_lowercase());
         Some(drivers)
     }
 }
@@ -278,6 +301,8 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
         } else {
             Some("vcredist-x64")
         }
+    } else if name.contains(".net") && name.contains("framework") && name.contains("3.5") {
+        Some("dotnet-framework-3-5")
     } else if name.contains(".net") && name.contains("framework") {
         Some("dotnet-framework")
     } else if name.contains("visual studio") {
@@ -316,7 +341,7 @@ fn extract_version(text: &str) -> Option<String> {
 
 #[cfg(target_os = "windows")]
 pub fn detect_installed_components() -> Vec<InstalledComponent> {
-    let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,InstallLocation,DisplayIcon | ConvertTo-Json -Compress"#;
+    let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $rows = @(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,InstallLocation,DisplayIcon); $netfx = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5' -ErrorAction SilentlyContinue; if ($netfx -and $netfx.Install -eq 1) { $rows += [pscustomobject]@{ DisplayName='.NET Framework 3.5'; DisplayVersion='3.5 SP1'; InstallLocation=''; DisplayIcon='' } }; ConvertTo-Json -InputObject $rows -Compress"#;
     let Some(stdout) = run_powershell(script, Duration::from_secs(20)) else {
         return Vec::new();
     };
@@ -424,7 +449,7 @@ fn detect_os() -> String {
 
         const CREATE_NO_WINDOW: u32 = 0x08000000;
 
-        if let Ok(output) = std::process::Command::new("cmd")
+        if let Ok(output) = std::process::Command::new(crate::process::system_executable("cmd.exe"))
             .args(["/C", "ver"])
             .creation_flags(CREATE_NO_WINDOW)
             .output()

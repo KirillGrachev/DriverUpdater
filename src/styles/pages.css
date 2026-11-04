@@ -1050,3 +1050,18 @@
         padding-top: 18px;
     }
 }
+
+.scan-error {
+    margin: 18px 0 12px;
+}
+
+.notice-error {
+    border-color: color-mix(in srgb, var(--c-danger, #dc2626) 30%, var(--c-border));
+    background: color-mix(in srgb, var(--c-danger, #dc2626) 8%, var(--c-card));
+}
+
+.card-sub {
+    margin-top: 4px;
+    font-size: 12px;
+    color: var(--c-text-2);
+}

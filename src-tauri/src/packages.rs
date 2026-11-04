@@ -58,12 +58,14 @@ impl PackageManager for WingetPackageManager {
         if package_id == "Microsoft.WindowsFeature.NetFx3" {
             return Ok(vec!["3.5 SP1".to_string()]);
         }
-        let mut command = Command::new("winget");
+        let mut command = Command::new(winget_executable());
         command.args([
             "show",
             "--id",
             package_id,
             "--exact",
+            "--source",
+            "winget",
             "--versions",
             "--accept-source-agreements",
             "--disable-interactivity",
@@ -83,12 +85,14 @@ impl PackageManager for WingetPackageManager {
             return install_netfx3();
         }
 
-        let mut command = Command::new("winget");
+        let mut command = Command::new(winget_executable());
         command.args([
             "install",
             "--id",
             package_id,
             "--exact",
+            "--source",
+            "winget",
             "--version",
             version,
             "--silent",
@@ -129,6 +133,22 @@ pub fn parse_versions(output: &str) -> Vec<String> {
     versions
 }
 
+fn winget_executable() -> std::path::PathBuf {
+    let local = std::env::var_os("LOCALAPPDATA")
+        .map(std::path::PathBuf::from)
+        .map(|base| {
+            base.join("Microsoft")
+                .join("WindowsApps")
+                .join("winget.exe")
+        });
+    if let Some(path) = local {
+        if path.exists() {
+            return path;
+        }
+    }
+    std::path::PathBuf::from("winget.exe")
+}
+
 fn validate_package_id(package_id: &str) -> Result<(), String> {
     if ALLOWED_PACKAGES.contains(&package_id) {
         Ok(())
@@ -160,29 +180,9 @@ fn command_error(output: &process::ProcessOutput) -> String {
     last_line.chars().take(300).collect()
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn parses_version_table() {
-        let output =
-            "Found Python 3.12 [Python.Python.3.12]\nVersion\n-------\n3.12.10\n3.12.9\n3.12.9\n";
-        assert_eq!(parse_versions(output), vec!["3.12.10", "3.12.9"]);
-    }
-
-    #[test]
-    fn rejects_unknown_packages_and_versions() {
-        assert!(validate_package_id("Evil.Package").is_err());
-        assert!(validate_package_id("Python.Python.3.12").is_ok());
-        assert!(validate_version("3.12.10; rm -rf /").is_err());
-        assert!(validate_version("3.12.10").is_ok());
-    }
-}
-
 #[cfg(target_os = "windows")]
 fn install_netfx3() -> Result<(), String> {
-    let mut command = Command::new("dism.exe");
+    let mut command = Command::new(process::system_executable("dism.exe"));
     command.args([
         "/Online",
         "/Enable-Feature",
@@ -203,4 +203,24 @@ fn install_netfx3() -> Result<(), String> {
 #[cfg(not(target_os = "windows"))]
 fn install_netfx3() -> Result<(), String> {
     Err(".NET Framework 3.5 is available only on Windows".to_string())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn parses_version_table() {
+        let output =
+            "Found Python 3.12 [Python.Python.3.12]\nVersion\n-------\n3.12.10\n3.12.9\n3.12.9\n";
+        assert_eq!(parse_versions(output), vec!["3.12.10", "3.12.9"]);
+    }
+
+    #[test]
+    fn rejects_unknown_packages_and_versions() {
+        assert!(validate_package_id("Evil.Package").is_err());
+        assert!(validate_package_id("Python.Python.3.12").is_ok());
+        assert!(validate_version("3.12.10; rm -rf /").is_err());
+        assert!(validate_version("3.12.10").is_ok());
+    }
 }

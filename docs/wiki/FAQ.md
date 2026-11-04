@@ -2,8 +2,11 @@
 
 ## Are driver updates real?
 
-Driver and software inventory is real. Driver update installation is still a
-simulated repository flow. Component installation through winget is real.
+Driver and software inventory is real. Driver updates are discovered and
+installed through the Windows Update Agent. Restore points and driver-package
+backups use the real Windows APIs. Component installation through winget is real.
+Windows Update is the only driver source for now; vendor-specific databases are
+not integrated yet.
 
 ## Why does a driver show "No data" for its size?
 
@@ -34,8 +37,8 @@ Settings -> Interface language. The choice is saved immediately. The app ships
 ## My driver scan is empty or takes too long
 
 The scan uses PowerShell/CIM and has a 20-second timeout. Make sure PowerShell
-is available, then run a new scan from Home or Drivers. A failed scan falls back
-to the cached/fixture data instead of blocking the UI.
+is available, then run a new scan from Home or Drivers. A failed scan leaves the inventory empty and shows the error instead of
+presenting demo data.
 
 ## Can I install a version that winget does not list?
 

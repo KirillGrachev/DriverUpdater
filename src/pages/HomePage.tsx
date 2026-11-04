@@ -18,6 +18,7 @@ export function HomePage() {
 
     const recommended = data.drivers.filter((d) => d.status === 'update').slice(0, 3);
     const hasUpdates = data.summary.updatesAvailable > 0;
+    const hasChecked = Boolean(data.summary.lastCheck);
     const when = formatRelativeDay(data.summary.lastCheck, locale, t);
 
     return (
@@ -25,7 +26,15 @@ export function HomePage() {
             <section className="hero">
                 <div className="hero-text">
                     <h1 className="hero-title">
-                        {hasUpdates ? (
+                        {data.scanError ? (
+                            <>{t('home.titleError')}</>
+                        ) : !hasChecked ? (
+                            <>
+                                {t('home.titleNew1')}
+                                <br />
+                                {t('home.titleNew2')}
+                            </>
+                        ) : hasUpdates ? (
                             <>
                                 {t('home.titleUpd1')}
                                 <br />
@@ -40,9 +49,13 @@ export function HomePage() {
                         )}
                     </h1>
                     <p className="hero-sub">
-                        {hasUpdates
-                            ? t('home.subUpdates', { n: data.summary.updatesAvailable, when })
-                            : t('home.subOk', { when })}
+                        {data.scanError
+                            ? t('common.scanErrorHint')
+                            : !hasChecked
+                              ? t('home.subNever')
+                              : hasUpdates
+                                ? t('home.subUpdates', { n: data.summary.updatesAvailable, when })
+                                : t('home.subOk', { when })}
                     </p>
                 </div>
             </section>

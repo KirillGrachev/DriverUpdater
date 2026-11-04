@@ -4,10 +4,13 @@
 //! writes more than the pipe buffer therefore cannot block forever while the
 //! timeout is being waited on.</p>
 
+use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
 
 use wait_timeout::ChildExt;
+
+const MAX_CAPTURED_OUTPUT: usize = 4 * 1024 * 1024;
 
 /// Captured result of a finished child process.
 pub struct ProcessOutput {
@@ -41,12 +44,14 @@ pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, Str
     let stdout_reader = std::thread::spawn(move || read_pipe(stdout));
     let stderr_reader = std::thread::spawn(move || read_pipe(stderr));
 
+    let pid = child.id();
     let status = match child
         .wait_timeout(timeout)
         .map_err(|error| error.to_string())?
     {
         Some(status) => status,
         None => {
+            kill_process_tree(pid);
             let _ = child.kill();
             let _ = child.wait();
             let _ = stdout_reader.join();
@@ -68,7 +73,53 @@ pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, Str
 fn read_pipe(pipe: Option<impl std::io::Read>) -> String {
     let mut buffer = Vec::new();
     if let Some(mut pipe) = pipe {
-        let _ = pipe.read_to_end(&mut buffer);
+        let mut chunk = [0_u8; 8192];
+        loop {
+            match pipe.read(&mut chunk) {
+                Ok(0) | Err(_) => break,
+                Ok(read) => {
+                    if buffer.len() < MAX_CAPTURED_OUTPUT {
+                        let remaining = MAX_CAPTURED_OUTPUT - buffer.len();
+                        buffer.extend_from_slice(&chunk[..read.min(remaining)]);
+                    }
+                }
+            }
+        }
     }
     String::from_utf8_lossy(&buffer).into_owned()
 }
+
+/// Returns an absolute executable path under `%SystemRoot%`.
+pub fn system_executable(name: &str) -> PathBuf {
+    let root = std::env::var_os("SystemRoot")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"));
+    root.join("System32").join(name)
+}
+
+/// Runs PowerShell with an absolute executable path and no profile.
+#[cfg(target_os = "windows")]
+pub fn run_powershell(script: &str, timeout: Duration) -> Result<ProcessOutput, String> {
+    let mut command = Command::new(system_executable(r"WindowsPowerShell\v1.0\powershell.exe"));
+    command.args([
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        script,
+    ]);
+    run(command, timeout)
+}
+
+#[cfg(target_os = "windows")]
+fn kill_process_tree(pid: u32) {
+    let _ = Command::new(system_executable("taskkill.exe"))
+        .args(["/PID", &pid.to_string(), "/T", "/F"])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+}
+
+#[cfg(not(target_os = "windows"))]
+fn kill_process_tree(_pid: u32) {}

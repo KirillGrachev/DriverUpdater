@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconSettingsBell, IconSettingsClock, IconSettingsPalette, IconSettingsSync } from '../components/icons';
+import { IconSettingsClock, IconSettingsPalette, IconSettingsSync } from '../components/icons';
 import { Select, Segmented, Toggle } from '../components/ui';
 import { LocaleFlag } from '../components/Flags';
 import sunIcon from '../assets/icons/icon-sun.svg';
@@ -15,8 +15,6 @@ import databaseIcon from '../assets/icons/icon-database.svg';
 import databaseDarkIcon from '../assets/icons/icon-database-dark.svg';
 import folderIcon from '../assets/icons/icon-folder.svg';
 import folderDarkIcon from '../assets/icons/icon-folder-dark.svg';
-import chartIcon from '../assets/icons/icon-chart.svg';
-import chartDarkIcon from '../assets/icons/icon-chart-dark.svg';
 import { availableLocales } from '../i18n';
 import type { CheckInterval, Settings, ThemeMode } from '../ipc/types';
 import { useApp } from '../store/app';
@@ -117,17 +115,6 @@ export function SettingsPage() {
                         ]}
                     />
                 </Row>
-                <Row
-                    icon={<IconSettingsBell size={21} />}
-                    label={t('settings.notifications')}
-                    sub={t('settings.notifSub')}
-                >
-                    <Toggle
-                        checked={settings.notifications}
-                        onChange={(v) => update('notifications', v)}
-                        label={t('settings.notifications')}
-                    />
-                </Row>
             </Section>
 
             <Section title={t('settings.secUpdates')}>
@@ -203,20 +190,6 @@ export function SettingsPage() {
                             <ThemedIcon light={folderIcon} dark={folderDarkIcon} />
                         </button>
                     </div>
-                </Row>
-            </Section>
-
-            <Section title={t('settings.extra')}>
-                <Row
-                    icon={<ThemedIcon light={chartIcon} dark={chartDarkIcon} />}
-                    label={t('settings.telemetry')}
-                    sub={t('settings.telemetrySub')}
-                >
-                    <Toggle
-                        checked={settings.telemetry}
-                        onChange={(v) => update('telemetry', v)}
-                        label={t('settings.telemetry')}
-                    />
                 </Row>
             </Section>
         </div>

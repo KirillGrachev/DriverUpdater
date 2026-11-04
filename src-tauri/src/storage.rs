@@ -5,6 +5,7 @@
 //! use a temporary file plus rename so a crash cannot truncate the state.</p>
 
 use std::fs;
+use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use serde::de::DeserializeOwned;
@@ -14,10 +15,17 @@ use crate::models::{Driver, RestorePoint, Settings};
 use crate::security;
 
 /// Mutable state persisted between application launches.
+pub const SCHEMA_VERSION: u32 = 2;
+
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct PersistedState {
+    #[serde(default)]
+    pub version: u32,
+    #[serde(default)]
     pub drivers: Vec<Driver>,
+    #[serde(default)]
     pub restore_points: Vec<RestorePoint>,
+    #[serde(default)]
     pub settings: Settings,
     pub last_check: Option<String>,
     #[serde(default)]
@@ -41,17 +49,28 @@ impl EncryptedStore {
     }
 
     /// Loads and decrypts a document, migrating legacy plaintext on success.
-    pub fn load<T: DeserializeOwned + Serialize>(&self) -> Option<T> {
-        let path = self.path.as_ref()?;
-        let payload = fs::read(path).ok()?;
+    ///
+    /// A missing file is `Ok(None)`. Read, decryption and parse failures are
+    /// returned so the caller can surface corruption instead of silently
+    /// replacing user data with defaults.
+    pub fn load<T: DeserializeOwned + Serialize>(&self) -> Result<Option<T>, String> {
+        let Some(path) = self.path.as_ref() else {
+            return Ok(None);
+        };
+        let payload = match fs::read(path) {
+            Ok(payload) => payload,
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => return Ok(None),
+            Err(error) => return Err(format!("failed to read state: {error}")),
+        };
         let was_sealed = security::is_sealed(&payload);
-        let plaintext = security::open(&payload).ok()?;
-        let value = serde_json::from_slice(&plaintext).ok()?;
+        let plaintext = security::open(&payload)?;
+        let value = serde_json::from_slice(&plaintext)
+            .map_err(|error| format!("state is not valid JSON: {error}"))?;
 
         if !was_sealed {
-            let _ = self.save(&value);
+            self.save(&value)?;
         }
-        Some(value)
+        Ok(Some(value))
     }
 
     /// Encrypts and atomically writes a document.
@@ -67,15 +86,14 @@ impl EncryptedStore {
         }
 
         let temporary = path.with_extension("json.tmp");
-        fs::write(&temporary, sealed).map_err(|error| error.to_string())?;
-        if fs::rename(&temporary, path).is_err() {
-            fs::write(
-                path,
-                fs::read(&temporary).map_err(|error| error.to_string())?,
-            )
-            .map_err(|error| error.to_string())?;
-            let _ = fs::remove_file(temporary);
-        }
+        let mut file = fs::File::create(&temporary).map_err(|error| error.to_string())?;
+        file.write_all(&sealed).map_err(|error| error.to_string())?;
+        file.sync_all().map_err(|error| error.to_string())?;
+        drop(file);
+        fs::rename(&temporary, path).map_err(|error| {
+            let _ = fs::remove_file(&temporary);
+            format!("failed to replace state atomically: {error}")
+        })?;
         Ok(())
     }
 }
@@ -97,14 +115,16 @@ impl DriverCache {
     }
 
     /// Loads a non-empty cached driver list.
-    pub fn load(&self) -> Option<Vec<Driver>> {
-        let drivers: Vec<Driver> = self.store.load()?;
-        (!drivers.is_empty()).then_some(drivers)
+    pub fn load(&self) -> Result<Option<Vec<Driver>>, String> {
+        let Some(drivers) = self.store.load::<Vec<Driver>>()? else {
+            return Ok(None);
+        };
+        Ok((!drivers.is_empty()).then_some(drivers))
     }
 
     /// Replaces the cache with the latest scan.
-    pub fn save(&self, drivers: &[Driver]) {
-        let _ = self.store.save(&drivers);
+    pub fn save(&self, drivers: &[Driver]) -> Result<(), String> {
+        self.store.save(&drivers)
     }
 }
 
@@ -132,7 +152,7 @@ mod tests {
         #[cfg(target_os = "windows")]
         assert!(crate::security::is_sealed(&raw));
 
-        let loaded: serde_json::Value = store.load().expect("load");
+        let loaded: serde_json::Value = store.load().expect("load").expect("state");
         assert_eq!(loaded, expected);
         let _ = fs::remove_dir_all(directory);
     }

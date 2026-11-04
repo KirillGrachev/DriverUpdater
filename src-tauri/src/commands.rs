@@ -47,7 +47,8 @@ where
 #[tauri::command]
 pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
     run_repository(state, |repository| {
-        repository.ensure_fresh();
+        let _ = repository.ensure_fresh();
+        let _ = repository.reload_restore_points();
         Ok(repository.snapshot())
     })
     .await
@@ -55,7 +56,7 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
 
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
-    run_repository(state, |repository| Ok(repository.check_updates())).await
+    run_repository(state, |repository| repository.check_updates()).await
 }
 
 #[tauri::command]
@@ -75,7 +76,11 @@ pub async fn install_updates(
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<RestorePoint>, String> {
-    run_repository(state, |repository| Ok(repository.restore_points())).await
+    run_repository(state, |repository| {
+        repository.reload_restore_points()?;
+        Ok(repository.restore_points())
+    })
+    .await
 }
 
 #[tauri::command]
@@ -84,7 +89,7 @@ pub async fn create_restore_point(
     name: LocalizedText,
 ) -> Result<RestorePoint, String> {
     run_repository(state, move |repository| {
-        Ok(repository.create_restore_point(name))
+        repository.create_restore_point(name)
     })
     .await
 }
@@ -111,10 +116,7 @@ pub async fn save_settings(
     settings: Settings,
 ) -> Result<Settings, String> {
     validate_settings(&settings)?;
-    run_repository(state, move |repository| {
-        Ok(repository.save_settings(settings))
-    })
-    .await
+    run_repository(state, move |repository| repository.save_settings(settings)).await
 }
 
 /// Rejects values the UI never produces, so a compromised or buggy webview
@@ -157,7 +159,7 @@ pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), S
 
 fn open_folder(path: &Path) -> Result<(), String> {
     let mut command = if cfg!(target_os = "windows") {
-        let mut cmd = Command::new("explorer");
+        let mut cmd = Command::new(crate::process::system_executable("explorer.exe"));
         cmd.arg(path);
         cmd
     } else if cfg!(target_os = "macos") {
@@ -249,7 +251,43 @@ pub async fn save_installed_components(
     ids: Vec<String>,
 ) -> Result<Vec<String>, String> {
     run_repository(state, move |repository| {
-        Ok(repository.save_installed_components(ids))
+        repository.save_installed_components(ids)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn list_driver_backups(
+    state: State<'_, AppRepository>,
+) -> Result<Vec<crate::backup::DriverBackup>, String> {
+    run_repository(state, |repository| repository.list_driver_backups()).await
+}
+
+#[tauri::command]
+pub async fn create_driver_backup(
+    state: State<'_, AppRepository>,
+) -> Result<crate::backup::DriverBackup, String> {
+    run_repository(state, |repository| repository.create_driver_backup()).await
+}
+
+#[tauri::command]
+pub async fn restore_driver_backup(
+    state: State<'_, AppRepository>,
+    id: String,
+) -> Result<(), String> {
+    run_repository(state, move |repository| {
+        repository.restore_driver_backup(&id)
+    })
+    .await
+}
+
+#[tauri::command]
+pub async fn delete_driver_backup(
+    state: State<'_, AppRepository>,
+    id: String,
+) -> Result<(), String> {
+    run_repository(state, move |repository| {
+        repository.delete_driver_backup(&id)
     })
     .await
 }

@@ -69,11 +69,11 @@ fn protect(data: &[u8]) -> Result<Vec<u8>, String> {
         CryptProtectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
     };
 
-    let mut input = CRYPT_INTEGER_BLOB {
+    let input = CRYPT_INTEGER_BLOB {
         cbData: data.len() as u32,
         pbData: data.as_ptr() as *mut u8,
     };
-    let mut entropy = CRYPT_INTEGER_BLOB {
+    let entropy = CRYPT_INTEGER_BLOB {
         cbData: ENTROPY.len() as u32,
         pbData: ENTROPY.as_ptr() as *mut u8,
     };
@@ -84,9 +84,9 @@ fn protect(data: &[u8]) -> Result<Vec<u8>, String> {
 
     let ok = unsafe {
         CryptProtectData(
-            &mut input,
+            &input,
             std::ptr::null(),
-            &mut entropy,
+            &entropy,
             std::ptr::null(),
             std::ptr::null(),
             CRYPTPROTECT_UI_FORBIDDEN,
@@ -112,11 +112,11 @@ fn unprotect(data: &[u8]) -> Result<Vec<u8>, String> {
         CryptUnprotectData, CRYPTPROTECT_UI_FORBIDDEN, CRYPT_INTEGER_BLOB,
     };
 
-    let mut input = CRYPT_INTEGER_BLOB {
+    let input = CRYPT_INTEGER_BLOB {
         cbData: data.len() as u32,
         pbData: data.as_ptr() as *mut u8,
     };
-    let mut entropy = CRYPT_INTEGER_BLOB {
+    let entropy = CRYPT_INTEGER_BLOB {
         cbData: ENTROPY.len() as u32,
         pbData: ENTROPY.as_ptr() as *mut u8,
     };
@@ -127,9 +127,9 @@ fn unprotect(data: &[u8]) -> Result<Vec<u8>, String> {
 
     let ok = unsafe {
         CryptUnprotectData(
-            &mut input,
+            &input,
             std::ptr::null_mut(),
-            &mut entropy,
+            &entropy,
             std::ptr::null(),
             std::ptr::null(),
             CRYPTPROTECT_UI_FORBIDDEN,
