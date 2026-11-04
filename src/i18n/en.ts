@@ -95,6 +95,8 @@ const en: Dictionary = {
         installing: 'Installing…',
         installed: 'Installed',
         installedToast: 'Installed: {name}',
+        confirmLargeTitle: 'Install a large component?',
+        confirmLargeText: '“{name}” is about {size} MB and can take several minutes. Continue?',
         checking: 'Checking installed components…',
         groupDotnet: '.NET',
         groupNative: 'Native libraries',

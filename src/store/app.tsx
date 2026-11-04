@@ -37,6 +37,7 @@ interface AppState {
     bootError: string | null;
     scanning: boolean;
     installingIds: string[];
+    packageInstalling: string[];
     busyRestorePoints: string[];
     busyDeletePoints: string[];
     toasts: Toast[];
@@ -93,6 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         bootError: null,
         scanning: false,
         installingIds: [],
+        packageInstalling: [],
         busyRestorePoints: [],
         busyDeletePoints: [],
         toasts: [],
@@ -555,7 +557,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const installPackage = useCallback(async (packageId: string, version: string) => {
         const backend = backendRef.current;
         if (!backend) throw new Error('backend is not available');
-        await backend.installPackage(packageId, version);
+        setState((prev) =>
+            prev.packageInstalling.includes(packageId)
+                ? prev
+                : { ...prev, packageInstalling: [...prev.packageInstalling, packageId] },
+        );
+        try {
+            await backend.installPackage(packageId, version);
+            detectedComponentsRef.current = null;
+        } finally {
+            setState((prev) => ({
+                ...prev,
+                packageInstalling: prev.packageInstalling.filter((id) => id !== packageId),
+            }));
+        }
     }, []);
 
     const listDriverBackups = useCallback(async () => {

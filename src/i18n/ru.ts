@@ -107,6 +107,8 @@ const ru: Dictionary = {
         installing: 'Установка…',
         installed: 'Установлено',
         installedToast: 'Установлено: {name}',
+        confirmLargeTitle: 'Установить крупный компонент?',
+        confirmLargeText: '«{name}» занимает около {size} МБ и может устанавливаться несколько минут. Продолжить?',
         checking: 'Проверяем установленные компоненты…',
         groupDotnet: '.NET',
         groupNative: 'Нативные библиотеки',

@@ -36,12 +36,14 @@ export function ComponentsPage() {
         saveInstalledComponents,
         listPackageVersions,
         installPackage,
+        packageInstalling,
+        openModal,
+        closeModal,
     } = useApp();
     const [installed, setInstalled] = useState<Set<string>>(() => new Set());
     const [installedVersions, setInstalledVersions] = useState<Record<string, string>>({});
     const [selected, setSelected] = useState<Record<string, string>>(defaultSelection);
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
-    const [installing, setInstalling] = useState<string[]>([]);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
     const [ready, setReady] = useState(false);
 
@@ -105,9 +107,8 @@ export function ComponentsPage() {
     }, [listPackageVersions]);
 
     const install = async (item: AppComponent) => {
-        if (!item.wingetId || installing.includes(item.id)) return;
+        if (!item.wingetId || packageInstalling.includes(item.wingetId)) return;
         const version = selected[item.id] || item.defaultVersion;
-        setInstalling((prev) => [...prev, item.id]);
         try {
             await installPackage(item.wingetId, version);
             const next = new Set(installed);
@@ -124,9 +125,25 @@ export function ComponentsPage() {
             const message =
                 typeof error === 'string' ? error : error instanceof Error ? error.message : t('toasts.error');
             pushToast(message, 'error');
-        } finally {
-            setInstalling((prev) => prev.filter((id) => id !== item.id));
         }
+    };
+
+    const requestInstall = (item: AppComponent) => {
+        if ((item.sizeMb ?? 0) >= 1000) {
+            openModal({
+                title: t('components.confirmLargeTitle'),
+                text: t('components.confirmLargeText', { name: item.name, size: item.sizeMb ?? 0 }),
+                confirmLabel: t('components.install'),
+                cancelLabel: t('backups.confirmCancel'),
+                tone: 'primary',
+                onConfirm: async () => {
+                    closeModal();
+                    await install(item);
+                },
+            });
+            return;
+        }
+        void install(item);
     };
 
     return (
@@ -165,7 +182,7 @@ export function ComponentsPage() {
                                         const installedVersion = detectedVersion || installedVersions[item.id];
                                         const value = selected[item.id] || installedVersion || item.defaultVersion;
                                         const isInstalled = installed.has(item.id);
-                                        const isInstalling = installing.includes(item.id);
+                                        const isInstalling = packageInstalling.includes(item.wingetId ?? '');
                                         const options = versions[item.id] ?? item.versions;
                                         return (
                                             <Fragment key={item.id}>
@@ -235,7 +252,7 @@ export function ComponentsPage() {
                                                             size="sm"
                                                             icon={<IconDownload size={15} />}
                                                             loading={isInstalling}
-                                                            onClick={() => void install(item)}
+                                                            onClick={() => requestInstall(item)}
                                                         >
                                                             {isInstalling
                                                                 ? t('components.installing')
