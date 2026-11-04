@@ -51,6 +51,8 @@ interface AppContextValue extends AppState {
     applyLanguage: (language: string) => Promise<void>;
     openBackupFolder: () => Promise<void>;
     detectInstalledComponents: () => Promise<InstalledComponent[]>;
+    getInstalledComponents: () => Promise<string[]>;
+    saveInstalledComponents: (ids: string[]) => Promise<void>;
     pushToast: (text: string, tone?: Toast['tone']) => void;
     dismissToast: (id: number) => void;
     openModal: (modal: ConfirmModal) => void;
@@ -483,6 +485,26 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const getInstalledComponents = useCallback(async () => {
+        const backend = backendRef.current;
+        if (!backend) return [];
+        try {
+            return await backend.getInstalledComponents();
+        } catch {
+            return [];
+        }
+    }, []);
+
+    const saveInstalledComponents = useCallback(async (ids: string[]) => {
+        const backend = backendRef.current;
+        if (!backend) return;
+        try {
+            await backend.saveInstalledComponents(ids);
+        } catch {
+            /* The toast host reports user-facing failures elsewhere. */
+        }
+    }, []);
+
     /**
      * Theme is previewed and persisted immediately, so the switch feels alive
      * without having to press "Save" first.
@@ -531,6 +553,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             applyLanguage,
             openBackupFolder,
             detectInstalledComponents,
+            getInstalledComponents,
+            saveInstalledComponents,
             pushToast,
             dismissToast,
             openModal,
@@ -553,6 +577,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             applyLanguage,
             openBackupFolder,
             detectInstalledComponents,
+            getInstalledComponents,
+            saveInstalledComponents,
             pushToast,
             dismissToast,
             openModal,

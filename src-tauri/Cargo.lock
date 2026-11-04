@@ -844,6 +844,7 @@ dependencies = [
  "tauri-build",
  "tauri-plugin-opener",
  "wait-timeout",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

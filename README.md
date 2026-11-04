@@ -224,8 +224,11 @@ src/
   styles/                    tokens, base, components, pages
 
 src-tauri/src/
-  commands.rs                typed Tauri commands and input validation
-  repository.rs              driver detection, fixtures, state and restore points
+  commands.rs                typed Tauri commands, validation and blocking-pool boundary
+  repository.rs              application service and in-memory state
+  detection.rs               detector traits and the native Windows adapters
+  storage.rs                 encrypted state and driver-cache persistence
+  security.rs                DPAPI sealing for files at rest
   models.rs                  serde models mirroring src/ipc/types.ts
   lib.rs                     Tauri setup, window icon, backup folder metadata
 
@@ -277,9 +280,36 @@ is not listed yet.
 
 ## Privacy
 
+### Local data protection
+
+Persisted application data is encrypted at rest with Windows DPAPI in the
+current-user scope. The payload is additionally bound to the application
+identifier through DPAPI entropy. A copied profile, a file taken from another
+Windows account, or an offline disk image cannot be decrypted with this app
+alone.
+
+Encrypted files:
+
+- `mock-state.json`: settings, driver inventory, restore points and component
+  state;
+- `installed-drivers.json`: the last driver scan cache.
+
+Legacy plaintext files are read once and rewritten in encrypted form. Writes use
+a temporary file plus rename to avoid truncated state after a crash.
+
+DPAPI raises the cost of offline data theft. It does **not** stop malware already
+running as the same logged-in user: that user can ask DPAPI to decrypt the files.
+Full disk encryption, a clean machine and OS-level account security remain part
+of the threat model.
+
 - Driver and software inventory is read locally.
-- Settings, restore points and component state are stored under the app data
-  directory and, for the browser preview, in `localStorage`.
+- Settings, driver cache, restore points and component state are stored as
+  DPAPI-sealed files under the app data directory. The files are bound to the
+  current Windows user with an application-specific entropy value.
+- The browser preview uses `localStorage`; it contains only fixture state and is
+  never used by the desktop build.
+- Theme preference is the only desktop `localStorage` value; it contains a
+  single word (`light`, `dark` or `system`).
 - Anonymous telemetry is **off by default**. The setting only records a local
   preference until a telemetry endpoint is implemented.
 - External links open in the system browser. The app does not embed a browser

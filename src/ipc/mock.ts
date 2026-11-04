@@ -25,6 +25,7 @@ interface MockState {
     restorePoints: RestorePoint[];
     settings: Settings;
     lastCheck: string | null;
+    installedComponents: string[];
 }
 
 const sleep = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
@@ -37,6 +38,7 @@ function defaultState(): MockState {
         restorePoints: clone(restoreFixture) as RestorePoint[],
         settings: clone(settingsFixture) as Settings,
         lastCheck: new Date().toISOString(),
+        installedComponents: [],
     };
 }
 
@@ -60,6 +62,9 @@ function loadState(): MockState {
             restorePoints: parsed.restorePoints,
             settings: parsed.settings as Settings,
             lastCheck: typeof parsed.lastCheck === 'string' ? parsed.lastCheck : null,
+            installedComponents: Array.isArray(parsed.installedComponents)
+                ? parsed.installedComponents.filter((id): id is string => typeof id === 'string')
+                : [],
         };
     } catch {
         return defaultState();
@@ -199,6 +204,16 @@ export class MockBackend implements Backend {
 
     async detectInstalledComponents(): Promise<InstalledComponent[]> {
         return [];
+    }
+
+    async getInstalledComponents(): Promise<string[]> {
+        return [...this.state.installedComponents];
+    }
+
+    async saveInstalledComponents(ids: string[]): Promise<string[]> {
+        this.state.installedComponents = [...new Set(ids.filter(Boolean))];
+        this.persist();
+        return [...this.state.installedComponents];
     }
 
     async getSystemInfo(): Promise<SystemInfo> {

@@ -1,6 +1,9 @@
 mod commands;
+mod detection;
 mod models;
 mod repository;
+mod security;
+mod storage;
 
 use commands::AppRepository;
 use repository::DriverRepository;
@@ -87,6 +90,8 @@ pub fn run() {
             commands::open_backup_folder,
             commands::open_external_url,
             commands::detect_installed_components,
+            commands::get_installed_components,
+            commands::save_installed_components,
             commands::get_system_info,
             commands::compute_summary
         ])

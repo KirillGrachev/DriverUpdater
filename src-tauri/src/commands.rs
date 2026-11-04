@@ -9,11 +9,12 @@ use std::sync::{Arc, Mutex};
 
 use tauri::State;
 
+use crate::detection::detect_system_info;
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
     SystemInfo,
 };
-use crate::repository::{detect_system_info, DriverRepository};
+use crate::repository::DriverRepository;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 
@@ -228,11 +229,28 @@ fn open_in_running_browser(url: &str) -> bool {
 }
 
 #[tauri::command]
-pub async fn detect_installed_components() -> Result<Vec<crate::models::InstalledComponent>, String>
-{
-    tauri::async_runtime::spawn_blocking(crate::repository::detect_installed_components)
-        .await
-        .map_err(|error| error.to_string())
+pub async fn detect_installed_components(
+    state: State<'_, AppRepository>,
+) -> Result<Vec<crate::models::InstalledComponent>, String> {
+    run_repository(state, |repository| Ok(repository.detect_components())).await
+}
+
+#[tauri::command]
+pub async fn get_installed_components(
+    state: State<'_, AppRepository>,
+) -> Result<Vec<String>, String> {
+    run_repository(state, |repository| Ok(repository.installed_components())).await
+}
+
+#[tauri::command]
+pub async fn save_installed_components(
+    state: State<'_, AppRepository>,
+    ids: Vec<String>,
+) -> Result<Vec<String>, String> {
+    run_repository(state, move |repository| {
+        Ok(repository.save_installed_components(ids))
+    })
+    .await
 }
 
 #[tauri::command]

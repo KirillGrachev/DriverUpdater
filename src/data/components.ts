@@ -135,26 +135,3 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         installedByDefault: false,
     },
 ];
-
-const STORAGE_KEY = 'driver-updater.components.v1';
-
-export function loadInstalledComponents(): Set<string> {
-    const defaults = COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => item.id);
-    try {
-        const raw = localStorage.getItem(STORAGE_KEY);
-        if (!raw) return new Set(defaults);
-        const saved = JSON.parse(raw) as unknown;
-        if (!Array.isArray(saved)) return new Set(defaults);
-        return new Set([...defaults, ...saved.filter((id): id is string => typeof id === 'string')]);
-    } catch {
-        return new Set(defaults);
-    }
-}
-
-export function saveInstalledComponents(ids: Set<string>): void {
-    try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify([...ids]));
-    } catch {
-        /** Storage is optional in the preview. */
-    }
-}

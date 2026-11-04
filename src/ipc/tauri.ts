@@ -57,6 +57,14 @@ export class TauriBackend implements Backend {
         return invoke<InstalledComponent[]>('detect_installed_components');
     }
 
+    getInstalledComponents(): Promise<string[]> {
+        return invoke<string[]>('get_installed_components');
+    }
+
+    saveInstalledComponents(ids: string[]): Promise<string[]> {
+        return invoke<string[]>('save_installed_components', { ids });
+    }
+
     getSystemInfo(): Promise<SystemInfo> {
         return invoke<SystemInfo>('get_system_info');
     }

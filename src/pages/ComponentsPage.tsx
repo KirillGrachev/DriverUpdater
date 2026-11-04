@@ -1,13 +1,7 @@
 import { useEffect, useState } from 'react';
 import { IconCheck, IconDownload, IconPackage } from '../components/icons';
 import { Button, Spinner } from '../components/ui';
-import {
-    COMPONENT_CATALOG,
-    loadInstalledComponents,
-    saveInstalledComponents,
-    type AppComponent,
-    type ComponentGroup,
-} from '../data/components';
+import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup } from '../data/components';
 import type { InstalledComponent } from '../ipc/types';
 import { useApp } from '../store/app';
 
@@ -18,24 +12,29 @@ const GROUPS: { id: ComponentGroup; titleKey: string }[] = [
 ];
 
 export function ComponentsPage() {
-    const { t, pushToast, detectInstalledComponents } = useApp();
-    const [installed, setInstalled] = useState<Set<string>>(loadInstalledComponents);
+    const { t, pushToast, detectInstalledComponents, getInstalledComponents, saveInstalledComponents } = useApp();
+    const [installed, setInstalled] = useState<Set<string>>(
+        () => new Set(COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => item.id)),
+    );
     const [installing, setInstalling] = useState<string[]>([]);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
     const [ready, setReady] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
-        void detectInstalledComponents()
-            .then((list) => {
-                if (cancelled || list.length === 0) return;
-                setInstalled((prev) => {
-                    const next = new Set(prev);
-                    for (const component of list) next.add(component.id);
-                    saveInstalledComponents(next);
-                    return next;
-                });
-                setDetected(Object.fromEntries(list.map((component) => [component.id, component])));
+        void Promise.all([detectInstalledComponents(), getInstalledComponents()])
+            .then(([detectedComponents, persistedIds]) => {
+                if (cancelled) return;
+                const next = new Set(
+                    COMPONENT_CATALOG.filter((item) => item.installedByDefault).map((item) => item.id),
+                );
+                for (const id of persistedIds) next.add(id);
+                for (const component of detectedComponents) next.add(component.id);
+                setInstalled(next);
+                setDetected(Object.fromEntries(detectedComponents.map((component) => [component.id, component])));
+                if (detectedComponents.length > 0) {
+                    void saveInstalledComponents([...next]);
+                }
             })
             .finally(() => {
                 if (!cancelled) setReady(true);
@@ -43,18 +42,16 @@ export function ComponentsPage() {
         return () => {
             cancelled = true;
         };
-    }, [detectInstalledComponents]);
+    }, [detectInstalledComponents, getInstalledComponents, saveInstalledComponents]);
 
     const install = (item: AppComponent) => {
         if (installing.includes(item.id) || installed.has(item.id)) return;
         setInstalling((prev) => [...prev, item.id]);
         window.setTimeout(() => {
-            setInstalled((prev) => {
-                const next = new Set(prev);
-                next.add(item.id);
-                saveInstalledComponents(next);
-                return next;
-            });
+            const next = new Set(installed);
+            next.add(item.id);
+            setInstalled(next);
+            void saveInstalledComponents([...next]);
             setInstalling((prev) => prev.filter((id) => id !== item.id));
             pushToast(t('components.installedToast', { name: item.name }), 'success');
         }, 900);

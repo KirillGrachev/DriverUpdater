@@ -31,6 +31,8 @@ export interface Backend {
     saveSettings(settings: Settings): Promise<Settings>;
     openBackupFolder(): Promise<void>;
     detectInstalledComponents(): Promise<InstalledComponent[]>;
+    getInstalledComponents(): Promise<string[]>;
+    saveInstalledComponents(ids: string[]): Promise<string[]>;
     getSystemInfo(): Promise<SystemInfo>;
     computeSummary(drivers: Driver[]): Promise<Summary>;
 }
