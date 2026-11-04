@@ -10,6 +10,7 @@
 //! DPAPI keys are available to that user by design. It does protect backups,
 //! copied profiles and other users on the same PC.</p>
 
+#[cfg(target_os = "windows")]
 use std::ffi::c_void;
 
 /// File prefix that distinguishes sealed data from a legacy plaintext file.

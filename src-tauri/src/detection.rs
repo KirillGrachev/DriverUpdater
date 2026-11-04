@@ -4,11 +4,17 @@
 //! repository depends on the traits below, not on PowerShell, which keeps the
 //! service testable and the native boundary explicit.</p>
 
+#[cfg(target_os = "windows")]
 use std::collections::HashSet;
+#[cfg(target_os = "windows")]
 use std::hash::{Hash, Hasher};
+#[cfg(target_os = "windows")]
 use std::time::Duration;
 
-use crate::models::{Driver, InstalledComponent, LocalizedText, SystemInfo};
+#[cfg(target_os = "windows")]
+use crate::models::LocalizedText;
+use crate::models::{Driver, InstalledComponent, SystemInfo};
+#[cfg(target_os = "windows")]
 use crate::process;
 
 /// Detects installed device drivers.
@@ -403,7 +409,7 @@ pub fn detect_system_info() -> SystemInfo {
 fn detect_os() -> String {
     #[cfg(target_os = "linux")]
     {
-        if let Ok(raw) = fs::read_to_string("/etc/os-release") {
+        if let Ok(raw) = std::fs::read_to_string("/etc/os-release") {
             for line in raw.lines() {
                 if let Some(value) = line.strip_prefix("PRETTY_NAME=") {
                     return value.trim_matches('"').to_string();
