@@ -30,10 +30,10 @@
 
 > [!NOTE]
 > **Project status: early.** Driver and software inventory is read from the real
-> Windows system. Update and component installation still go through a repository
-> layer with simulated package delivery while the Windows package backend is
-> being completed. The UI and IPC contracts are already shaped for the final
-> backend.
+> Windows system. Driver update installation still goes through the simulated
+> repository layer while the Windows package backend is completed. Component
+> installation is real: it uses Windows Package Manager (winget) and supports
+> choosing a version.
 
 ---
 
@@ -96,7 +96,8 @@ telemetry is opt-in and disabled by default.
   <tr>
     <td width="50%" valign="top">
       <h3>Components without a scavenger hunt</h3>
-      <p>A focused catalogue of runtimes and tools: .NET, Visual C++, Python, Node.js, OpenJDK, Go, Rust, PHP, Git, CMake, DirectX and more. Installed versions are detected from the registry and shown next to the package that provides them.</p>
+      <p>A version-aware catalogue of runtimes and tools: .NET Framework, .NET Desktop Runtime 6/8/9, Visual C++, DirectX, Visual Studio 2022 editions, Python 3.10-3.13, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.4, Git, CMake and 7-Zip.</p>
+      <p>Each row exposes the versions available from winget. Installed versions are detected from the registry; chosen versions are installed through the Windows Package Manager.</p>
     </td>
     <td width="50%" valign="top">
       <h3>Desktop behaviour, not a website</h3>
@@ -111,6 +112,21 @@ The Windows installer embeds the full WebView2 offline installer and runs it
 before the app first launches. The MSVC runtime is linked statically. A clean
 Windows 10/11 machine does not need a network connection during setup and does
 not need a separate Visual C++ Redistributable.
+
+### Component installation
+
+Components use winget and need the **App Installer** (`winget`) from the
+Microsoft Store. If winget is unavailable, the components page reports the
+failure instead of pretending the package was installed.
+
+- The version selector is populated from `winget show --versions`; the bundled
+  list is only a fallback while that request is in flight.
+- Installing Visual Studio, .NET runtimes or DirectX can take several minutes,
+  needs a network connection and may show a Windows UAC prompt.
+- The Rust allowlist in `src-tauri/src/packages.rs` restricts package ids; the
+  webview cannot ask winget to install an arbitrary package.
+- OpenGL has no standalone runtime package. It is provided by the GPU driver, so
+  the page explains that instead of offering a fake installer.
 
 ---
 
@@ -312,6 +328,7 @@ of the threat model.
   single word (`light`, `dark` or `system`).
 - Anonymous telemetry is **off by default**. The setting only records a local
   preference until a telemetry endpoint is implemented.
+- Component installs download packages from the configured winget sources.
 - External links open in the system browser. The app does not embed a browser
   or load remote content.
 

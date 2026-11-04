@@ -104,6 +104,10 @@ const ru: Dictionary = {
         installed: 'Установлено',
         installedToast: 'Установлено: {name}',
         checking: 'Проверяем установленные компоненты…',
+        version: 'Версия',
+        loading: 'Загрузка…',
+        managed: 'Управляется драйвером',
+        openglNote: 'Поставляется драйвером видеокарты',
     },
     updates: {
         title: 'Обновления',

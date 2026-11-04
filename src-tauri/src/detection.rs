@@ -9,6 +9,7 @@ use std::hash::{Hash, Hasher};
 use std::time::Duration;
 
 use crate::models::{Driver, InstalledComponent, LocalizedText, SystemInfo};
+use crate::process;
 
 /// Detects installed device drivers.
 pub trait DriverDetector: Send + Sync {
@@ -103,58 +104,24 @@ fn normalize_driver_date(raw: &str) -> String {
     String::new()
 }
 
-/// Runs a Windows PowerShell script with a hard timeout and no console window.
-///
-/// The output is drained on a separate thread so a large CIM/registry payload
-/// cannot fill the pipe and deadlock the child while the timeout is pending.
+/// Runs a Windows PowerShell script with a hard timeout.
 ///
 /// @param script PowerShell command text
 /// @param timeout maximum wall-clock time for the child process
-/// @returns UTF-8 stdout on success, or `None` on timeout/failure
+/// @returns stdout on success, or `None` on timeout/failure
 #[cfg(target_os = "windows")]
-
 fn run_powershell(script: &str, timeout: Duration) -> Option<String> {
-    use std::io::Read;
-    use std::os::windows::process::CommandExt;
-    use std::process::{Command, Stdio};
-    use wait_timeout::ChildExt;
-
-    const CREATE_NO_WINDOW: u32 = 0x08000000;
-
-    let mut child = Command::new("powershell.exe")
-        .args([
-            "-NoProfile",
-            "-NonInteractive",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-Command",
-            script,
-        ])
-        .creation_flags(CREATE_NO_WINDOW)
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .spawn()
-        .ok()?;
-
-    let mut stdout = child.stdout.take()?;
-    let reader = std::thread::spawn(move || {
-        let mut buffer = Vec::new();
-        stdout.read_to_end(&mut buffer).ok().map(|_| buffer)
-    });
-
-    let status = child.wait_timeout(timeout).ok().flatten();
-    let Some(status) = status else {
-        let _ = child.kill();
-        let _ = child.wait();
-        let _ = reader.join();
-        return None;
-    };
-
-    let bytes = reader.join().ok().flatten()?;
-    if !status.success() {
-        return None;
-    }
-    String::from_utf8(bytes).ok()
+    let mut command = std::process::Command::new("powershell.exe");
+    command.args([
+        "-NoProfile",
+        "-NonInteractive",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-Command",
+        script,
+    ]);
+    let output = process::run(command, timeout).ok()?;
+    output.success.then_some(output.stdout)
 }
 
 #[cfg(target_os = "windows")]
@@ -244,34 +211,81 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
-fn component_id_for(display_name: &str) -> Option<&'static str> {
+fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
+    let parts: Vec<u32> = version
+        .split(|character: char| !character.is_ascii_digit())
+        .filter(|part| !part.is_empty())
+        .filter_map(|part| part.parse::<u32>().ok())
+        .collect();
+    let major = parts.first().copied().unwrap_or(0);
+    let minor = parts.get(1).copied().unwrap_or(0);
+
     if name.contains("7-zip") {
-        Some("seven-zip-24")
+        Some("seven-zip")
     } else if name.contains("python") {
-        Some("python-3-12")
+        match (major, minor) {
+            (3, 10) => Some("python-3-10"),
+            (3, 11) => Some("python-3-11"),
+            (3, 12) => Some("python-3-12"),
+            (3, 13) => Some("python-3-13"),
+            _ => None,
+        }
     } else if name.contains("node.js") {
-        Some("nodejs-22")
+        match major {
+            20 => Some("nodejs-20"),
+            22 => Some("nodejs-22"),
+            _ => None,
+        }
     } else if name.contains("openjdk") || name.contains("adoptium") || name.contains("temurin") {
-        Some("openjdk-21")
+        match major {
+            17 => Some("openjdk-17"),
+            21 => Some("openjdk-21"),
+            25 => Some("openjdk-25"),
+            _ => None,
+        }
+    } else if name.contains("desktop runtime") || name.contains("windows desktop runtime") {
+        match major {
+            6 => Some("dotnet-desktop-6"),
+            8 => Some("dotnet-desktop-8"),
+            9 => Some("dotnet-desktop-9"),
+            _ => None,
+        }
     } else if name.contains("go programming language") || name == "go" {
-        Some("go-1-23")
+        Some("go")
     } else if name.contains("rustup") || (name.contains("rust") && name.contains("toolchain")) {
-        Some("rust-1-81")
+        Some("rust")
     } else if name.contains("php ") {
-        Some("php-8-3")
+        match (major, minor) {
+            (8, 2) => Some("php-8-2"),
+            (8, 3) => Some("php-8-3"),
+            (8, 4) => Some("php-8-4"),
+            _ => None,
+        }
     } else if name == "git" || name.starts_with("git version") || name.starts_with("git ") {
-        Some("git-2-46")
+        Some("git")
     } else if name.contains("cmake") {
-        Some("cmake-3-30")
+        Some("cmake")
     } else if name.contains("visual c++") && name.contains("redistributable") {
-        Some("vcredist-2015-2022")
+        if name.contains("x86") {
+            Some("vcredist-x86")
+        } else {
+            Some("vcredist-x64")
+        }
     } else if name.contains(".net") && name.contains("framework") {
-        Some("dotnet-framework-4-8")
-    } else if name.contains("windows desktop runtime") || name.contains("microsoft .net runtime") {
-        Some("dotnet-desktop-8")
+        Some("dotnet-framework")
+    } else if name.contains("visual studio") {
+        if name.contains("community") {
+            Some("visual-studio-community")
+        } else if name.contains("professional") {
+            Some("visual-studio-professional")
+        } else if name.contains("enterprise") {
+            Some("visual-studio-enterprise")
+        } else {
+            None
+        }
     } else if name.contains("directx") {
-        Some("directx-end-user")
+        Some("directx")
     } else {
         None
     }
@@ -317,21 +331,20 @@ pub fn detect_installed_components() -> Vec<InstalledComponent> {
             .and_then(serde_json::Value::as_str)
             .unwrap_or_default()
             .trim();
-        let Some(id) = component_id_for(display_name) else {
+        let version = row
+            .get("DisplayVersion")
+            .and_then(serde_json::Value::as_str)
+            .map(str::trim)
+            .filter(|value| !value.is_empty())
+            .map(ToString::to_string)
+            .or_else(|| extract_version(display_name))
+            .unwrap_or_default();
+        let Some(id) = component_id_for(display_name, &version) else {
             continue;
         };
         if !seen.insert(id) {
             continue;
         }
-        let version = extract_version(display_name)
-            .or_else(|| {
-                row.get("DisplayVersion")
-                    .and_then(serde_json::Value::as_str)
-                    .map(str::trim)
-                    .filter(|value| !value.is_empty())
-                    .map(ToString::to_string)
-            })
-            .unwrap_or_default();
         let install_location = row
             .get("InstallLocation")
             .and_then(serde_json::Value::as_str)
@@ -467,15 +480,21 @@ mod tests {
     #[test]
     fn maps_known_components() {
         assert_eq!(
-            component_id_for("Python 3.12.4 (64-bit)"),
+            component_id_for("Python 3.12.4 (64-bit)", "3.12.4"),
             Some("python-3-12")
         );
-        assert_eq!(component_id_for("7-Zip 24.09 (x64)"), Some("seven-zip-24"));
         assert_eq!(
-            component_id_for("Microsoft Visual C++ 2015-2022 Redistributable"),
-            Some("vcredist-2015-2022")
+            component_id_for("7-Zip 24.09 (x64)", "24.09"),
+            Some("seven-zip")
         );
-        assert_eq!(component_id_for("Unrelated Tool"), None);
+        assert_eq!(
+            component_id_for(
+                "Microsoft Visual C++ 2015-2022 Redistributable (x64)",
+                "14.44.35211"
+            ),
+            Some("vcredist-x64")
+        );
+        assert_eq!(component_id_for("Unrelated Tool", "1.0.0"), None);
     }
 
     #[test]

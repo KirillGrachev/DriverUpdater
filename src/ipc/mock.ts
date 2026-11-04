@@ -2,6 +2,7 @@ import driversFixture from '../../shared/fixtures/drivers.json';
 import metaFixture from '../../shared/fixtures/meta.json';
 import restoreFixture from '../../shared/fixtures/restore_points.json';
 import settingsFixture from '../../shared/fixtures/settings.json';
+import { COMPONENT_CATALOG } from '../data/components';
 import type { Backend } from './backend';
 import type {
     CheckUpdatesResult,
@@ -214,6 +215,14 @@ export class MockBackend implements Backend {
         this.state.installedComponents = [...new Set(ids.filter(Boolean))];
         this.persist();
         return [...this.state.installedComponents];
+    }
+
+    async listPackageVersions(packageId: string): Promise<string[]> {
+        return COMPONENT_CATALOG.find((item) => item.wingetId === packageId)?.versions ?? [];
+    }
+
+    async installPackage(): Promise<void> {
+        await sleep(700);
     }
 
     async getSystemInfo(): Promise<SystemInfo> {

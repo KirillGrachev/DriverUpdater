@@ -33,6 +33,8 @@ export interface Backend {
     detectInstalledComponents(): Promise<InstalledComponent[]>;
     getInstalledComponents(): Promise<string[]>;
     saveInstalledComponents(ids: string[]): Promise<string[]>;
+    listPackageVersions(packageId: string): Promise<string[]>;
+    installPackage(packageId: string, version: string): Promise<void>;
     getSystemInfo(): Promise<SystemInfo>;
     computeSummary(drivers: Driver[]): Promise<Summary>;
 }

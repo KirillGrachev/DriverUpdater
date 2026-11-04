@@ -50,9 +50,11 @@ interface AppContextValue extends AppState {
     applyTheme: (theme: ThemeMode) => Promise<void>;
     applyLanguage: (language: string) => Promise<void>;
     openBackupFolder: () => Promise<void>;
-    detectInstalledComponents: () => Promise<InstalledComponent[]>;
+    detectInstalledComponents: (force?: boolean) => Promise<InstalledComponent[]>;
     getInstalledComponents: () => Promise<string[]>;
     saveInstalledComponents: (ids: string[]) => Promise<void>;
+    listPackageVersions: (packageId: string) => Promise<string[]>;
+    installPackage: (packageId: string, version: string) => Promise<void>;
     pushToast: (text: string, tone?: Toast['tone']) => void;
     dismissToast: (id: number) => void;
     openModal: (modal: ConfirmModal) => void;
@@ -471,8 +473,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }, [pushToast, locale]);
 
-    const detectInstalledComponents = useCallback(async () => {
-        if (detectedComponentsRef.current) return detectedComponentsRef.current;
+    const detectInstalledComponents = useCallback(async (force = false) => {
+        if (!force && detectedComponentsRef.current) return detectedComponentsRef.current;
         const backend = backendRef.current;
         if (!backend) return [];
         try {
@@ -503,6 +505,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         } catch {
             /* The toast host reports user-facing failures elsewhere. */
         }
+    }, []);
+
+    const listPackageVersions = useCallback(async (packageId: string) => {
+        const backend = backendRef.current;
+        if (!backend) return [];
+        try {
+            return await backend.listPackageVersions(packageId);
+        } catch {
+            return [];
+        }
+    }, []);
+
+    const installPackage = useCallback(async (packageId: string, version: string) => {
+        const backend = backendRef.current;
+        if (!backend) throw new Error('backend is not available');
+        await backend.installPackage(packageId, version);
     }, []);
 
     /**
@@ -555,6 +573,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             detectInstalledComponents,
             getInstalledComponents,
             saveInstalledComponents,
+            listPackageVersions,
+            installPackage,
             pushToast,
             dismissToast,
             openModal,
@@ -579,6 +599,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             detectInstalledComponents,
             getInstalledComponents,
             saveInstalledComponents,
+            listPackageVersions,
+            installPackage,
             pushToast,
             dismissToast,
             openModal,

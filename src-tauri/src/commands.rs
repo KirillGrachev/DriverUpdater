@@ -14,6 +14,7 @@ use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
     SystemInfo,
 };
+use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
@@ -279,4 +280,22 @@ pub async fn compute_summary(
         })
     })
     .await
+}
+
+#[tauri::command]
+pub async fn list_package_versions(package_id: String) -> Result<Vec<String>, String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::packages::WingetPackageManager.versions(&package_id)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
+
+#[tauri::command]
+pub async fn install_package(package_id: String, version: String) -> Result<(), String> {
+    tauri::async_runtime::spawn_blocking(move || {
+        crate::packages::WingetPackageManager.install(&package_id, &version)
+    })
+    .await
+    .map_err(|error| error.to_string())?
 }

@@ -162,6 +162,7 @@ export function Select<T extends string>({
     icon,
     className = '',
     ariaLabel,
+    onOpen,
 }: {
     value: T;
     onChange: (next: T) => void;
@@ -169,6 +170,7 @@ export function Select<T extends string>({
     icon?: ReactNode;
     className?: string;
     ariaLabel?: string;
+    onOpen?: () => void;
 }) {
     const [open, setOpen] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
@@ -176,6 +178,7 @@ export function Select<T extends string>({
 
     const toggle = () => {
         if (!open) {
+            onOpen?.();
             const root = rootRef.current;
             const scroller = root?.closest('.app-main') as HTMLElement | null;
             const rect = root?.getBoundingClientRect();

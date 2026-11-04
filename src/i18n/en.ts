@@ -92,6 +92,10 @@ const en: Dictionary = {
         installed: 'Installed',
         installedToast: 'Installed: {name}',
         checking: 'Checking installed components…',
+        version: 'Version',
+        loading: 'Loading…',
+        managed: 'Driver-managed',
+        openglNote: 'Provided by your GPU driver',
     },
     updates: {
         title: 'Updates',

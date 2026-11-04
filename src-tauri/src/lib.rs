@@ -1,6 +1,8 @@
 mod commands;
 mod detection;
 mod models;
+mod packages;
+mod process;
 mod repository;
 mod security;
 mod storage;
@@ -92,6 +94,8 @@ pub fn run() {
             commands::detect_installed_components,
             commands::get_installed_components,
             commands::save_installed_components,
+            commands::list_package_versions,
+            commands::install_package,
             commands::get_system_info,
             commands::compute_summary
         ])

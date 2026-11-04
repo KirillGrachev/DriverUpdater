@@ -61,6 +61,8 @@ General bugs without a security impact belong in the normal issue tracker.
   plugin; the Rust command validates the scheme again.
 - Settings received over IPC are validated against the allowed theme, interval
   and restore-point period values.
+- Component installation accepts only ids from the Rust winget allowlist and
+  validates version strings before spawning winget.
 - Persisted settings, driver inventory, restore points and component state are
   sealed with Windows DPAPI (current-user scope) and application entropy.
 - The webview has devtools, drag-and-drop, zoom hotkeys and browser shortcuts
