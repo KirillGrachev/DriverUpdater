@@ -1,4 +1,5 @@
 export type ComponentGroup = 'runtime' | 'language' | 'tool';
+export type ComponentSubgroup = 'dotnet' | 'native' | 'studio';
 
 export interface AppComponent {
     id: string;
@@ -6,6 +7,7 @@ export interface AppComponent {
     name: string;
     vendor: string;
     group: ComponentGroup;
+    subgroup?: ComponentSubgroup;
     versions: string[];
     defaultVersion: string;
     sizeMb?: number;
@@ -23,6 +25,7 @@ export interface AppComponent {
 export const COMPONENT_CATALOG: AppComponent[] = [
     {
         id: 'dotnet-framework',
+        subgroup: 'dotnet',
         wingetId: 'Microsoft.DotNet.Framework.DeveloperPack_4',
         name: '.NET Framework',
         vendor: 'Microsoft',
@@ -33,7 +36,19 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         installedByDefault: true,
     },
     {
+        id: 'dotnet-framework-3-5',
+        subgroup: 'dotnet',
+        wingetId: 'Microsoft.WindowsFeature.NetFx3',
+        name: '.NET Framework 3.5',
+        vendor: 'Microsoft Windows feature',
+        group: 'runtime',
+        versions: ['3.5 SP1'],
+        defaultVersion: '3.5 SP1',
+        sizeMb: 200,
+    },
+    {
         id: 'dotnet-desktop-6',
+        subgroup: 'dotnet',
         wingetId: 'Microsoft.DotNet.DesktopRuntime.6',
         name: '.NET Desktop Runtime 6',
         vendor: 'Microsoft',
@@ -44,6 +59,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'dotnet-desktop-8',
+        subgroup: 'dotnet',
         wingetId: 'Microsoft.DotNet.DesktopRuntime.8',
         name: '.NET Desktop Runtime 8',
         vendor: 'Microsoft',
@@ -55,6 +71,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'dotnet-desktop-9',
+        subgroup: 'dotnet',
         wingetId: 'Microsoft.DotNet.DesktopRuntime.9',
         name: '.NET Desktop Runtime 9',
         vendor: 'Microsoft',
@@ -65,6 +82,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'directx',
+        subgroup: 'native',
         wingetId: 'Microsoft.DirectX',
         name: 'DirectX End-User Runtime',
         vendor: 'Microsoft',
@@ -76,6 +94,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'vcredist-x64',
+        subgroup: 'native',
         wingetId: 'Microsoft.VCRedist.2015+.x64',
         name: 'Visual C++ Redistributable (x64)',
         vendor: 'Microsoft',
@@ -87,6 +106,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'vcredist-x86',
+        subgroup: 'native',
         wingetId: 'Microsoft.VCRedist.2015+.x86',
         name: 'Visual C++ Redistributable (x86)',
         vendor: 'Microsoft',
@@ -97,6 +117,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'opengl',
+        subgroup: 'native',
         name: 'OpenGL',
         vendor: 'GPU driver',
         group: 'runtime',
@@ -106,6 +127,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'visual-studio-community',
+        subgroup: 'studio',
         wingetId: 'Microsoft.VisualStudio.2022.Community',
         name: 'Visual Studio Community 2022',
         vendor: 'Microsoft',
@@ -116,6 +138,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'visual-studio-professional',
+        subgroup: 'studio',
         wingetId: 'Microsoft.VisualStudio.2022.Professional',
         name: 'Visual Studio Professional 2022',
         vendor: 'Microsoft',
@@ -126,6 +149,7 @@ export const COMPONENT_CATALOG: AppComponent[] = [
     },
     {
         id: 'visual-studio-enterprise',
+        subgroup: 'studio',
         wingetId: 'Microsoft.VisualStudio.2022.Enterprise',
         name: 'Visual Studio Enterprise 2022',
         vendor: 'Microsoft',

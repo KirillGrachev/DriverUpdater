@@ -96,7 +96,7 @@ telemetry is opt-in and disabled by default.
   <tr>
     <td width="50%" valign="top">
       <h3>Components without a scavenger hunt</h3>
-      <p>A version-aware catalogue of runtimes and tools: .NET Framework, .NET Desktop Runtime 6/8/9, Visual C++, DirectX, Visual Studio 2022 editions, Python 3.10-3.13, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.4, Git, CMake and 7-Zip.</p>
+      <p>A version-aware catalogue of runtimes and tools: .NET Framework 3.5/4.x, .NET Desktop Runtime 6/8/9, Visual C++, DirectX, Visual Studio 2022 editions, Python 3.10-3.13, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.4, Git, CMake and 7-Zip.</p>
       <p>Each row exposes the versions available from winget. Installed versions are detected from the registry; chosen versions are installed through the Windows Package Manager.</p>
     </td>
     <td width="50%" valign="top">

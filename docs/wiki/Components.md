@@ -5,7 +5,7 @@
 The Components page exposes package families with selectable versions:
 
 - Visual Studio Community, Professional and Enterprise 2022;
-- .NET Framework Developer Pack;
+- .NET Framework 3.5 (Windows optional feature) and the 4.x Developer Pack;
 - .NET Desktop Runtime 6, 8 and 9;
 - DirectX End-User Runtime;
 - Visual C++ Redistributable x64 and x86;
@@ -22,8 +22,10 @@ Opening a version selector runs:
 winget show --id <package> --exact --versions
 ```
 
-The list is cached for the current page session. The bundled list is a fallback
-while winget responds; it is not a claim that those versions are still available.
+The list is requested when the Components page first loads, with four bounded
+workers, so the selectors do not wait for an individual dropdown. The bundled
+list is a fallback while winget responds; it is not a claim that those versions
+are still available.
 
 ## Installation
 
