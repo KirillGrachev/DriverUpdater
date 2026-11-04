@@ -24,7 +24,7 @@ depending on the selected install scope.
 ## Where is data stored?
 
 Under the current user's app data directory. Settings, driver data, restore
-points and component ids are DPAPI-sealed. See [[Security and Privacy]].
+points and component ids are DPAPI-sealed. See [Security and Privacy](https://github.com/KirillGrachev/DriverUpdater/wiki/Security-and-Privacy).
 
 ## How do I change the language?
 

@@ -43,4 +43,4 @@ legacy plaintext state is migrated once and rewritten.
 The desktop build has devtools disabled by design. Reproduce the issue with a
 clear description, the exact steps and the Windows version, then open a bug
 report. For security issues use the private advisory link in
-[[Security and Privacy]].
+[Security and Privacy](https://github.com/KirillGrachev/DriverUpdater/wiki/Security-and-Privacy).

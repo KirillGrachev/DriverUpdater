@@ -6,7 +6,7 @@ included or required at runtime.
 ## Fonts
 
 **Montserrat** is distributed under the SIL Open Font License 1.1. The license
-text is included at [src/assets/fonts/OFL.txt](src/assets/fonts/OFL.txt).
+text is included at [src/assets/fonts/OFL.txt](../src/assets/fonts/OFL.txt).
 
 ## Flags
 

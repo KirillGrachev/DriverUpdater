@@ -13,7 +13,7 @@ param(
 
 $ErrorActionPreference = "Stop"
 $repo = "https://github.com/KirillGrachev/DriverUpdater.wiki.git"
-$source = Join-Path $PSScriptRoot "..\wiki"
+$source = Join-Path $PSScriptRoot "..\docs\wiki"
 $temp = Join-Path $env:TEMP ("driver-updater-wiki-" + [guid]::NewGuid().ToString("N"))
 
 if (-not (Test-Path $source)) {

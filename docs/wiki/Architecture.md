@@ -63,4 +63,4 @@ Component installation has a 45-minute timeout because Visual Studio and the
 
 The repository stores settings, drivers, restore points and component ids in
 one document. The driver cache is a separate document. Both are encrypted before
-they reach disk; see [[Security and Privacy]].
+they reach disk; see [Security and Privacy](https://github.com/KirillGrachev/DriverUpdater/wiki/Security-and-Privacy).

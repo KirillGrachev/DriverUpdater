@@ -4,7 +4,7 @@ contact_links:
     url: https://github.com/KirillGrachev/DriverUpdater/security/advisories/new
     about: Report security issues privately instead of opening a public issue.
   - name: Contributing guide
-    url: https://github.com/KirillGrachev/DriverUpdater/blob/main/CONTRIBUTING.md
+    url: https://github.com/KirillGrachev/DriverUpdater/blob/main/docs/CONTRIBUTING.md
     about: Setup, style, tests and pull request checklist.
   - name: Questions and ideas
     url: https://github.com/KirillGrachev/DriverUpdater/issues

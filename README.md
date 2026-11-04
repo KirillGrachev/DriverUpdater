@@ -355,10 +355,20 @@ CI runs Prettier, typecheck, unit tests, the Vite build, `cargo fmt`, `cargo che
 
 ---
 
+## Documentation
+
+- [Wiki source](docs/wiki/Home.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Security policy](docs/SECURITY.md)
+- [Code of Conduct](docs/CODE_OF_CONDUCT.md)
+- [Third-party notices](docs/THIRD_PARTY_NOTICES.md)
+
+The rendered wiki is at https://github.com/KirillGrachev/DriverUpdater/wiki.
+
 ## Contributing
 
 Read the [wiki](https://github.com/KirillGrachev/DriverUpdater/wiki),
-[CONTRIBUTING.md](CONTRIBUTING.md) before opening a pull request. In short:
+[CONTRIBUTING.md](docs/CONTRIBUTING.md) before opening a pull request. In short:
 
 - keep TypeScript strict and run `npm run typecheck`;
 - format with `npm run format` (Prettier + `cargo fmt`);
@@ -374,7 +384,7 @@ Bug reports and feature requests use the issue templates in
 ## Security
 
 Please do not open a public issue for a vulnerability. See
-[SECURITY.md](SECURITY.md) for the reporting process and scope.
+[SECURITY.md](docs/SECURITY.md) for the reporting process and scope.
 
 ---
 

@@ -46,5 +46,5 @@ vulnerability reporting on the repository:
 
 https://github.com/KirillGrachev/DriverUpdater/security/advisories/new
 
-See [SECURITY.md](https://github.com/KirillGrachev/DriverUpdater/blob/main/SECURITY.md)
+See [SECURITY.md](https://github.com/KirillGrachev/DriverUpdater/blob/main/docs/SECURITY.md)
 for the full scope and response process.
