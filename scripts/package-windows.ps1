@@ -68,8 +68,8 @@ foreach ($bundleRoot in $bundleRoots) {
     }
 }
 
-$checksumFile = Join-Path $output "SHA256SUMS.txt"
-Get-ChildItem $output -File | Where-Object { $_.Name -ne "SHA256SUMS.txt" } | Sort-Object Name | ForEach-Object {
+$checksumFile = Join-Path $output "SHA256SUMS-windows-$arch.txt"
+Get-ChildItem $output -File | Where-Object { $_.Name -notlike "SHA256SUMS-*" } | Sort-Object Name | ForEach-Object {
     $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
     "$hash  $($_.Name)"
 } | Set-Content $checksumFile -Encoding ASCII

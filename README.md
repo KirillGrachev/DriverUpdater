@@ -208,13 +208,20 @@ npm install
 npm run tauri dev
 ```
 
-Create a production build and the NSIS installer:
+Create a production build and installers for the native architecture:
 
 ```powershell
 npm run tauri build -- --bundles nsis
 ```
 
-The installer is written to:
+For a specific Windows target:
+
+```powershell
+npm run tauri -- build --target aarch64-pc-windows-msvc --bundles msi nsis
+npm run tauri -- build --target i686-pc-windows-msvc --bundles msi nsis
+```
+
+The installers are written to:
 
 ```text
 src-tauri/target/release/bundle/nsis/
