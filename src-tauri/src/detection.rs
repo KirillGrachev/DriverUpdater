@@ -168,6 +168,10 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
         }
         let manufacturer = text(row, "Manufacturer");
         let device_id = text(row, "DeviceID");
+        let hardware_ids = text_list(row, "HardwareID");
+        if is_ignored_device(&device_id, &hardware_ids) {
+            continue;
+        }
         let stable_key = if device_id.is_empty() {
             format!("{name}|{version}|{manufacturer}")
         } else {
@@ -221,7 +225,7 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
                 en: format!("Installed device driver for {name}."),
             },
             device_id,
-            hardware_ids: text_list(row, "HardwareID"),
+            hardware_ids,
             inf_name: text(row, "InfName"),
             update_id: None,
             reboot_required: false,
@@ -242,6 +246,25 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
 }
 
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+/// Driver Booster-style filter for devices that cannot receive a useful driver update.
+fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
+    const IGNORED: &[&str] = &[
+        "ACPI\\FIXEDBUTTON",
+        "ACPIAPIC",
+        "GENCDROM",
+        "GENDISK",
+        "UMB\\UMBUS",
+        "DETECTEDINTERNAL\\ACPI_HAL",
+        "DETECTED\\ACPI_HAL",
+    ];
+    let mut values = vec![device_id.to_ascii_uppercase()];
+    values.extend(hardware_ids.iter().map(|value| value.to_ascii_uppercase()));
+    values
+        .iter()
+        .any(|value| IGNORED.iter().any(|ignored| value.starts_with(ignored)))
+}
+
+/* Component mapping starts here. */
 fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
     let parts: Vec<u32> = version
@@ -509,6 +532,16 @@ mod tests {
     #[test]
     fn rejects_invalid_dates() {
         assert_eq!(normalize_driver_date("not a date"), "");
+    }
+
+    #[test]
+    fn filters_firmware_pseudo_devices() {
+        assert!(is_ignored_device("ACPI\\FIXEDBUTTON\\2&DABA3FF&0", &[]));
+        assert!(is_ignored_device("", &["GENDISK".to_string()]));
+        assert!(!is_ignored_device(
+            "PCI\\VEN_10DE&DEV_2F04",
+            &["PCI\\VEN_10DE&DEV_2F04".to_string()]
+        ));
     }
 
     #[test]
