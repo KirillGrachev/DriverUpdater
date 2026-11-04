@@ -1,0 +1,84 @@
+/* Design tokens — replicated from the designer mockups (light + dark). */
+
+:root {
+  --c-primary: #2f7bf6;
+  --c-primary-strong: #1e6ae5;
+  --c-primary-soft: #e2ecfd;
+  --c-primary-softer: #edf3fd;
+
+  --c-success: #12b76a;
+  --c-success-soft: #d8f2e5;
+  --c-warn: #f79009;
+  --c-warn-soft: #fdeed2;
+  --c-danger: #ef4444;
+  --c-danger-soft: #fde4e4;
+
+  --c-text: #131c30;
+  --c-text-2: #5c6b87;
+  --c-text-3: #93a0b7;
+
+  --c-bg: #eef1f7;
+  --c-surface: #f5f7fb;
+  --c-sidebar: #f1f4fa;
+  --c-card: #fcfdff;
+  --c-card-2: #f6f8fc;
+  --c-control: #eceff5;
+  --c-border: #e3e8f1;
+  --c-border-2: #edf0f7;
+
+  --shadow-1: 0 1px 2px rgba(23, 32, 64, 0.05);
+  --shadow-2: 0 16px 40px rgba(23, 32, 64, 0.16);
+
+  --radius-lg: 16px;
+  --radius-md: 12px;
+  --radius-sm: 10px;
+
+  /* illustration palette */
+  --illu-blob-a: #dfe9fb;
+  --illu-blob-b: #eaf1fd;
+  --illu-screen-a: #ffffff;
+  --illu-screen-b: #dbe6f8;
+  --illu-stroke: #5b6b8c;
+  --illu-base: #c6d4ea;
+  --illu-base-dark: #aebfd9;
+  --illu-surface: #f5f7fb;
+}
+
+[data-theme='dark'] {
+  --c-primary: #3b82f6;
+  --c-primary-strong: #5b95ff;
+  --c-primary-soft: #17273f;
+  --c-primary-softer: #131e30;
+
+  --c-success: #34d399;
+  --c-success-soft: #10322a;
+  --c-warn: #fbbf24;
+  --c-warn-soft: #37290f;
+  --c-danger: #f87171;
+  --c-danger-soft: #3d1a1a;
+
+  --c-text: #e8edf6;
+  --c-text-2: #a3b0c6;
+  --c-text-3: #75839c;
+
+  --c-bg: #0b101b;
+  --c-surface: #101623;
+  --c-sidebar: #0e1420;
+  --c-card: #151c2b;
+  --c-card-2: #192132;
+  --c-control: #222b3d;
+  --c-border: #253048;
+  --c-border-2: #1d2637;
+
+  --shadow-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-2: 0 16px 40px rgba(0, 0, 0, 0.55);
+
+  --illu-blob-a: #182338;
+  --illu-blob-b: #141d2e;
+  --illu-screen-a: #1c2537;
+  --illu-screen-b: #16202f;
+  --illu-stroke: #7d8ba3;
+  --illu-base: #2c3a52;
+  --illu-base-dark: #223048;
+  --illu-surface: #101623;
+}
