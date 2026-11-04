@@ -19,7 +19,6 @@ npm run dev
 
 - four spaces, no tabs;
 - Prettier and `cargo fmt`;
-- JSDoc/Javadoc block comments for declarations;
 - strict TypeScript, no `any` at IPC boundaries;
 - Conventional Commits.
 

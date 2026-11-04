@@ -85,10 +85,6 @@ configs, then runs `cargo fmt`.
   projects, including BirthdayBot.
 - **TypeScript:** strict mode. Avoid `any`; prefer discriminated unions and
   `unknown` plus narrowing when data crosses the IPC boundary.
-- **Comments:** JSDoc/Javadoc block comments for declarations and non-obvious
-  branches. In TypeScript use `/** ... */` with `@param` and `@returns` where
-  they add information. In Rust use `///` and `//!`, the native Javadoc
-  equivalents; short inline notes stay `//`.
 - **Rust:** run `cargo fmt`; keep error messages lowercase and actionable.
 - **CSS:** design tokens from `src/styles/tokens.css`; no hard-coded colors in
   page CSS unless the value is a one-off asset color.
