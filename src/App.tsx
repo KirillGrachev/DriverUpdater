@@ -2,8 +2,10 @@ import { Sidebar } from './components/Sidebar';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
 import { Spinner } from './components/ui';
+import { BackupsPage } from './pages/BackupsPage';
 import { DriversPage } from './pages/DriversPage';
 import { HomePage } from './pages/HomePage';
+import { UpdatesPage } from './pages/UpdatesPage';
 import { useApp } from './store/app';
 
 function CurrentPage() {
@@ -13,6 +15,10 @@ function CurrentPage() {
       return <HomePage />;
     case 'drivers':
       return <DriversPage />;
+    case 'updates':
+      return <UpdatesPage />;
+    case 'backups':
+      return <BackupsPage />;
     default:
       return null;
   }
