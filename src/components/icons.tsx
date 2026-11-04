@@ -672,7 +672,7 @@ export const IconSettingsPalette = ({ size = 20, className }: IconProps) => (
 );
 
 export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
-    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+    <svg width={size} height={size} viewBox="20 50 216 180" fill="none" className={className} aria-hidden="true">
         <path
             d="M37 95c11-31 39-55 71-62 34-7 67 3 90 29"
             stroke="var(--settings-icon-accent)"
