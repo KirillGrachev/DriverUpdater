@@ -348,7 +348,7 @@ a {
  */
     scrollbar-width: none;
     -ms-overflow-style: none;
-    padding: 0 var(--content-pad-x) 26px;
+    padding: 0 var(--content-pad-x) 92px;
     background: var(--c-surface);
 }
 
@@ -360,12 +360,21 @@ a {
 /** Bottom dock. */
 
 .bottom-dock {
-    flex: 0 0 auto;
+    position: absolute;
+    left: 50%;
+    bottom: 10px;
+    z-index: 50;
     display: flex;
     align-items: center;
     justify-content: center;
     gap: 10px;
-    padding: 6px 20px 12px;
+    padding: 0;
+    transform: translateX(-50%);
+    pointer-events: none;
+}
+
+.bottom-dock > * {
+    pointer-events: auto;
 }
 
 .dock-about {
