@@ -6,6 +6,42 @@ use commands::AppRepository;
 use mock::MockRepository;
 use tauri::Manager;
 
+/// Give the backups folder the app icon in Explorer instead of the generic
+/// folder glyph. Windows reads this from desktop.ini and expects the folder
+/// itself to be marked read-only.
+#[cfg(target_os = "windows")]
+fn apply_backup_folder_icon(dir: &std::path::Path) {
+    use std::os::windows::process::CommandExt;
+
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+    let Ok(exe) = std::env::current_exe() else {
+        return;
+    };
+    let ini = format!(
+        "[.ShellClassInfo]\r\nIconResource={},0\r\n",
+        exe.display()
+    );
+    let mut bytes = vec![0xFF, 0xFE];
+    for unit in ini.encode_utf16() {
+        bytes.extend_from_slice(&unit.to_le_bytes());
+    }
+
+    let ini_path = dir.join("desktop.ini");
+    if std::fs::write(&ini_path, bytes).is_err() {
+        return;
+    }
+
+    let _ = std::process::Command::new("attrib")
+        .creation_flags(CREATE_NO_WINDOW)
+        .args(["+r", dir.to_string_lossy().as_ref()])
+        .status();
+    let _ = std::process::Command::new("attrib")
+        .creation_flags(CREATE_NO_WINDOW)
+        .args(["+h", "+s", ini_path.to_string_lossy().as_ref()])
+        .status();
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -21,6 +57,8 @@ pub fn run() {
                 .map(|base| base.join("DriverUpdater").join("Backups"))
                 .unwrap_or_else(|| state_dir.join("Backups"));
             let _ = std::fs::create_dir_all(&backup_dir);
+            #[cfg(target_os = "windows")]
+            apply_backup_folder_icon(&backup_dir);
             let repo = MockRepository::new(Some(state_dir.join("mock-state.json")), backup_dir);
             app.manage(AppRepository(std::sync::Mutex::new(repo)));
 
