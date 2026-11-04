@@ -1,37 +1,40 @@
 {
-  "name": "driver-updater",
-  "private": true,
-  "version": "1.0.0",
-  "description": "Driver Updater is a free open-source driver manager for Windows (Tauri + React)",
-  "author": "Kirill Grachev (https://github.com/KirillGrachev)",
-  "license": "MIT",
-  "type": "module",
-  "scripts": {
-    "dev": "vite",
-    "typecheck": "tsc --noEmit",
-    "build": "tsc --noEmit && vite build",
-    "preview": "vite preview",
-    "test": "vitest run",
-    "test:watch": "vitest",
-    "tauri": "tauri"
-  },
-  "dependencies": {
-    "@tauri-apps/api": "^2.5.0",
-    "@tauri-apps/plugin-opener": "^2.7.2",
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1"
-  },
-  "devDependencies": {
-    "@tauri-apps/cli": "^2.5.0",
-    "@types/react": "^18.3.12",
-    "@types/react-dom": "^18.3.1",
-    "@vitejs/plugin-react": "^4.4.1",
-    "flag-icons": "^7.6.0",
-    "typescript": "^5.7.2",
-    "vite": "^6.3.5",
-    "vitest": "^4.1.12"
-  },
-  "allowScripts": {
-    "esbuild@0.25.12": true
-  }
+    "name": "driver-updater",
+    "private": true,
+    "version": "1.0.0",
+    "description": "Driver Updater is a free open-source driver manager for Windows (Tauri + React)",
+    "author": "Kirill Grachev (https://github.com/KirillGrachev)",
+    "license": "MIT",
+    "type": "module",
+    "scripts": {
+        "dev": "vite",
+        "typecheck": "tsc --noEmit",
+        "build": "tsc --noEmit && vite build",
+        "preview": "vite preview",
+        "test": "vitest run",
+        "test:watch": "vitest",
+        "format": "prettier --write \"src/**/*.{ts,tsx,css}\" index.html vite.config.ts tsconfig.json package.json && cargo fmt --manifest-path src-tauri/Cargo.toml",
+        "format:check": "prettier --check \"src/**/*.{ts,tsx,css}\" index.html vite.config.ts tsconfig.json package.json",
+        "tauri": "tauri"
+    },
+    "dependencies": {
+        "@tauri-apps/api": "^2.5.0",
+        "@tauri-apps/plugin-opener": "^2.7.2",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    },
+    "devDependencies": {
+        "@tauri-apps/cli": "^2.5.0",
+        "@types/react": "^18.3.12",
+        "@types/react-dom": "^18.3.1",
+        "@vitejs/plugin-react": "^4.4.1",
+        "flag-icons": "^7.6.0",
+        "prettier": "^3.9.10",
+        "typescript": "^5.7.2",
+        "vite": "^6.3.5",
+        "vitest": "^4.1.12"
+    },
+    "allowScripts": {
+        "esbuild@0.25.12": true
+    }
 }

@@ -1,0 +1,8 @@
+node_modules
+dist
+src-tauri/target
+src-tauri/gen
+package-lock.json
+src/i18n/locales
+src/assets
+shared/fixtures

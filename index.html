@@ -1,80 +1,80 @@
 <!doctype html>
 <html lang="ru">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" type="image/png" href="/src/assets/branding/logo.png" />
-    <title>Driver Updater</title>
-    <script>
-      (function () {
-        var theme = 'light';
-        try {
-          var stored = localStorage.getItem('driver-updater.theme');
-          if (stored === 'dark' || stored === 'light') theme = stored;
-          else if (stored === 'system' || !stored) {
-            theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
-          }
-        } catch (error) {
-          /* localStorage can be unavailable in hardened webviews */
-        }
-        document.documentElement.dataset.theme = theme;
-        document.documentElement.style.colorScheme = theme;
-      })();
-    </script>
-    <style>
-      html,
-      body,
-      #root {
-        height: 100%;
-        margin: 0;
-        background: #f7f8fe;
-      }
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="icon" type="image/png" href="/src/assets/branding/logo.png" />
+        <title>Driver Updater</title>
+        <script>
+            (function () {
+                var theme = 'light';
+                try {
+                    var stored = localStorage.getItem('driver-updater.theme');
+                    if (stored === 'dark' || stored === 'light') theme = stored;
+                    else if (stored === 'system' || !stored) {
+                        theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+                    }
+                } catch {
+                    /** localStorage can be unavailable in hardened webviews. */
+                }
+                document.documentElement.dataset.theme = theme;
+                document.documentElement.style.colorScheme = theme;
+            })();
+        </script>
+        <style>
+            html,
+            body,
+            #root {
+                height: 100%;
+                margin: 0;
+                background: #f7f8fe;
+            }
 
-      html[data-theme='dark'],
-      html[data-theme='dark'] body,
-      html[data-theme='dark'] #root {
-        background: #0b101b;
-      }
+            html[data-theme='dark'],
+            html[data-theme='dark'] body,
+            html[data-theme='dark'] #root {
+                background: #0b101b;
+            }
 
-      body {
-        font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
-      }
+            body {
+                font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
+            }
 
-      #boot-static {
-        position: fixed;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        background: inherit;
-        color: #5b6781;
-      }
+            #boot-static {
+                position: fixed;
+                inset: 0;
+                display: grid;
+                place-items: center;
+                background: inherit;
+                color: #5b6781;
+            }
 
-      html[data-theme='dark'] #boot-static {
-        color: #a3b0c6;
-      }
+            html[data-theme='dark'] #boot-static {
+                color: #a3b0c6;
+            }
 
-      .boot-static-ring {
-        width: 32px;
-        height: 32px;
-        border-radius: 50%;
-        border: 3px solid currentColor;
-        border-top-color: transparent;
-        animation: boot-static-spin 0.85s linear infinite;
-        opacity: 0.7;
-      }
+            .boot-static-ring {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                border: 3px solid currentColor;
+                border-top-color: transparent;
+                animation: boot-static-spin 0.85s linear infinite;
+                opacity: 0.7;
+            }
 
-      @keyframes boot-static-spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div id="boot-static" aria-hidden="true">
-      <div class="boot-static-ring"></div>
-    </div>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+            @keyframes boot-static-spin {
+                to {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div id="boot-static" aria-hidden="true">
+            <div class="boot-static-ring"></div>
+        </div>
+        <div id="root"></div>
+        <script type="module" src="/src/main.tsx"></script>
+    </body>
 </html>

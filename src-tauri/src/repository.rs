@@ -1,11 +1,9 @@
-//! Mock driver repository.
+//! Fixture-backed repository with real Windows detection.
 //!
-//! TODO(real-hardware): replace with the actual detection backend.
-//! The repository is intentionally hidden behind plain methods so the
-//! command layer (`commands.rs`) does not care where the data comes from.
-//!
-//! Fixtures are shared with the webview: `shared/fixtures/*.json` is the
-//! single source of test data for both halves of the app.
+//! <p>The repository is hidden behind plain methods so the command layer
+//! ({@code commands.rs}) does not care where the data comes from. Fixtures are
+//! shared with the webview: {@code shared/fixtures/*.json} is the single source
+//! of test data for both halves of the app.</p>
 
 use std::collections::HashSet;
 use std::fs;
@@ -30,7 +28,7 @@ struct PersistedState {
     last_check: Option<String>,
 }
 
-pub struct MockRepository {
+pub struct DriverRepository {
     drivers: Vec<Driver>,
     restore_points: Vec<RestorePoint>,
     settings: Settings,
@@ -45,7 +43,7 @@ fn now_iso() -> String {
         .duration_since(UNIX_EPOCH)
         .map(|d| d.as_secs())
         .unwrap_or(0);
-    // RFC3339-ish UTC stamp; enough for test data.
+    // RFC3339-like UTC timestamp; precise enough for persisted test data.
     let (days, rem) = (secs / 86_400, secs % 86_400);
     let (hours, mins, sec) = (rem / 3600, (rem % 3600) / 60, rem % 60);
     let civil = days_to_civil(days);
@@ -55,7 +53,11 @@ fn now_iso() -> String {
     )
 }
 
-/// Days since 1970-01-01 -> (year, month, day); Howard Hinnant's algorithm.
+/// Converts days since 1970-01-01 to a civil date using Howard Hinnant's
+/// algorithm.
+///
+/// @param z days since the Unix epoch
+/// @return {@code (year, month, day)}
 fn days_to_civil(z: u64) -> (i64, u32, u32) {
     let z = z as i64 + 719_468;
     let era = if z >= 0 { z } else { z - 146_096 } / 146_097;
@@ -214,7 +216,8 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
-fn load_or_detect_drivers(state_file: Option<&std::path::Path>) -> Option<Vec<Driver>> {    let cache = state_file
+fn load_or_detect_drivers(state_file: Option<&std::path::Path>) -> Option<Vec<Driver>> {
+    let cache = state_file
         .and_then(|path| path.parent())
         .map(|dir| dir.join("installed-drivers.json"));
     if let Some(path) = &cache {
@@ -239,14 +242,14 @@ fn load_or_detect_drivers(state_file: Option<&std::path::Path>) -> Option<Vec<Dr
     Some(drivers)
 }
 
-impl MockRepository {
+impl DriverRepository {
     pub fn new(state_file: Option<PathBuf>, backup_dir: PathBuf) -> Self {
         let detected = load_or_detect_drivers(state_file.as_deref());
         let drivers: Vec<Driver> = detected.clone().unwrap_or_else(|| {
             serde_json::from_str(FIXTURE_DRIVERS).expect("drivers fixture must be valid")
         });
-        let restore_points: Vec<RestorePoint> =
-            serde_json::from_str(FIXTURE_RESTORE_POINTS).expect("restore points fixture must be valid");
+        let restore_points: Vec<RestorePoint> = serde_json::from_str(FIXTURE_RESTORE_POINTS)
+            .expect("restore points fixture must be valid");
         let mut settings: Settings =
             serde_json::from_str(FIXTURE_SETTINGS).expect("settings fixture must be valid");
 
@@ -308,11 +311,7 @@ impl MockRepository {
     }
 
     pub fn summary(&self) -> Summary {
-        let updates_available = self
-            .drivers
-            .iter()
-            .filter(|d| d.status == "update")
-            .count() as u32;
+        let updates_available = self.drivers.iter().filter(|d| d.status == "update").count() as u32;
         Summary {
             devices_total: self.devices_total,
             up_to_date: self.devices_total.saturating_sub(updates_available),
@@ -325,7 +324,8 @@ impl MockRepository {
         self.backup_dir.as_path()
     }
 
-    pub fn snapshot(&self) -> InitialData {        InitialData {
+    pub fn snapshot(&self) -> InitialData {
+        InitialData {
             drivers: self.drivers.clone(),
             restore_points: self.restore_points.clone(),
             settings: self.settings.clone(),
@@ -335,8 +335,8 @@ impl MockRepository {
     }
 
     pub fn check_updates(&mut self) -> CheckUpdatesResult {
-        // The test backend rescans the machine so newly connected devices and
-        // updated drivers are reflected without restarting the app.
+        // Rescan the machine so newly connected devices and updated drivers
+        // are reflected without restarting the app.
         if let Some(drivers) = detect_installed_drivers() {
             self.drivers = drivers;
             self.devices_total = self.drivers.len() as u32;
@@ -390,17 +390,21 @@ impl MockRepository {
 
     pub fn create_restore_point(&mut self, name: LocalizedText) -> RestorePoint {
         let point = RestorePoint {
-            id: format!("rp-{}", SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map(|d| d.as_millis())
-                .unwrap_or(0)),
+            id: format!(
+                "rp-{}",
+                SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map(|d| d.as_millis())
+                    .unwrap_or(0)
+            ),
             name,
             kind: "manual".to_string(),
             created_at: now_iso(),
-            size_mb: 380 + (SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .map(|d| d.as_secs() % 120)
-                .unwrap_or(0)) as u32,
+            size_mb: 380
+                + (SystemTime::now()
+                    .duration_since(UNIX_EPOCH)
+                    .map(|d| d.as_secs() % 120)
+                    .unwrap_or(0)) as u32,
         };
         self.restore_points.insert(0, point.clone());
         self.persist();
@@ -550,7 +554,12 @@ pub fn detect_installed_components() -> Vec<InstalledComponent> {
         let path = if !install_location.is_empty() {
             install_location.to_string()
         } else {
-            display_icon.split(',').next().unwrap_or("").trim().to_string()
+            display_icon
+                .split(',')
+                .next()
+                .unwrap_or("")
+                .trim()
+                .to_string()
         };
         components.push(InstalledComponent {
             id: id.to_string(),
@@ -601,7 +610,36 @@ fn detect_os() -> String {
     }
     #[cfg(target_os = "windows")]
     {
-        return "Windows 11 (10.0.26100)".to_string(); // TODO(real-hardware): read the real NT version
+        use std::os::windows::process::CommandExt;
+
+        const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+        if let Ok(output) = std::process::Command::new("cmd")
+            .args(["/C", "ver"])
+            .creation_flags(CREATE_NO_WINDOW)
+            .output()
+        {
+            let raw = String::from_utf8_lossy(&output.stdout);
+            if let (Some(start), Some(end)) = (raw.find("Version "), raw.find(']')) {
+                let version = raw[start + "Version ".len()..end].trim();
+                let build = version
+                    .split('.')
+                    .nth(2)
+                    .and_then(|value| value.parse::<u32>().ok())
+                    .unwrap_or(0);
+                let edition = if build >= 22_000 {
+                    "Windows 11"
+                } else if version.starts_with("10.0") {
+                    "Windows 10"
+                } else if version.starts_with("6.3") {
+                    "Windows 8.1"
+                } else {
+                    "Windows"
+                };
+                return format!("{edition} ({version})");
+            }
+        }
+        return "Windows".to_string();
     }
     #[cfg(target_os = "macos")]
     {

@@ -1,108 +1,108 @@
-/* Base: reset, typography, window frame, sidebar, titlebar. */
+/** Base: reset, typography, window frame, titlebar and bottom dock. */
 
 @font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url('../assets/fonts/montserrat-400.ttf') format('truetype');
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url('../assets/fonts/montserrat-400.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 500;
-  font-display: swap;
-  src: url('../assets/fonts/montserrat-500.ttf') format('truetype');
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 500;
+    font-display: swap;
+    src: url('../assets/fonts/montserrat-500.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 600;
-  font-display: swap;
-  src: url('../assets/fonts/montserrat-600.ttf') format('truetype');
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url('../assets/fonts/montserrat-600.ttf') format('truetype');
 }
 
 @font-face {
-  font-family: 'Montserrat';
-  font-style: normal;
-  font-weight: 700;
-  font-display: swap;
-  src: url('../assets/fonts/montserrat-700.ttf') format('truetype');
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url('../assets/fonts/montserrat-700.ttf') format('truetype');
 }
 
 * {
-  box-sizing: border-box;
+    box-sizing: border-box;
 }
 
 html,
 body,
 #root {
-  height: 100%;
-  background: var(--c-surface);
+    height: 100%;
+    background: var(--c-surface);
 }
 
 body {
-  margin: 0;
-  font-family:
-    'Montserrat',
-    'Segoe UI',
-    system-ui,
-    -apple-system,
-    'Helvetica Neue',
-    Arial,
-    sans-serif;
-  font-size: 14px;
-  line-height: 1.45;
-  color: var(--c-text);
-  background: var(--c-bg);
-  -webkit-font-smoothing: antialiased;
-  /* Desktop app, not a web page: UI text must not be selectable. */
-  user-select: none;
-  -webkit-user-select: none;
-  -webkit-touch-callout: none;
+    margin: 0;
+    font-family:
+        'Montserrat',
+        'Segoe UI',
+        system-ui,
+        -apple-system,
+        'Helvetica Neue',
+        Arial,
+        sans-serif;
+    font-size: 14px;
+    line-height: 1.45;
+    color: var(--c-text);
+    background: var(--c-bg);
+    -webkit-font-smoothing: antialiased;
+    /** Desktop app, not a web page: UI text must not be selectable. */
+    user-select: none;
+    -webkit-user-select: none;
+    -webkit-touch-callout: none;
 }
 
 img,
 a {
-  -webkit-user-drag: none;
-  user-drag: none;
+    -webkit-user-drag: none;
+    user-drag: none;
 }
 
-/* Inputs still need a caret and text selection while editing. */
+/** Inputs still need a caret and text selection while editing. */
 input,
 textarea,
 [contenteditable='true'] {
-  user-select: text;
-  -webkit-user-select: text;
+    user-select: text;
+    -webkit-user-select: text;
 }
 
 button {
-  font: inherit;
-  color: inherit;
-  background: none;
-  border: 0;
-  padding: 0;
-  cursor: pointer;
+    font: inherit;
+    color: inherit;
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
 }
 
 button,
 a {
-  outline: none;
+    outline: none;
 }
 
 button:focus,
 a:focus,
 button:focus-visible,
 a:focus-visible {
-  outline: none;
+    outline: none;
 }
 
 input,
 select {
-  font: inherit;
-  color: inherit;
+    font: inherit;
+    color: inherit;
 }
 
 h1,
@@ -112,178 +112,178 @@ p,
 dl,
 dt,
 dd {
-  margin: 0;
+    margin: 0;
 }
 
 ul {
-  margin: 0;
-  padding: 0;
-  list-style: none;
+    margin: 0;
+    padding: 0;
+    list-style: none;
 }
 
 a {
-  color: inherit;
-  text-decoration: none;
+    color: inherit;
+    text-decoration: none;
 }
 
 ::selection {
-  background: var(--c-primary-soft);
-  color: var(--c-primary);
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
 }
 
 *::-webkit-scrollbar {
-  width: 10px;
-  height: 10px;
+    width: 10px;
+    height: 10px;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: var(--c-border);
-  border-radius: 8px;
-  border: 3px solid transparent;
-  background-clip: content-box;
+    background: var(--c-border);
+    border-radius: 8px;
+    border: 3px solid transparent;
+    background-clip: content-box;
 }
 
 *::-webkit-scrollbar-thumb:hover {
-  background: var(--c-text-3);
-  border: 3px solid transparent;
-  background-clip: content-box;
+    background: var(--c-text-3);
+    border: 3px solid transparent;
+    background-clip: content-box;
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent;
+    background: transparent;
 }
 
-/* ---------------- window frame ---------------- */
+/** Window frame. */
 
 .app-window {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-  background: var(--c-surface);
-  border: 1px solid var(--c-border);
-  border-radius: 12px;
-  overflow: hidden;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: 12px;
+    overflow: hidden;
 }
 
 .boot-window {
-  display: grid;
-  place-items: center;
+    display: grid;
+    place-items: center;
 }
 
 .boot-splash {
-  color: var(--c-primary);
+    color: var(--c-primary);
 }
 
-/* ---------------- titlebar ---------------- */
+.boot-failure {
+    align-items: center;
+    justify-content: center;
+    padding: 40px;
+}
 
-/* The mockups have no separate caption row: the window controls float above
-   the content, so the page starts at the very top of the frame. */
+.boot-failure-card {
+    width: min(480px, 100%);
+    padding: 28px;
+    text-align: center;
+}
+
+.boot-failure-card h1 {
+    margin: 0 0 8px;
+    font-size: 20px;
+}
+
+.boot-failure-card p {
+    margin: 0 0 20px;
+    color: var(--c-text-2);
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+/** Titlebar. */
+
+/**
+ * The mockups have no separate caption row: the window controls float above
+ * the content, so the page starts at the very top of the frame.
+ */
 .titlebar {
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: 40;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  height: 44px;
-  background: var(--c-surface);
-  border-bottom: 1px solid var(--c-border-2);
-  user-select: none;
-  -webkit-user-select: none;
+    position: absolute;
+    inset: 0 0 auto;
+    z-index: 40;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    height: 44px;
+    background: var(--c-surface);
+    border-bottom: 1px solid var(--c-border-2);
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .titlebar-brand {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  height: 44px;
-  padding: 0 0 0 12px;
-  font-size: 13.5px;
-  font-weight: 600;
-  pointer-events: none;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 44px;
+    padding: 0 0 0 12px;
+    font-size: 13.5px;
+    font-weight: 600;
+    pointer-events: none;
 }
 
 .titlebar-brand img {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .titlebar-spacer {
-  flex: 1;
-  align-self: stretch;
+    flex: 1;
+    align-self: stretch;
 }
 
 .titlebar-controls {
-  display: flex;
-  align-items: flex-start;
-  padding: 0 24px 0 0;
+    display: flex;
+    align-items: flex-start;
+    padding: 0 24px 0 0;
 }
 
 .titlebar-btn {
-  width: 44px;
-  height: 38px;
-  display: grid;
-  place-items: center;
-  color: var(--c-text-2);
-  transition:
-    background 0.15s,
-    color 0.15s;
+    width: 44px;
+    height: 38px;
+    display: grid;
+    place-items: center;
+    color: var(--c-text-2);
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .titlebar-btn:hover {
-  background: var(--c-control);
-  color: var(--c-text);
+    background: var(--c-control);
+    color: var(--c-text);
 }
 
 .titlebar-close:hover {
-  background: #e81123;
-  color: #fff;
+    background: #e81123;
+    color: #fff;
 }
 
-/* ---------------- layout ---------------- */
+/** Application layout. */
 
 .app-body {
-  flex: 1;
-  display: flex;
-  min-height: 0;
+    flex: 1;
+    display: flex;
+    min-height: 0;
 }
 
 :where(
-  body,
-  .app-window,
-  .app-titlebar,
-  .card,
-  .notice-bar,
-  .selection-bar,
-  .settings-section-head,
-  .settings-row,
-  .text-input,
-  .select,
-  .segmented,
-  .badge,
-  .update-row,
-  .driver-row,
-  .backup-row
-) {
-  transition:
-    background-color 0.24s ease,
-    color 0.24s ease,
-    border-color 0.24s ease;
-}
-
-:where(h1, h2, h3, p, dt, dd) {
-  transition: color 0.24s ease;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  :where(
     body,
     .app-window,
+    .app-titlebar,
     .card,
     .notice-bar,
     .selection-bar,
+    .settings-section-head,
     .settings-row,
     .text-input,
     .select,
@@ -291,144 +291,172 @@ a {
     .badge,
     .update-row,
     .driver-row,
-    .backup-row,
-    h1,
-    h2,
-    h3,
-    p,
-    dt,
-    dd
-  ) {
-    transition: none;
-  }
+    .backup-row
+) {
+    transition:
+        background-color 0.24s ease,
+        color 0.24s ease,
+        border-color 0.24s ease;
+}
+
+:where(h1, h2, h3, p, dt, dd) {
+    transition: color 0.24s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :where(
+        body,
+        .app-window,
+        .card,
+        .notice-bar,
+        .selection-bar,
+        .settings-row,
+        .text-input,
+        .select,
+        .segmented,
+        .badge,
+        .update-row,
+        .driver-row,
+        .backup-row,
+        h1,
+        h2,
+        h3,
+        p,
+        dt,
+        dd
+    ) {
+        transition: none;
+    }
 }
 
 .app-main {
-  flex: 1;
-  min-width: 0;
-  overflow-y: auto;
-  overflow-x: hidden;
-  /* Desktop-app feel: no permanent browser scrollbar. Scrolling still works
-     with the wheel/trackpad; hiding it also removes the reserved gutter that
-     shifted the page when switching views. */
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-  padding: 0 var(--content-pad-x) 26px;
-  background: var(--c-surface);
+    flex: 1;
+    min-width: 0;
+    overflow-y: auto;
+    overflow-x: hidden;
+    /**
+ * Desktop-app feel: no permanent browser scrollbar. Scrolling still works
+ * with the wheel/trackpad; hiding it also removes the reserved gutter that
+ * shifted the page when switching views.
+ */
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+    padding: 0 var(--content-pad-x) 26px;
+    background: var(--c-surface);
 }
 
 .app-main::-webkit-scrollbar {
-  width: 0;
-  height: 0;
+    width: 0;
+    height: 0;
 }
 
-/* ---------------- bottom dock ---------------- */
+/** Bottom dock. */
 
 .bottom-dock {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 6px 20px 12px;
+    flex: 0 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 6px 20px 12px;
 }
 
 .dock-about {
-  --info-outer: var(--c-primary);
-  --info-inner: #fff;
-  --info-glyph: var(--c-primary);
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--c-card);
-  border: 1px solid var(--c-border);
-  color: var(--c-text-2);
-  transition:
-    background 0.15s,
-    color 0.15s,
-    border-color 0.15s;
+    --info-outer: var(--c-primary);
+    --info-inner: #fff;
+    --info-glyph: var(--c-primary);
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    color: var(--c-text-2);
+    transition:
+        background 0.15s,
+        color 0.15s,
+        border-color 0.15s;
 }
 
 .dock-about:not(.active) {
-  --info-outer: var(--c-text-2);
-  --info-inner: #fff;
-  --info-glyph: var(--c-text-2);
+    --info-outer: var(--c-text-2);
+    --info-inner: #fff;
+    --info-glyph: var(--c-text-2);
 }
 
 .dock-about svg {
-  transition: filter 0.15s;
+    transition: filter 0.15s;
 }
 
 .dock-about:hover {
-  color: var(--c-text);
-  border-color: var(--c-border-2);
+    color: var(--c-text);
+    border-color: var(--c-border-2);
 }
 
 .dock-about.active {
-  color: var(--c-primary);
-  background: var(--c-primary-soft);
-  border-color: color-mix(in srgb, var(--c-primary) 30%, transparent);
+    color: var(--c-primary);
+    background: var(--c-primary-soft);
+    border-color: color-mix(in srgb, var(--c-primary) 30%, transparent);
 }
 
 .dock-island {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-  padding: 5px;
-  border-radius: 999px;
-  background: var(--c-card);
-  border: 1px solid var(--c-border);
-  box-shadow: 0 10px 28px rgb(15 35 80 / 10%);
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    padding: 5px;
+    border-radius: 999px;
+    background: var(--c-card);
+    border: 1px solid var(--c-border);
+    box-shadow: 0 10px 28px rgb(15 35 80 / 10%);
 }
 
 .dock-item {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  height: 36px;
-  padding: 0 12px;
-  border-radius: 999px;
-  color: var(--c-text-2);
-  font-size: 12.5px;
-  font-weight: 600;
-  white-space: nowrap;
-  transition:
-    background 0.15s,
-    color 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    height: 36px;
+    padding: 0 12px;
+    border-radius: 999px;
+    color: var(--c-text-2);
+    font-size: 12.5px;
+    font-weight: 600;
+    white-space: nowrap;
+    transition:
+        background 0.15s,
+        color 0.15s;
 }
 
 .dock-item:hover {
-  background: var(--c-control);
-  color: var(--c-text);
+    background: var(--c-control);
+    color: var(--c-text);
 }
 
 .dock-item.active {
-  background: var(--c-primary-soft);
-  background: color-mix(in srgb, var(--c-primary) 20%, var(--c-card));
-  color: var(--c-primary);
-  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-primary) 28%, transparent);
+    background: var(--c-primary-soft);
+    background: color-mix(in srgb, var(--c-primary) 20%, var(--c-card));
+    color: var(--c-primary);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-primary) 28%, transparent);
 }
 
-/* ---------------- misc animations ---------------- */
+/** Shared animations. */
 
 @keyframes rot {
-  to {
-    transform: rotate(360deg);
-  }
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 .spin,
 .spinner {
-  animation: rot 0.9s linear infinite;
+    animation: rot 0.9s linear infinite;
 }
 
 @keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
 }

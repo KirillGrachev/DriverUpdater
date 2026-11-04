@@ -1,14 +1,16 @@
 mod commands;
-mod mock;
 mod models;
+mod repository;
 
 use commands::AppRepository;
-use mock::MockRepository;
+use repository::DriverRepository;
 use tauri::Manager;
 
-/// Give the backups folder the app icon in Explorer instead of the generic
-/// folder glyph. Windows reads this from desktop.ini and expects the folder
-/// itself to be marked read-only.
+/// Gives the backups folder the app icon in Explorer instead of the generic
+/// folder glyph. Windows reads this from {@code desktop.ini} and expects the
+/// folder itself to be marked read-only.
+///
+/// @param dir backups directory created during application setup
 #[cfg(target_os = "windows")]
 fn apply_backup_folder_icon(dir: &std::path::Path) {
     use std::os::windows::process::CommandExt;
@@ -18,10 +20,7 @@ fn apply_backup_folder_icon(dir: &std::path::Path) {
     let Ok(exe) = std::env::current_exe() else {
         return;
     };
-    let ini = format!(
-        "[.ShellClassInfo]\r\nIconResource={},0\r\n",
-        exe.display()
-    );
+    let ini = format!("[.ShellClassInfo]\r\nIconResource={},0\r\n", exe.display());
     let mut bytes = vec![0xFF, 0xFE];
     for unit in ini.encode_utf16() {
         bytes.extend_from_slice(&unit.to_le_bytes());
@@ -59,7 +58,7 @@ pub fn run() {
             let _ = std::fs::create_dir_all(&backup_dir);
             #[cfg(target_os = "windows")]
             apply_backup_folder_icon(&backup_dir);
-            let repo = MockRepository::new(Some(state_dir.join("mock-state.json")), backup_dir);
+            let repo = DriverRepository::new(Some(state_dir.join("mock-state.json")), backup_dir);
             app.manage(AppRepository(std::sync::Mutex::new(repo)));
 
             // Keep the taskbar/window icon in sync with the bundled app icon.

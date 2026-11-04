@@ -1,51 +1,60 @@
 import type {
-  CheckUpdatesResult,
-  Driver,
-  InitialData,
-  InstalledComponent,
-  RestorePoint,
-  Settings,
-  Summary,
-  SystemInfo,
+    CheckUpdatesResult,
+    Driver,
+    InitialData,
+    InstalledComponent,
+    RestorePoint,
+    Settings,
+    Summary,
+    SystemInfo,
 } from './types';
 
 /**
  * Transport-agnostic backend contract.
  *
- * Two implementations exist:
- *  - `tauri.ts`  - invokes the Rust core over IPC (real desktop app);
- *  - `mock.ts`   - in-browser mock backed by the same fixtures, used for
- *                  web previews and unit tests until the core is available.
+ * <p>Two implementations exist:</p>
+ * <ul>
+ *     <li>{@code tauri.ts} invokes the Rust core over IPC (desktop app);</li>
+ *     <li>{@code mock.ts} is an in-browser backend backed by the same fixtures
+ *     for previews and unit tests.</li>
+ * </ul>
  */
 export interface Backend {
-  getInitialData(): Promise<InitialData>;
-  checkUpdates(): Promise<CheckUpdatesResult>;
-  installDriver(id: string): Promise<Driver>;
-  installUpdates(ids: string[]): Promise<Driver[]>;
-  listRestorePoints(): Promise<RestorePoint[]>;
-  createRestorePoint(name: { ru: string; en: string }): Promise<RestorePoint>;
-  deleteRestorePoint(id: string): Promise<void>;
-  restoreFromPoint(id: string): Promise<void>;
-  saveSettings(settings: Settings): Promise<Settings>;
-  openBackupFolder(): Promise<void>;
-  detectInstalledComponents(): Promise<InstalledComponent[]>;
-  getSystemInfo(): Promise<SystemInfo>;
-  computeSummary(drivers: Driver[]): Promise<Summary>;
+    getInitialData(): Promise<InitialData>;
+    checkUpdates(): Promise<CheckUpdatesResult>;
+    installDriver(id: string): Promise<Driver>;
+    installUpdates(ids: string[]): Promise<Driver[]>;
+    listRestorePoints(): Promise<RestorePoint[]>;
+    createRestorePoint(name: { ru: string; en: string }): Promise<RestorePoint>;
+    deleteRestorePoint(id: string): Promise<void>;
+    restoreFromPoint(id: string): Promise<void>;
+    saveSettings(settings: Settings): Promise<Settings>;
+    openBackupFolder(): Promise<void>;
+    detectInstalledComponents(): Promise<InstalledComponent[]>;
+    getSystemInfo(): Promise<SystemInfo>;
+    computeSummary(drivers: Driver[]): Promise<Summary>;
 }
 
+/**
+ * Detects whether the page runs inside the Tauri webview rather than a
+ * regular browser preview.
+ *
+ * @returns {@code true} when the Tauri IPC bridge is available
+ */
 export function isTauriRuntime(): boolean {
-  return (
-    typeof window !== 'undefined' &&
-    '__TAURI_INTERNALS__' in window &&
-    window.__TAURI_INTERNALS__ !== undefined
-  );
+    return typeof window !== 'undefined' && '__TAURI_INTERNALS__' in window && window.__TAURI_INTERNALS__ !== undefined;
 }
 
+/**
+ * Creates the backend for the current runtime.
+ *
+ * @returns Tauri IPC backend in the desktop app, fixture-backed mock otherwise
+ */
 export async function createBackend(): Promise<Backend> {
-  if (isTauriRuntime()) {
-    const { TauriBackend } = await import('./tauri');
-    return new TauriBackend();
-  }
-  const { MockBackend } = await import('./mock');
-  return new MockBackend();
+    if (isTauriRuntime()) {
+        const { TauriBackend } = await import('./tauri');
+        return new TauriBackend();
+    }
+    const { MockBackend } = await import('./mock');
+    return new MockBackend();
 }

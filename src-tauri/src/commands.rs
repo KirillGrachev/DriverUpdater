@@ -1,45 +1,36 @@
-//! Tauri command layer. Every command is async and simulates a small amount
-//! of work so the UI loading states behave like they will with real hardware.
+//! Tauri command layer.
+//!
+//! <p>Commands are thin async wrappers around the repository; validation and
+//! IPC input checks stay at this boundary.</p>
 
 use std::path::Path;
 use std::process::Command;
 use std::sync::Mutex;
-use std::time::Duration;
 
 use tauri::State;
 
-use crate::mock::{detect_system_info, MockRepository};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
     SystemInfo,
 };
+use crate::repository::{detect_system_info, DriverRepository};
 
-pub struct AppRepository(pub Mutex<MockRepository>);
-
-const LATENCY: Duration = Duration::from_millis(180);
-const SCAN_LATENCY: Duration = Duration::from_millis(900);
-const INSTALL_LATENCY: Duration = Duration::from_millis(1300);
+pub struct AppRepository(pub Mutex<DriverRepository>);
 
 #[tauri::command]
 pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
-    tokio::time::sleep(LATENCY).await;
     let repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.snapshot())
 }
 
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
-    tokio::time::sleep(SCAN_LATENCY).await;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.check_updates())
 }
 
 #[tauri::command]
-pub async fn install_driver(
-    state: State<'_, AppRepository>,
-    id: String,
-) -> Result<Driver, String> {
-    tokio::time::sleep(INSTALL_LATENCY).await;
+pub async fn install_driver(state: State<'_, AppRepository>, id: String) -> Result<Driver, String> {
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     repo.install_driver(&id)
 }
@@ -49,7 +40,6 @@ pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
 ) -> Result<Vec<Driver>, String> {
-    tokio::time::sleep(INSTALL_LATENCY).await;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     repo.install_updates(&ids)
 }
@@ -58,7 +48,6 @@ pub async fn install_updates(
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<RestorePoint>, String> {
-    tokio::time::sleep(LATENCY).await;
     let repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.restore_points())
 }
@@ -68,7 +57,6 @@ pub async fn create_restore_point(
     state: State<'_, AppRepository>,
     name: LocalizedText,
 ) -> Result<RestorePoint, String> {
-    tokio::time::sleep(Duration::from_millis(700)).await;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.create_restore_point(name))
 }
@@ -78,17 +66,12 @@ pub async fn delete_restore_point(
     state: State<'_, AppRepository>,
     id: String,
 ) -> Result<(), String> {
-    tokio::time::sleep(LATENCY).await;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     repo.delete_restore_point(&id)
 }
 
 #[tauri::command]
-pub async fn restore_from_point(
-    state: State<'_, AppRepository>,
-    id: String,
-) -> Result<(), String> {
-    tokio::time::sleep(Duration::from_millis(1000)).await;
+pub async fn restore_from_point(state: State<'_, AppRepository>, id: String) -> Result<(), String> {
     let repo = state.0.lock().map_err(|e| e.to_string())?;
     repo.restore_from_point(&id)
 }
@@ -98,14 +81,16 @@ pub async fn save_settings(
     state: State<'_, AppRepository>,
     settings: Settings,
 ) -> Result<Settings, String> {
-    tokio::time::sleep(LATENCY).await;
     validate_settings(&settings)?;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.save_settings(settings))
 }
 
-/// Reject values the UI never produces, so a compromised/buggy webview cannot
-/// persist arbitrary state or drive code paths with unexpected strings.
+/// Rejects values the UI never produces, so a compromised or buggy webview
+/// cannot persist arbitrary state or drive code paths with unexpected strings.
+///
+/// @param settings settings document received over IPC
+/// @return validation error, or {@code Ok} when every field is accepted
 fn validate_settings(settings: &Settings) -> Result<(), String> {
     const THEMES: [&str; 3] = ["light", "dark", "system"];
     const INTERVALS: [&str; 3] = ["hourly", "daily", "weekly"];
@@ -172,8 +157,10 @@ pub async fn open_external_url(url: String) -> Result<bool, String> {
     }
 }
 
-/// Prefer an already running browser over launching the default one.
-/// Returns true when the URL was handed to a running browser process.
+/// Prefers an already running browser over launching the default one.
+///
+/// @param url HTTP(S) URL to open
+/// @return {@code true} when the URL was handed to a running browser process
 #[cfg(target_os = "windows")]
 fn open_in_running_browser(url: &str) -> bool {
     const BROWSERS: [&str; 8] = [
@@ -189,9 +176,10 @@ fn open_in_running_browser(url: &str) -> bool {
 
     let system = sysinfo::System::new_all();
     for browser in BROWSERS {
-        let process = system.processes().values().find(|process| {
-            process.name().eq_ignore_ascii_case(browser)
-        });
+        let process = system
+            .processes()
+            .values()
+            .find(|process| process.name().eq_ignore_ascii_case(browser));
         let Some(process) = process else {
             continue;
         };
@@ -206,8 +194,9 @@ fn open_in_running_browser(url: &str) -> bool {
 }
 
 #[tauri::command]
-pub async fn detect_installed_components() -> Result<Vec<crate::models::InstalledComponent>, String> {
-    Ok(crate::mock::detect_installed_components())
+pub async fn detect_installed_components() -> Result<Vec<crate::models::InstalledComponent>, String>
+{
+    Ok(crate::repository::detect_installed_components())
 }
 
 #[tauri::command]

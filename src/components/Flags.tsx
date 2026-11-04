@@ -39,55 +39,55 @@ import ua from 'flag-icons/flags/4x3/ua.svg';
 import uz from 'flag-icons/flags/4x3/uz.svg';
 
 const FLAGS: Record<string, string> = {
-  ru,
-  uk: ua,
-  be: by,
-  en: gb,
-  de,
-  es,
-  fr,
-  it,
-  pt,
-  pl,
-  cs: cz,
-  sk,
-  bg,
-  hr,
-  sl: si,
-  nl,
-  da: dk,
-  sv: se,
-  fi,
-  et: ee,
-  lv,
-  lt,
-  ro,
-  hu,
-  el: gr,
-  ga: ie,
-  mt,
-  kk: kz,
-  ky: kg,
-  tg: tj,
-  tk: tm,
-  uz,
-  az,
-  ka: ge,
-  hy: am,
+    ru,
+    uk: ua,
+    be: by,
+    en: gb,
+    de,
+    es,
+    fr,
+    it,
+    pt,
+    pl,
+    cs: cz,
+    sk,
+    bg,
+    hr,
+    sl: si,
+    nl,
+    da: dk,
+    sv: se,
+    fi,
+    et: ee,
+    lv,
+    lt,
+    ro,
+    hu,
+    el: gr,
+    ga: ie,
+    mt,
+    kk: kz,
+    ky: kg,
+    tg: tj,
+    tk: tm,
+    uz,
+    az,
+    ka: ge,
+    hy: am,
 };
 
 export function LocaleFlag({ code, width = 18 }: { code: string; width?: number }) {
-  const src = FLAGS[code];
-  if (!src) return null;
-  return (
-    <img
-      className="flag"
-      src={src}
-      width={width}
-      height={Math.round((width * 3) / 4)}
-      alt=""
-      aria-hidden="true"
-      draggable={false}
-    />
-  );
+    const src = FLAGS[code];
+    if (!src) return null;
+    return (
+        <img
+            className="flag"
+            src={src}
+            width={width}
+            height={Math.round((width * 3) / 4)}
+            alt=""
+            aria-hidden="true"
+            draggable={false}
+        />
+    );
 }
