@@ -1,6 +1,7 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
 import { Button, Spinner } from './components/ui';
@@ -67,6 +68,7 @@ export function App() {
                     <div className="card boot-failure-card">
                         <h1>{t('boot.errorTitle')}</h1>
                         <p>{t('boot.errorSub')}</p>
+                        {bootError ? <pre className="boot-error-detail">{bootError}</pre> : null}
                         <Button variant="primary" onClick={() => window.location.reload()}>
                             {t('boot.retry')}
                         </Button>
@@ -89,15 +91,17 @@ export function App() {
                             </div>
                         </div>
                     ) : null}
-                    <Suspense
-                        fallback={
-                            <div className="page-loading">
-                                <Spinner size={26} />
-                            </div>
-                        }
-                    >
-                        <CurrentPage key={route} />
-                    </Suspense>
+                    <ErrorBoundary>
+                        <Suspense
+                            fallback={
+                                <div className="page-loading">
+                                    <Spinner size={26} />
+                                </div>
+                            }
+                        >
+                            <CurrentPage key={route} />
+                        </Suspense>
+                    </ErrorBoundary>
                 </main>
             </div>
             <BottomDock />

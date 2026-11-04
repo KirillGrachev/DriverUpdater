@@ -59,6 +59,12 @@ export function TitleBar() {
         void refreshMaximized();
     }, [refreshMaximized]);
 
+    useEffect(() => {
+        const onChange = () => void refreshMaximized();
+        window.addEventListener('resize', onChange);
+        return () => window.removeEventListener('resize', onChange);
+    }, [refreshMaximized]);
+
     const desktopOnly = api === null ? t('titlebar.desktopOnly') : undefined;
 
     return (

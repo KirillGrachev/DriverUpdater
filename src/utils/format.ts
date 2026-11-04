@@ -30,7 +30,9 @@ export function formatDateTime(iso: string, locale: string): string {
 }
 
 export function formatDate(iso: string, locale: string): string {
-    const date = new Date(iso);
+    // Date-only values are calendar dates, not UTC instants. Parsing them at
+    // local noon avoids showing the previous day west of UTC.
+    const date = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T12:00:00`) : new Date(iso);
     if (Number.isNaN(date.getTime())) return iso;
     return formatWith(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }, date);
 }

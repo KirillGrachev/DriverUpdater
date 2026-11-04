@@ -114,10 +114,10 @@ impl DriverRepository {
                     repo.settings.backup_path = repo.backup_dir.to_string_lossy().into_owned();
                     repo.last_check = state.last_check;
                     repo.installed_components = state.installed_components;
-                    if state.version < 2 {
-                        // v1 could contain fixture restore points, fixture drivers
-                        // and synthetic installed component ids. Keep user settings
-                        // but discard the demo data once.
+                    if state.version < 3 {
+                        // v2 could still contain fixture restore points loaded
+                        // before the real provider was introduced. Keep user
+                        // settings but discard the demo data once.
                         repo.restore_points.clear();
                         repo.installed_components.clear();
                         repo.settings.notifications = false;

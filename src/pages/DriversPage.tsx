@@ -113,7 +113,7 @@ function DriverRow({ driver }: { driver: Driver }) {
 }
 
 export function DriversPage() {
-    const { t, locale, data, scanning, scan, createRestorePoint } = useApp();
+    const { t, locale, data, scanning, scan, createRestorePoint, installingIds, installUpdates } = useApp();
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState<'all' | DriverCategory>('all');
     const [view, setView] = useState<'list' | 'categories'>('list');
@@ -124,7 +124,10 @@ export function DriversPage() {
         const q = query.trim().toLowerCase();
         return data.drivers.filter((d) => {
             const matchesQuery =
-                q.length === 0 || d.name.toLowerCase().includes(q) || d.vendor.toLowerCase().includes(q);
+                q.length === 0 ||
+                [d.name, d.vendor, d.device, d.current, d.available ?? '', d.category].some((value) =>
+                    value.toLowerCase().includes(q),
+                );
             const matchesCategory = category === 'all' || d.category === category;
             return matchesQuery && matchesCategory;
         });
@@ -208,6 +211,22 @@ export function DriversPage() {
                     options={categoryOptions}
                     ariaLabel={t('drivers.filterAll')}
                 />
+                {drivers.some((driver) => driver.status === 'update') ? (
+                    <Button
+                        variant="primary"
+                        size="sm"
+                        loading={drivers.some(
+                            (driver) => driver.status === 'update' && installingIds.includes(driver.id),
+                        )}
+                        onClick={() =>
+                            void installUpdates(
+                                drivers.filter((driver) => driver.status === 'update').map((driver) => driver.id),
+                            )
+                        }
+                    >
+                        {t('drivers.updateAll')}
+                    </Button>
+                ) : null}
                 <Segmented
                     value={view}
                     onChange={setView}

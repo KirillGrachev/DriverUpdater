@@ -71,6 +71,7 @@ const ru: Dictionary = {
         filterAll: 'Все категории',
         viewList: 'Список',
         viewCategories: 'Категории',
+        updateAll: 'Обновить все',
         cur: 'Текущая версия:',
         avail: 'Доступно:',
         badgeUpdate: 'Обновление',

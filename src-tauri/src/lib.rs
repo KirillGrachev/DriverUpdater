@@ -61,6 +61,7 @@ pub fn run() {
             },
         ))
         .plugin(tauri_plugin_opener::init())
+        .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
             let state_dir = app
                 .path()

@@ -1065,3 +1065,15 @@
     font-size: 12px;
     color: var(--c-text-2);
 }
+
+.boot-error-detail {
+    max-width: 100%;
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+    color: var(--c-text-2);
+    font-size: 12px;
+}
+
+.page-render-error {
+    margin: 48px auto;
+}

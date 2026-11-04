@@ -15,7 +15,7 @@ use crate::models::{Driver, RestorePoint, Settings};
 use crate::security;
 
 /// Mutable state persisted between application launches.
-pub const SCHEMA_VERSION: u32 = 2;
+pub const SCHEMA_VERSION: u32 = 3;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
 pub struct PersistedState {

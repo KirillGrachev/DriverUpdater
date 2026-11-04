@@ -59,6 +59,7 @@ const en: Dictionary = {
         filterAll: 'All categories',
         viewList: 'List',
         viewCategories: 'Categories',
+        updateAll: 'Update all',
         cur: 'Current version:',
         avail: 'Available:',
         badgeUpdate: 'Update',
