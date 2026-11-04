@@ -628,13 +628,13 @@ export const IconSettingsClock = ({ size = 20, className }: IconProps) => (
             r="116"
             fill="var(--settings-icon-fill)"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
+            strokeWidth="14"
         />
-        <circle cx="128" cy="128" r="86" stroke="var(--settings-icon-stroke)" strokeWidth="5" />
+        <circle cx="128" cy="128" r="86" stroke="var(--settings-icon-stroke)" strokeWidth="8" />
         <path
             d="M128 84v50h44"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="20"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeLinejoin="round"
         />
@@ -649,7 +649,7 @@ export const IconSettingsBell = ({ size = 20, className }: IconProps) => (
             d="M128 38c48 0 83 37 83 87v15c0 15 6 23 15 34l7 9c10 13 3 28-13 28H36c-16 0-23-15-13-28l7-9c9-11 15-19 15-34v-15c0-50 35-87 83-87Z"
             fill="var(--settings-icon-fill)"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
+            strokeWidth="14"
             strokeLinejoin="round"
         />
     </svg>
@@ -661,7 +661,7 @@ export const IconSettingsPalette = ({ size = 20, className }: IconProps) => (
             d="M140 14c60 0 105 34 105 80 0 36-27 62-56 62h-9c-20 0-34 6-32 24 1 10 8 20 5 32-3 18-20 29-38 29-60 0-104-51-104-112C11 60 70 14 140 14Z"
             fill="var(--settings-icon-fill)"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
+            strokeWidth="14"
             strokeLinejoin="round"
         />
         <circle cx="140" cy="67" r="21" fill="var(--settings-icon-accent)" />
@@ -676,7 +676,7 @@ export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
         <path
             d="M37 95c11-31 39-55 71-62 34-7 67 3 90 29"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="30"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeLinejoin="round"
         />
@@ -684,13 +684,13 @@ export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
             d="m228 58-9 54-49-26 58-28Z"
             fill="var(--settings-icon-accent)"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="12"
+            strokeWidth="8"
             strokeLinejoin="round"
         />
         <path
             d="M219 161c-11 31-39 55-71 62-34 7-67-3-90-29"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="30"
+            strokeWidth="14"
             strokeLinecap="round"
             strokeLinejoin="round"
         />
@@ -698,7 +698,7 @@ export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
             d="m28 198 9-54 49 26-58 28Z"
             fill="var(--settings-icon-accent)"
             stroke="var(--settings-icon-accent)"
-            strokeWidth="12"
+            strokeWidth="8"
             strokeLinejoin="round"
         />
     </svg>
