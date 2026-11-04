@@ -163,7 +163,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   // ---- theme ------------------------------------------------------------
-  const theme = state.data?.settings.theme ?? 'light';
+  const theme =
+    state.data?.settings.theme ??
+    ((document.documentElement.dataset.theme as ThemeMode | undefined) || 'light');
   useEffect(() => {
     const media = window.matchMedia('(prefers-color-scheme: dark)');
     const apply = () => {

@@ -1,3 +1,5 @@
+import { useEffect } from 'react';
+import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
@@ -32,6 +34,15 @@ function CurrentPage() {
 
 export function App() {
   const { booting, route } = useApp();
+
+  useEffect(() => {
+    if (booting) return;
+    // The native window starts hidden so the webview never paints a white
+    // frame while the theme and initial data are still loading.
+    if ('__TAURI_INTERNALS__' in window) {
+      void getCurrentWindow().show();
+    }
+  }, [booting]);
 
   if (booting) {
     return (
