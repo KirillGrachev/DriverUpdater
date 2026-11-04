@@ -76,6 +76,15 @@ pub struct SystemInfo {
     pub os: String,
     pub arch: String,
     pub platform: String,
+    pub hostname: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct InstalledComponent {
+    pub id: String,
+    pub version: String,
+    pub path: String,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

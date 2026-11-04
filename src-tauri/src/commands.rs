@@ -1,6 +1,8 @@
 //! Tauri command layer. Every command is async and simulates a small amount
 //! of work so the UI loading states behave like they will with real hardware.
 
+use std::path::Path;
+use std::process::Command;
 use std::sync::Mutex;
 use std::time::Duration;
 
@@ -97,8 +99,115 @@ pub async fn save_settings(
     settings: Settings,
 ) -> Result<Settings, String> {
     tokio::time::sleep(LATENCY).await;
+    validate_settings(&settings)?;
     let mut repo = state.0.lock().map_err(|e| e.to_string())?;
     Ok(repo.save_settings(settings))
+}
+
+/// Reject values the UI never produces, so a compromised/buggy webview cannot
+/// persist arbitrary state or drive code paths with unexpected strings.
+fn validate_settings(settings: &Settings) -> Result<(), String> {
+    const THEMES: [&str; 3] = ["light", "dark", "system"];
+    const INTERVALS: [&str; 3] = ["hourly", "daily", "weekly"];
+    const PERIODS: [&str; 3] = ["daily", "weekly", "monthly"];
+    if !THEMES.contains(&settings.theme.as_str()) {
+        return Err("invalid theme".to_string());
+    }
+    if !INTERVALS.contains(&settings.check_interval.as_str()) {
+        return Err("invalid check interval".to_string());
+    }
+    if !PERIODS.contains(&settings.restore_point_period.as_str()) {
+        return Err("invalid restore point period".to_string());
+    }
+    if settings.language.len() < 2
+        || settings.language.len() > 8
+        || !settings.language.chars().all(|c| c.is_ascii_alphabetic())
+    {
+        return Err("invalid language".to_string());
+    }
+    Ok(())
+}
+
+#[tauri::command]
+pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), String> {
+    let dir = {
+        let repo = state.0.lock().map_err(|e| e.to_string())?;
+        repo.backup_dir().to_path_buf()
+    };
+    open_folder(&dir)
+}
+
+fn open_folder(path: &Path) -> Result<(), String> {
+    let mut command = if cfg!(target_os = "windows") {
+        let mut cmd = Command::new("explorer");
+        cmd.arg(path);
+        cmd
+    } else if cfg!(target_os = "macos") {
+        let mut cmd = Command::new("open");
+        cmd.arg(path);
+        cmd
+    } else {
+        let mut cmd = Command::new("xdg-open");
+        cmd.arg(path);
+        cmd
+    };
+    command.spawn().map(|_| ()).map_err(|e| e.to_string())
+}
+
+#[tauri::command]
+pub async fn open_external_url(url: String) -> Result<bool, String> {
+    if !(url.starts_with("https://") || url.starts_with("http://")) {
+        return Err("only http(s) urls are allowed".to_string());
+    }
+
+    #[cfg(target_os = "windows")]
+    {
+        Ok(open_in_running_browser(&url))
+    }
+
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = url;
+        Ok(false)
+    }
+}
+
+/// Prefer an already running browser over launching the default one.
+/// Returns true when the URL was handed to a running browser process.
+#[cfg(target_os = "windows")]
+fn open_in_running_browser(url: &str) -> bool {
+    const BROWSERS: [&str; 8] = [
+        "chrome.exe",
+        "msedge.exe",
+        "brave.exe",
+        "vivaldi.exe",
+        "opera.exe",
+        "yandex.exe",
+        "browser.exe",
+        "firefox.exe",
+    ];
+
+    let system = sysinfo::System::new_all();
+    for browser in BROWSERS {
+        let process = system.processes().values().find(|process| {
+            process.name().eq_ignore_ascii_case(browser)
+        });
+        let Some(process) = process else {
+            continue;
+        };
+        let Some(executable) = process.exe() else {
+            continue;
+        };
+        if Command::new(executable).arg(url).spawn().is_ok() {
+            return true;
+        }
+    }
+    false
+}
+
+#[tauri::command]
+pub async fn detect_installed_components() -> Result<Vec<crate::models::InstalledComponent>, String> {
+    Ok(crate::mock::detect_installed_components())
 }
 
 #[tauri::command]

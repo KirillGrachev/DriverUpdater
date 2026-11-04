@@ -7,6 +7,7 @@ import type {
   CheckUpdatesResult,
   Driver,
   InitialData,
+  InstalledComponent,
   LocalizedText,
   RestorePoint,
   Settings,
@@ -15,6 +16,9 @@ import type {
 } from './types';
 
 const STORAGE_KEY = 'driver-updater.mock.v1';
+
+/** Browser preview has no install directory; show the path the desktop app derives. */
+export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\DriverUpdater\\Backups';
 
 interface MockState {
   drivers: Driver[];
@@ -40,9 +44,23 @@ function loadState(): MockState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return defaultState();
-    const parsed = JSON.parse(raw) as MockState;
-    if (!parsed.drivers?.length || !parsed.settings) return defaultState();
-    return parsed;
+    const parsed = JSON.parse(raw) as Partial<MockState> | null;
+    if (
+      !parsed ||
+      !Array.isArray(parsed.drivers) ||
+      parsed.drivers.length === 0 ||
+      !Array.isArray(parsed.restorePoints) ||
+      typeof parsed.settings !== 'object' ||
+      parsed.settings === null
+    ) {
+      return defaultState();
+    }
+    return {
+      drivers: parsed.drivers,
+      restorePoints: parsed.restorePoints,
+      settings: parsed.settings as Settings,
+      lastCheck: typeof parsed.lastCheck === 'string' ? parsed.lastCheck : null,
+    };
   } catch {
     return defaultState();
   }
@@ -57,7 +75,7 @@ function detectSystemInfo(): SystemInfo {
   else if (/Android/.test(ua)) os = 'Android';
   else if (/Linux/.test(ua)) os = 'Linux';
   const arch = /x86_64|x64|Win64|WOW64/.test(ua) ? 'x64' : /arm64|aarch64/i.test(ua) ? 'arm64' : 'x86';
-  return { os, arch, platform: navigator.platform || 'Web' };
+  return { os, arch, platform: navigator.platform || 'Web', hostname: 'Web preview' };
 }
 
 /**
@@ -67,11 +85,15 @@ function detectSystemInfo(): SystemInfo {
 export class MockBackend implements Backend {
   private state: MockState = loadState();
 
+  constructor() {
+    this.state.settings = { ...this.state.settings, backupPath: MOCK_BACKUP_PATH };
+  }
+
   private persist(): void {
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
     } catch {
-      /* storage may be unavailable (private mode) — ignore */
+      /* storage may be unavailable (private mode), ignore */
     }
   }
 
@@ -164,9 +186,17 @@ export class MockBackend implements Backend {
 
   async saveSettings(settings: Settings): Promise<Settings> {
     await latency();
-    this.state.settings = clone(settings);
+    this.state.settings = { ...clone(settings), backupPath: MOCK_BACKUP_PATH };
     this.persist();
-    return clone(settings);
+    return clone(this.state.settings);
+  }
+
+  async openBackupFolder(): Promise<void> {
+    // The browser preview has no file manager integration.
+  }
+
+  async detectInstalledComponents(): Promise<InstalledComponent[]> {
+    return [];
   }
 
   async getSystemInfo(): Promise<SystemInfo> {

@@ -44,7 +44,7 @@ export type CheckInterval = 'hourly' | 'daily' | 'weekly';
 export type RestorePointPeriod = 'daily' | 'weekly' | 'monthly';
 
 export interface Settings {
-  language: 'ru' | 'en';
+  language: string;
   theme: ThemeMode;
   notifications: boolean;
   autoCheck: boolean;
@@ -69,6 +69,13 @@ export interface SystemInfo {
   os: string;
   arch: string;
   platform: string;
+  hostname: string;
+}
+
+export interface InstalledComponent {
+  id: string;
+  version: string;
+  path: string;
 }
 
 /** Payload returned by the core on application start. */

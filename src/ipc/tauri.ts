@@ -4,6 +4,7 @@ import type {
   CheckUpdatesResult,
   Driver,
   InitialData,
+  InstalledComponent,
   RestorePoint,
   Settings,
   Summary,
@@ -46,6 +47,14 @@ export class TauriBackend implements Backend {
 
   saveSettings(settings: Settings): Promise<Settings> {
     return invoke<Settings>('save_settings', { settings });
+  }
+
+  openBackupFolder(): Promise<void> {
+    return invoke<void>('open_backup_folder');
+  }
+
+  detectInstalledComponents(): Promise<InstalledComponent[]> {
+    return invoke<InstalledComponent[]>('detect_installed_components');
   }
 
   getSystemInfo(): Promise<SystemInfo> {

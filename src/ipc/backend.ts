@@ -2,6 +2,7 @@ import type {
   CheckUpdatesResult,
   Driver,
   InitialData,
+  InstalledComponent,
   RestorePoint,
   Settings,
   Summary,
@@ -12,8 +13,8 @@ import type {
  * Transport-agnostic backend contract.
  *
  * Two implementations exist:
- *  - `tauri.ts`  — invokes the Rust core over IPC (real desktop app);
- *  - `mock.ts`   — in-browser mock backed by the same fixtures, used for
+ *  - `tauri.ts`  - invokes the Rust core over IPC (real desktop app);
+ *  - `mock.ts`   - in-browser mock backed by the same fixtures, used for
  *                  web previews and unit tests until the core is available.
  */
 export interface Backend {
@@ -26,6 +27,8 @@ export interface Backend {
   deleteRestorePoint(id: string): Promise<void>;
   restoreFromPoint(id: string): Promise<void>;
   saveSettings(settings: Settings): Promise<Settings>;
+  openBackupFolder(): Promise<void>;
+  detectInstalledComponents(): Promise<InstalledComponent[]>;
   getSystemInfo(): Promise<SystemInfo>;
   computeSummary(drivers: Driver[]): Promise<Summary>;
 }

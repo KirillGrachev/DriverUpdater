@@ -1,8 +1,8 @@
 [package]
 name = "driver-updater"
 version = "1.0.0"
-description = "Driver Updater — free open-source driver manager (Tauri core)"
-authors = ["Driver Updater Community"]
+description = "Driver Updater - free open-source driver manager (Tauri core)"
+authors = ["Kirill Grachev <https://github.com/KirillGrachev>"]
 license = "MIT"
 edition = "2021"
 rust-version = "1.77.2"
@@ -20,6 +20,8 @@ tauri = { version = "2", features = [] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["time"] }
+tauri-plugin-opener = "2"
+sysinfo = "0.30"
 
 [profile.release]
 codegen-units = 1
