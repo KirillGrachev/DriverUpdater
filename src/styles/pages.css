@@ -354,6 +354,20 @@
     overflow: hidden;
 }
 
+/** Non-interactive containers must never show a browser focus ring. */
+.card:focus,
+.card:focus-visible,
+.drivers-card:focus,
+.drivers-card:focus-visible,
+.driver-list:focus,
+.driver-list:focus-visible,
+.drivers-groups:focus,
+.drivers-groups:focus-visible,
+.app-main:focus,
+.app-main:focus-visible {
+    outline: none;
+}
+
 .driver-list {
     display: flex;
     flex-direction: column;
