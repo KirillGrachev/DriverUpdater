@@ -1,5 +1,5 @@
 import logo from '../assets/branding/logo.png';
-import persona from '../assets/branding/persona.png';
+import aboutMascot from '../assets/branding/about-mascot.png';
 import {
   IconBug,
   IconGithub,
@@ -116,7 +116,7 @@ export function AboutPage() {
       </section>
 
       <section className="card about-thanks">
-        <img className="about-thanks-mascot" src={persona} alt="" draggable={false} />
+        <img className="about-thanks-mascot" src={aboutMascot} alt="" draggable={false} />
         <div className="about-thanks-text">
           <h3>{t('about.thanks')}</h3>
           <p>
