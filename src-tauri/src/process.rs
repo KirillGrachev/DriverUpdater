@@ -123,3 +123,8 @@ fn kill_process_tree(pid: u32) {
 
 #[cfg(not(target_os = "windows"))]
 fn kill_process_tree(_pid: u32) {}
+
+#[cfg(not(target_os = "windows"))]
+pub fn run_powershell(_script: &str, _timeout: Duration) -> Result<ProcessOutput, String> {
+    Err("PowerShell is available only on Windows".to_string())
+}
