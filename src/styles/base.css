@@ -363,7 +363,7 @@ a {
 
 .dock-about {
     --info-outer: var(--c-primary);
-    --info-inner: #fff;
+    --info-inner: var(--c-card);
     --info-glyph: var(--c-primary);
     display: grid;
     place-items: center;
@@ -381,7 +381,7 @@ a {
 
 .dock-about:not(.active) {
     --info-outer: var(--c-text-2);
-    --info-inner: #fff;
+    --info-inner: var(--c-card);
     --info-glyph: var(--c-text-2);
 }
 
