@@ -5,6 +5,8 @@ import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup, type Compone
 import type { InstalledComponent } from '../ipc/types';
 import { useApp } from '../store/app';
 
+const remoteVersionCache = new Map<string, string[]>();
+
 const RUNTIME_SUBGROUPS: { id: ComponentSubgroup; titleKey: string }[] = [
     { id: 'dotnet', titleKey: 'components.groupDotnet' },
     { id: 'native', titleKey: 'components.groupNative' },
@@ -84,13 +86,19 @@ export function ComponentsPage() {
             while (!cancelled && cursor < queue.length) {
                 const item = queue[cursor++];
                 if (!item.wingetId) continue;
+                const cached = remoteVersionCache.get(item.id);
+                if (cached) {
+                    setVersions((prev) => ({ ...prev, [item.id]: cached }));
+                    continue;
+                }
                 const remote = await listPackageVersions(item.wingetId);
                 if (cancelled || remote.length === 0) continue;
+                remoteVersionCache.set(item.id, remote);
                 setVersions((prev) => ({ ...prev, [item.id]: remote }));
             }
         };
 
-        void Promise.all(Array.from({ length: 4 }, worker));
+        void Promise.all(Array.from({ length: 1 }, worker));
         return () => {
             cancelled = true;
         };

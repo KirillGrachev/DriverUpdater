@@ -9,13 +9,16 @@ use std::sync::{Arc, Mutex};
 
 use tauri::State;
 
-use crate::detection::detect_system_info;
+use crate::backup::{DriverBackupProvider, WindowsDriverBackups};
+use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
     SystemInfo,
 };
 use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
+use crate::restore::{RestorePointProvider, WindowsRestorePoints};
+use crate::windows_update::{DriverUpdateProvider, WindowsUpdateProvider};
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 
@@ -30,12 +33,14 @@ pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
  * @param operation repository work to execute under the mutex
  * @returns operation result or a serialized error
  */
-async fn run_repository<T, F>(state: State<'_, AppRepository>, operation: F) -> Result<T, String>
+async fn run_repository_handle<T, F>(
+    repository: Arc<Mutex<DriverRepository>>,
+    operation: F,
+) -> Result<T, String>
 where
     T: Send + 'static,
     F: FnOnce(&mut DriverRepository) -> Result<T, String> + Send + 'static,
 {
-    let repository = Arc::clone(&state.0);
     tauri::async_runtime::spawn_blocking(move || {
         let mut repository = repository.lock().map_err(|error| error.to_string())?;
         operation(&mut repository)
@@ -44,10 +49,36 @@ where
     .map_err(|error| error.to_string())?
 }
 
+async fn run_repository<T, F>(state: State<'_, AppRepository>, operation: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce(&mut DriverRepository) -> Result<T, String> + Send + 'static,
+{
+    run_repository_handle(Arc::clone(&state.0), operation).await
+}
+
+async fn detect_drivers() -> Option<Vec<Driver>> {
+    tauri::async_runtime::spawn_blocking(|| NativeDetector.detect())
+        .await
+        .ok()
+        .flatten()
+}
+
 #[tauri::command]
 pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
-    run_repository(state, |repository| {
-        let _ = repository.ensure_fresh();
+    let repository = Arc::clone(&state.0);
+    let needs_scan = run_repository_handle(Arc::clone(&repository), |repository| {
+        Ok(repository.needs_scan())
+    })
+    .await?;
+    if needs_scan {
+        let drivers = detect_drivers().await;
+        let _ = run_repository_handle(Arc::clone(&repository), move |repository| {
+            repository.apply_initial_scan(drivers)
+        })
+        .await;
+    }
+    run_repository_handle(repository, |repository| {
         let _ = repository.reload_restore_points();
         Ok(repository.snapshot())
     })
@@ -56,12 +87,62 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
 
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
-    run_repository(state, |repository| repository.check_updates()).await
+    let repository = Arc::clone(&state.0);
+    let drivers = detect_drivers().await;
+    let updates = tauri::async_runtime::spawn_blocking(|| WindowsUpdateProvider.find_updates())
+        .await
+        .map_err(|error| error.to_string())?;
+    run_repository_handle(repository, move |repository| {
+        repository.apply_check_result(drivers, updates)
+    })
+    .await
+}
+
+async fn install_one(
+    repository: Arc<Mutex<DriverRepository>>,
+    id: String,
+) -> Result<Driver, String> {
+    let plan = run_repository_handle(Arc::clone(&repository), {
+        let id = id.clone();
+        move |repository| repository.prepare_install(&id)
+    })
+    .await?;
+
+    if plan.restore_before_install {
+        let name = crate::models::LocalizedText {
+            ru: format!("Driver Updater: перед обновлением {}", plan.driver_name),
+            en: format!("Driver Updater: before updating {}", plan.driver_name),
+        };
+        tauri::async_runtime::spawn_blocking(move || WindowsRestorePoints.create(&name))
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("restore point was not created: {error}"))?;
+    }
+    if plan.keep_backups {
+        let backup_dir = plan.backup_dir.clone();
+        tauri::async_runtime::spawn_blocking(move || {
+            WindowsDriverBackups::new(backup_dir).create()
+        })
+        .await
+        .map_err(|error| error.to_string())?
+        .map_err(|error| format!("driver backup was not created: {error}"))?;
+    }
+
+    let update_id = plan.update_id.clone();
+    let outcome = tauri::async_runtime::spawn_blocking(move || {
+        WindowsUpdateProvider.install_update(&update_id)
+    })
+    .await
+    .map_err(|error| error.to_string())??;
+    run_repository_handle(repository, move |repository| {
+        repository.finish_install(&id, outcome)
+    })
+    .await
 }
 
 #[tauri::command]
 pub async fn install_driver(state: State<'_, AppRepository>, id: String) -> Result<Driver, String> {
-    run_repository(state, move |repository| repository.install_driver(&id)).await
+    install_one(Arc::clone(&state.0), id).await
 }
 
 #[tauri::command]
@@ -69,7 +150,12 @@ pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
 ) -> Result<Vec<Driver>, String> {
-    run_repository(state, move |repository| repository.install_updates(&ids)).await
+    let repository = Arc::clone(&state.0);
+    let mut updated = Vec::new();
+    for id in ids {
+        updated.push(install_one(Arc::clone(&repository), id).await?);
+    }
+    Ok(updated)
 }
 
 #[tauri::command]

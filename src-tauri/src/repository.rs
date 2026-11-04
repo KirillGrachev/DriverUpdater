@@ -9,15 +9,21 @@ use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::backup::{DriverBackup, DriverBackupProvider, WindowsDriverBackups};
-use crate::detection::{
-    days_to_civil, ComponentDetector, DriverDetector, NativeDetector, SystemInfoProvider,
-};
+use crate::detection::{days_to_civil, ComponentDetector, NativeDetector, SystemInfoProvider};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
 };
 use crate::restore::{RestorePointProvider, WindowsRestorePoints};
 use crate::storage::{DriverCache, EncryptedStore, PersistedState, SCHEMA_VERSION};
-use crate::windows_update::{merge_updates, DriverUpdateProvider, WindowsUpdateProvider};
+use crate::windows_update::{merge_updates, DriverUpdate};
+
+pub struct InstallPlan {
+    pub update_id: String,
+    pub driver_name: String,
+    pub restore_before_install: bool,
+    pub keep_backups: bool,
+    pub backup_dir: PathBuf,
+}
 
 pub struct DriverRepository {
     drivers: Vec<Driver>,
@@ -31,10 +37,8 @@ pub struct DriverRepository {
     needs_scan: bool,
     scan_error: Option<String>,
     installed_components: Vec<String>,
-    detector: Box<dyn DriverDetector>,
     component_detector: Box<dyn ComponentDetector>,
     system_info: Box<dyn SystemInfoProvider>,
-    update_provider: Box<dyn DriverUpdateProvider>,
     restore_provider: Box<dyn RestorePointProvider>,
     backup_provider: Box<dyn DriverBackupProvider>,
 }
@@ -90,10 +94,8 @@ impl DriverRepository {
             needs_scan,
             scan_error,
             installed_components: Vec::new(),
-            detector: Box::<NativeDetector>::default(),
             component_detector: Box::<NativeDetector>::default(),
             system_info: Box::<NativeDetector>::default(),
-            update_provider: Box::<WindowsUpdateProvider>::default(),
             restore_provider: Box::<WindowsRestorePoints>::default(),
             backup_provider: Box::new(WindowsDriverBackups::new(backup_dir)),
         };
@@ -187,31 +189,6 @@ impl DriverRepository {
         Ok(unique)
     }
 
-    /// Scans Windows once when no fresh driver cache exists.
-    pub fn ensure_fresh(&mut self) -> Result<(), String> {
-        if !self.needs_scan {
-            return Ok(());
-        }
-        let drivers = match self.detector.detect().filter(|drivers| !drivers.is_empty()) {
-            Some(drivers) => drivers,
-            None => {
-                let error = "Windows driver scan returned no devices".to_string();
-                self.scan_error = Some(error.clone());
-                return Err(error);
-            }
-        };
-        if let Err(error) = self.cache.save(&drivers) {
-            self.scan_error = Some(format!("driver cache could not be saved: {error}"));
-            return Err(error);
-        }
-        self.drivers = drivers;
-        self.devices_total = self.drivers.len() as u32;
-        self.last_check = Some(now_iso());
-        self.needs_scan = false;
-        self.scan_error = None;
-        Ok(())
-    }
-
     pub fn snapshot(&self) -> InitialData {
         InitialData {
             drivers: self.drivers.clone(),
@@ -223,17 +200,36 @@ impl DriverRepository {
         }
     }
 
-    /// Rescans installed drivers and asks Windows Update for driver candidates.
-    pub fn check_updates(&mut self) -> Result<CheckUpdatesResult, String> {
-        let mut drivers = match self.detector.detect().filter(|drivers| !drivers.is_empty()) {
-            Some(drivers) => drivers,
-            None => {
-                let error = "Windows driver scan returned no devices".to_string();
-                self.scan_error = Some(error.clone());
-                return Err(error);
-            }
+    pub fn needs_scan(&self) -> bool {
+        self.needs_scan
+    }
+
+    pub fn apply_initial_scan(&mut self, drivers: Option<Vec<Driver>>) -> Result<(), String> {
+        let Some(drivers) = drivers.filter(|drivers| !drivers.is_empty()) else {
+            let error = "Windows driver scan returned no devices".to_string();
+            self.scan_error = Some(error.clone());
+            return Err(error);
         };
-        let updates = match self.update_provider.find_updates() {
+        self.cache.save(&drivers)?;
+        self.drivers = drivers;
+        self.devices_total = self.drivers.len() as u32;
+        self.last_check = Some(now_iso());
+        self.needs_scan = false;
+        self.scan_error = None;
+        Ok(())
+    }
+
+    pub fn apply_check_result(
+        &mut self,
+        drivers: Option<Vec<Driver>>,
+        updates: Result<Vec<DriverUpdate>, String>,
+    ) -> Result<CheckUpdatesResult, String> {
+        let Some(mut drivers) = drivers.filter(|drivers| !drivers.is_empty()) else {
+            let error = "Windows driver scan returned no devices".to_string();
+            self.scan_error = Some(error.clone());
+            return Err(error);
+        };
+        let updates = match updates {
             Ok(updates) => updates,
             Err(error) => {
                 self.scan_error = Some(format!("Windows Update search failed: {error}"));
@@ -241,10 +237,7 @@ impl DriverRepository {
             }
         };
         merge_updates(&mut drivers, &updates);
-        if let Err(error) = self.cache.save(&drivers) {
-            self.scan_error = Some(format!("driver cache could not be saved: {error}"));
-            return Err(error);
-        }
+        self.cache.save(&drivers)?;
         self.drivers = drivers;
         self.devices_total = self.drivers.len() as u32;
         self.last_check = Some(now_iso());
@@ -257,38 +250,34 @@ impl DriverRepository {
         })
     }
 
-    pub fn install_driver(&mut self, id: &str) -> Result<Driver, String> {
-        let index = self
+    pub fn prepare_install(&self, id: &str) -> Result<InstallPlan, String> {
+        let driver = self
             .drivers
             .iter()
-            .position(|driver| driver.id == id)
+            .find(|driver| driver.id == id)
             .ok_or_else(|| format!("Unknown driver: {id}"))?;
-        let update_id = self.drivers[index].update_id.clone().ok_or_else(|| {
+        let update_id = driver.update_id.clone().ok_or_else(|| {
             "No Windows Update candidate is associated with this driver".to_string()
         })?;
+        Ok(InstallPlan {
+            update_id,
+            driver_name: driver.name.clone(),
+            restore_before_install: self.settings.restore_point_before_install,
+            keep_backups: self.settings.keep_backups,
+            backup_dir: self.backup_dir.clone(),
+        })
+    }
 
-        if self.settings.restore_point_before_install {
-            self.restore_provider
-                .create(&LocalizedText {
-                    ru: format!(
-                        "Driver Updater: перед обновлением {}",
-                        self.drivers[index].name
-                    ),
-                    en: format!(
-                        "Driver Updater: before updating {}",
-                        self.drivers[index].name
-                    ),
-                })
-                .map_err(|error| format!("restore point was not created: {error}"))?;
-        }
-        if self.settings.keep_backups {
-            self.backup_provider
-                .create()
-                .map_err(|error| format!("driver backup was not created: {error}"))?;
-        }
-
-        let outcome = self.update_provider.install_update(&update_id)?;
-        let driver = &mut self.drivers[index];
+    pub fn finish_install(
+        &mut self,
+        id: &str,
+        outcome: crate::windows_update::InstallOutcome,
+    ) -> Result<Driver, String> {
+        let driver = self
+            .drivers
+            .iter_mut()
+            .find(|driver| driver.id == id)
+            .ok_or_else(|| format!("Unknown driver: {id}"))?;
         if let Some(available) = driver.available.take() {
             driver.current = available;
         }
@@ -299,24 +288,6 @@ impl DriverRepository {
         let installed = driver.clone();
         self.persist()?;
         Ok(installed)
-    }
-
-    pub fn install_updates(&mut self, ids: &[String]) -> Result<Vec<Driver>, String> {
-        for id in ids {
-            let driver = self
-                .drivers
-                .iter()
-                .find(|driver| &driver.id == id)
-                .ok_or_else(|| format!("Unknown driver: {id}"))?;
-            if driver.update_id.is_none() {
-                return Err(format!("No Windows Update candidate for driver: {id}"));
-            }
-        }
-        let mut updated = Vec::new();
-        for id in ids {
-            updated.push(self.install_driver(id)?);
-        }
-        Ok(updated)
     }
 
     pub fn restore_points(&self) -> Vec<RestorePoint> {
