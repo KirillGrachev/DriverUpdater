@@ -2,9 +2,11 @@ import { Sidebar } from './components/Sidebar';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
 import { Spinner } from './components/ui';
+import { AboutPage } from './pages/AboutPage';
 import { BackupsPage } from './pages/BackupsPage';
 import { DriversPage } from './pages/DriversPage';
 import { HomePage } from './pages/HomePage';
+import { SettingsPage } from './pages/SettingsPage';
 import { UpdatesPage } from './pages/UpdatesPage';
 import { useApp } from './store/app';
 
@@ -19,6 +21,10 @@ function CurrentPage() {
       return <UpdatesPage />;
     case 'backups':
       return <BackupsPage />;
+    case 'settings':
+      return <SettingsPage />;
+    case 'about':
+      return <AboutPage />;
     default:
       return null;
   }
