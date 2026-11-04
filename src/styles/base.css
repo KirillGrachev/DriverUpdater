@@ -385,6 +385,11 @@ a {
     --info-glyph: var(--c-text-2);
 }
 
+[data-theme='dark'] .dock-about,
+[data-theme='dark'] .dock-about:not(.active) {
+    --info-inner: var(--c-card);
+}
+
 .dock-about svg {
     transition: filter 0.15s;
 }
