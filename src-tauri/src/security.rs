@@ -16,6 +16,7 @@ use std::ffi::c_void;
 /// File prefix that distinguishes sealed data from a legacy plaintext file.
 pub const MAGIC: &[u8; 8] = b"DRVUPD1\0";
 
+#[cfg(target_os = "windows")]
 const ENTROPY: &[u8] = b"dev.driverupdater.desktop";
 
 /// Returns whether a persisted payload is already sealed.

@@ -65,6 +65,7 @@ pub(crate) fn days_to_civil(z: u64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn normalize_driver_date(raw: &str) -> String {
     let raw = raw.trim();
     if raw.is_empty() {
@@ -240,6 +241,7 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
     let parts: Vec<u32> = version
@@ -322,6 +324,7 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     }
 }
 
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn extract_version(text: &str) -> Option<String> {
     let mut best = None;
     let mut current = String::new();

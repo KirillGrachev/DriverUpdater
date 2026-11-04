@@ -148,9 +148,11 @@ mod tests {
         let expected = json!({ "hostname": "test-pc", "count": 3 });
 
         store.save(&expected).expect("save");
-        let raw = fs::read(&path).expect("read raw");
         #[cfg(target_os = "windows")]
-        assert!(crate::security::is_sealed(&raw));
+        {
+            let raw = fs::read(&path).expect("read raw");
+            assert!(crate::security::is_sealed(&raw));
+        }
 
         let loaded: serde_json::Value = store.load().expect("load").expect("state");
         assert_eq!(loaded, expected);
