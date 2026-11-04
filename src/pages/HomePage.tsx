@@ -93,7 +93,9 @@ export function HomePage() {
                                 {data.summary.lastCheck ? when : t('home.lastCheckNever')}
                             </div>
                             <div className="last-check-sub">
-                                {t('home.lastCheckSub', { count: data.summary.devicesTotal })}
+                                {data.summary.lastCheck
+                                    ? t('home.lastCheckSub', { count: data.summary.devicesTotal })
+                                    : t('home.lastCheckNever')}
                             </div>
                         </div>
                     </div>

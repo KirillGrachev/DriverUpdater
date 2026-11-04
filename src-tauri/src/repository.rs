@@ -43,6 +43,16 @@ pub struct DriverRepository {
     backup_provider: Box<dyn DriverBackupProvider>,
 }
 
+fn clear_update_state(drivers: &mut [Driver]) {
+    for driver in drivers {
+        driver.available = None;
+        driver.status = "current".to_string();
+        driver.update_id = None;
+        driver.recommended = false;
+        driver.reboot_required = false;
+    }
+}
+
 fn now_iso() -> String {
     let secs = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -136,6 +146,9 @@ impl DriverRepository {
                 repo.scan_error = Some(format!("saved state could not be read: {error}"));
             }
         }
+        if repo.last_check.is_none() {
+            clear_update_state(&mut repo.drivers);
+        }
         repo.devices_total = repo.drivers.len() as u32;
         repo
     }
@@ -210,6 +223,8 @@ impl DriverRepository {
             self.scan_error = Some(error.clone());
             return Err(error);
         };
+        let mut drivers = drivers;
+        clear_update_state(&mut drivers);
         self.cache.save(&drivers)?;
         self.drivers = drivers;
         self.devices_total = self.drivers.len() as u32;
