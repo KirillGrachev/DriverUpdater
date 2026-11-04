@@ -27,6 +27,8 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm test
+      - name: Version consistency
+        run: node scripts/check-version.mjs
       - name: Build
         run: npm run build
 
@@ -51,6 +53,8 @@ jobs:
           workspaces: src-tauri
       - name: Cargo check
         run: cargo check --manifest-path src-tauri/Cargo.toml
+      - name: Cargo clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
       - name: Cargo format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
       - name: Cargo tests
@@ -67,6 +71,8 @@ jobs:
           workspaces: src-tauri
       - name: Cargo check
         run: cargo check --manifest-path src-tauri/Cargo.toml
+      - name: Cargo clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
       - name: Cargo format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
       - name: Cargo tests

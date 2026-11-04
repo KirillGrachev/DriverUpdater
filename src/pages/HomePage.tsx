@@ -16,7 +16,7 @@ export function HomePage() {
     const { t, locale, data, scanning, installingIds, navigate, scan, installDriver } = useApp();
     if (!data) return null;
 
-    const recommended = data.drivers.filter((d) => d.status === 'update').slice(0, 3);
+    const recommended = data.drivers.filter((d) => d.status === 'update' && d.recommended).slice(0, 3);
     const hasUpdates = data.summary.updatesAvailable > 0;
     const hasChecked = Boolean(data.summary.lastCheck);
     const when = formatRelativeDay(data.summary.lastCheck, locale, t);
