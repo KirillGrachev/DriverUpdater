@@ -377,28 +377,6 @@ export const IconPlusCircle = ({ size = 20, className }: IconProps) => (
 
 /** Settings and security icons. */
 
-export const IconGlobe = (p: IconProps) => (
-    <Svg {...p}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M3 12h18" />
-        <path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z" />
-    </Svg>
-);
-
-export const IconPalette = (p: IconProps) => (
-    <Svg {...p}>
-        <path d="M12 2a10 10 0 0 0 0 20c1 0 1.7-.8 1.7-1.7 0-.44-.18-.84-.44-1.13-.29-.29-.44-.68-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C22.03 5.99 17.5 2 12 2z" />
-        <path d="M7.5 10.5h.01M12 7h.01M16.5 10.5h.01" />
-    </Svg>
-);
-
-export const IconBell = (p: IconProps) => (
-    <Svg {...p}>
-        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
-        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
-    </Svg>
-);
-
 export const IconSun = (p: IconProps) => (
     <Svg {...p}>
         <circle cx="12" cy="12" r="4" />
@@ -607,19 +585,6 @@ export const IconMenuSettings = ({ size = 20, className }: IconProps) => (
 
 /** Settings row icons. */
 
-export const IconSettingsGlobe = ({ size = 20, className }: IconProps) => (
-    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
-        <circle cx="128" cy="128" r="116" fill="var(--settings-icon-accent)" />
-        <path
-            d="M12 128h232M128 12c40 34 40 198 0 232M128 12c-40 34-40 198 0 232M46 76h164M46 180h164"
-            stroke="var(--settings-icon-inner)"
-            strokeWidth="10"
-            strokeLinecap="round"
-            opacity=".9"
-        />
-    </svg>
-);
-
 export const IconSettingsClock = ({ size = 20, className }: IconProps) => (
     <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
         <circle
@@ -700,144 +665,6 @@ export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
             stroke="var(--settings-icon-accent)"
             strokeWidth="8"
             strokeLinejoin="round"
-        />
-    </svg>
-);
-
-export const IconSettingsShield = ({ size = 20, className }: IconProps) => (
-    <svg
-        width={(size * 385) / 409}
-        height={size}
-        viewBox="-16 -16 385 409"
-        fill="none"
-        className={className}
-        aria-hidden="true"
-    >
-        <path
-            d="M176.08 0c17.03 0 32.92 7.04 49.95 16.05 19.99 10.97 50.13 27.03 73.06 35.05 34.07 10.97 53.07 34.89 53.07 69.94 0 75.02-21.13 144.96-66.01 194.92-30.14 32.1-70.1 60.11-110.07 60.11S96.15 348.06 66.01 315.96C21.13 266 0 196.06 0 121.04 0 85.99 19 62.08 53.07 51.1c22.93-8.02 53.07-24.08 73.05-35.05C143.16 7.04 159.04 0 176.08 0Z"
-            fill="var(--settings-icon-accent)"
-        />
-        <path
-            d="M176.08 46.03c15.07 0 25.06 5.07 37.02 10.97 19.98 10.97 49.96 27.03 67.97 35.05 18.02 8.03 28.01 21.95 28.01 39.97 0 76-43.08 152-110.07 191.97-7.86 6.06-15.89 9.01-22.93 9.01-7.04 0-15.07-2.95-22.93-9.01C86.15 284.02 43.08 208.02 43.08 132.02c0-18.02 9.99-31.94 28.01-39.97 18.02-8.02 47.99-24.08 67.97-35.05 11.96-5.9 21.95-10.97 37.02-10.97Z"
-            fill="var(--settings-icon-fill)"
-        />
-        <path
-            d="m126.12 199.01 34.89 34.07 80.09-80.09"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="40"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-        />
-    </svg>
-);
-
-export const IconSettingsDatabase = ({ size = 20, className }: IconProps) => (
-    <svg
-        width={(size * 349) / 412}
-        height={size}
-        viewBox="-16 -16 349 412"
-        fill="none"
-        className={className}
-        aria-hidden="true"
-    >
-        <ellipse cx="158.07" cy="63.56" rx="158.07" ry="63.56" fill="var(--settings-icon-accent)" />
-        <path
-            d="M0 63.56v175.97c0 35.09 70.84 63.39 158.07 63.39s158.07-28.3 158.07-63.39V63.56c0 35.09-70.84 63.39-158.07 63.39S0 98.65 0 63.56Z"
-            fill="var(--settings-icon-fill)"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
-        />
-        <path
-            d="M0 151.02v18.5c0 35.09 70.84 63.39 158.07 63.39s158.07-28.3 158.07-63.39v-18.5"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="16"
-            fill="none"
-        />
-    </svg>
-);
-
-export const IconSettingsFolder = ({ size = 20, className }: IconProps) => (
-    <svg
-        width={(size * 388) / 367}
-        height={size}
-        viewBox="-16 -16 388 367"
-        fill="none"
-        className={className}
-        aria-hidden="true"
-    >
-        <path
-            d="M0 59.9C0 26.84 26.84 0 60.05 0h61.29c13.19 0 25.91 5.28 35.22 14.59l34.6 34.45c3.72 3.72 8.85 5.9 14.12 5.9h85.66c32.12 0 58.03 25.91 58.03 58.03v43L0 155.95V59.9Z"
-            fill="var(--settings-icon-accent)"
-        />
-        <path
-            d="M2.02 151c0-34.3 27.77-62.07 61.91-62.07h230.12c34.14 0 61.91 27.77 61.91 62.07v121.97c0 34.29-27.77 61.91-61.91 61.91H63.93c-34.14 0-61.91-27.62-61.91-61.91V151Z"
-            fill="var(--settings-icon-fill)"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
-        />
-    </svg>
-);
-
-export const IconSettingsChart = ({ size = 20, className }: IconProps) => (
-    <svg
-        width={(size * 409) / 341}
-        height={size}
-        viewBox="-16 -16 409 341"
-        fill="none"
-        className={className}
-        aria-hidden="true"
-    >
-        <rect
-            x="30.06"
-            y="140"
-            width="93.93"
-            height="105.04"
-            rx="24"
-            fill="var(--settings-icon-accent)"
-            opacity=".55"
-        />
-        <rect
-            x="132.98"
-            y="73.02"
-            width="99.97"
-            height="172.02"
-            rx="24"
-            fill="var(--settings-icon-accent)"
-            opacity=".75"
-        />
-        <rect x="244.06" y="0" width="100" height="245.04" rx="24" fill="var(--settings-icon-accent)" />
-        <rect
-            x="0"
-            y="222.01"
-            width="376.06"
-            height="86.09"
-            rx="43"
-            fill="var(--settings-icon-fill)"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
-        />
-    </svg>
-);
-
-export const IconSettingsCards = ({ size = 20, className }: IconProps) => (
-    <svg
-        width={(size * 383) / 344}
-        height={size}
-        viewBox="-16 -16 383 344"
-        fill="none"
-        className={className}
-        aria-hidden="true"
-    >
-        <rect x="0" y="0" width="267.48" height="251.46" rx="68" fill="var(--settings-icon-accent)" />
-        <rect
-            x="88.96"
-            y="72.94"
-            width="261.08"
-            height="238.49"
-            rx="68"
-            fill="var(--settings-icon-fill)"
-            stroke="var(--settings-icon-accent)"
-            strokeWidth="8"
         />
     </svg>
 );

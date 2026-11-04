@@ -100,7 +100,7 @@ telemetry is opt-in and disabled by default.
     </td>
     <td width="50%" valign="top">
       <h3>Desktop behaviour, not a website</h3>
-      <p>Custom frameless titlebar, a floating bottom dock, no text selection, no permanent scrollbar, no context menu, no devtools shortcuts. Light, dark and system themes are applied before the first paint, and the native window stays hidden until the theme and data are ready.</p>
+      <p>Custom frameless titlebar, a floating bottom dock, no text selection, no permanent scrollbar, no context menu, no devtools shortcuts. Light, dark and system themes are applied before the first paint; the native window is shown on the first React commit with a themed boot splash while the blocking scan finishes.</p>
     </td>
   </tr>
 </table>
@@ -237,9 +237,10 @@ Flow of a scan:
 ```text
 React action
   -> invoke("check_updates")
-  -> Tauri command
-  -> DriverRepository
-  -> PowerShell / CIM
+  -> async Tauri command
+  -> spawn_blocking
+  -> DriverRepository (mutex)
+  -> PowerShell / CIM with a 20 s timeout
   -> dedupe + cache + summary
   -> typed JSON back to the webview
 ```

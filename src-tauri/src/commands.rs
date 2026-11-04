@@ -5,7 +5,7 @@
 
 use std::path::Path;
 use std::process::Command;
-use std::sync::Mutex;
+use std::sync::{Arc, Mutex};
 
 use tauri::State;
 
@@ -15,24 +15,50 @@ use crate::models::{
 };
 use crate::repository::{detect_system_info, DriverRepository};
 
-pub struct AppRepository(pub Mutex<DriverRepository>);
+pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
+
+/**
+ * Runs a repository operation on the blocking pool.
+ *
+ * <p>PowerShell/CIM scans and disk writes are blocking calls; running them on
+ * Tauri's async executor would stall unrelated IPC commands. The repository
+ * handle is cloned into the closure so the command future stays `Send`.</p>
+ *
+ * @param state managed application state
+ * @param operation repository work to execute under the mutex
+ * @returns operation result or a serialized error
+ */
+async fn run_repository<T, F>(state: State<'_, AppRepository>, operation: F) -> Result<T, String>
+where
+    T: Send + 'static,
+    F: FnOnce(&mut DriverRepository) -> Result<T, String> + Send + 'static,
+{
+    let repository = Arc::clone(&state.0);
+    tauri::async_runtime::spawn_blocking(move || {
+        let mut repository = repository.lock().map_err(|error| error.to_string())?;
+        operation(&mut repository)
+    })
+    .await
+    .map_err(|error| error.to_string())?
+}
 
 #[tauri::command]
 pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
-    let repo = state.0.lock().map_err(|e| e.to_string())?;
-    Ok(repo.snapshot())
+    run_repository(state, |repository| {
+        repository.ensure_fresh();
+        Ok(repository.snapshot())
+    })
+    .await
 }
 
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    Ok(repo.check_updates())
+    run_repository(state, |repository| Ok(repository.check_updates())).await
 }
 
 #[tauri::command]
 pub async fn install_driver(state: State<'_, AppRepository>, id: String) -> Result<Driver, String> {
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    repo.install_driver(&id)
+    run_repository(state, move |repository| repository.install_driver(&id)).await
 }
 
 #[tauri::command]
@@ -40,16 +66,14 @@ pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
 ) -> Result<Vec<Driver>, String> {
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    repo.install_updates(&ids)
+    run_repository(state, move |repository| repository.install_updates(&ids)).await
 }
 
 #[tauri::command]
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<RestorePoint>, String> {
-    let repo = state.0.lock().map_err(|e| e.to_string())?;
-    Ok(repo.restore_points())
+    run_repository(state, |repository| Ok(repository.restore_points())).await
 }
 
 #[tauri::command]
@@ -57,8 +81,10 @@ pub async fn create_restore_point(
     state: State<'_, AppRepository>,
     name: LocalizedText,
 ) -> Result<RestorePoint, String> {
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    Ok(repo.create_restore_point(name))
+    run_repository(state, move |repository| {
+        Ok(repository.create_restore_point(name))
+    })
+    .await
 }
 
 #[tauri::command]
@@ -66,14 +92,15 @@ pub async fn delete_restore_point(
     state: State<'_, AppRepository>,
     id: String,
 ) -> Result<(), String> {
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    repo.delete_restore_point(&id)
+    run_repository(state, move |repository| {
+        repository.delete_restore_point(&id)
+    })
+    .await
 }
 
 #[tauri::command]
 pub async fn restore_from_point(state: State<'_, AppRepository>, id: String) -> Result<(), String> {
-    let repo = state.0.lock().map_err(|e| e.to_string())?;
-    repo.restore_from_point(&id)
+    run_repository(state, move |repository| repository.restore_from_point(&id)).await
 }
 
 #[tauri::command]
@@ -82,8 +109,10 @@ pub async fn save_settings(
     settings: Settings,
 ) -> Result<Settings, String> {
     validate_settings(&settings)?;
-    let mut repo = state.0.lock().map_err(|e| e.to_string())?;
-    Ok(repo.save_settings(settings))
+    run_repository(state, move |repository| {
+        Ok(repository.save_settings(settings))
+    })
+    .await
 }
 
 /// Rejects values the UI never produces, so a compromised or buggy webview
@@ -115,11 +144,13 @@ fn validate_settings(settings: &Settings) -> Result<(), String> {
 
 #[tauri::command]
 pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), String> {
-    let dir = {
-        let repo = state.0.lock().map_err(|e| e.to_string())?;
-        repo.backup_dir().to_path_buf()
+    let folder = {
+        let repository = state.0.lock().map_err(|error| error.to_string())?;
+        repository.backup_dir().to_path_buf()
     };
-    open_folder(&dir)
+    tauri::async_runtime::spawn_blocking(move || open_folder(&folder))
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 fn open_folder(path: &Path) -> Result<(), String> {
@@ -147,7 +178,10 @@ pub async fn open_external_url(url: String) -> Result<bool, String> {
 
     #[cfg(target_os = "windows")]
     {
-        Ok(open_in_running_browser(&url))
+        tauri::async_runtime::spawn_blocking(move || open_in_running_browser(&url))
+            .await
+            .map(Ok)
+            .map_err(|error| error.to_string())?
     }
 
     #[cfg(not(target_os = "windows"))]
@@ -196,12 +230,16 @@ fn open_in_running_browser(url: &str) -> bool {
 #[tauri::command]
 pub async fn detect_installed_components() -> Result<Vec<crate::models::InstalledComponent>, String>
 {
-    Ok(crate::repository::detect_installed_components())
+    tauri::async_runtime::spawn_blocking(crate::repository::detect_installed_components)
+        .await
+        .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
 pub async fn get_system_info() -> Result<SystemInfo, String> {
-    Ok(detect_system_info())
+    tauri::async_runtime::spawn_blocking(detect_system_info)
+        .await
+        .map_err(|error| error.to_string())
 }
 
 #[tauri::command]
@@ -209,13 +247,18 @@ pub async fn compute_summary(
     state: State<'_, AppRepository>,
     drivers: Vec<Driver>,
 ) -> Result<Summary, String> {
-    let repo = state.0.lock().map_err(|e| e.to_string())?;
-    let base = repo.summary();
-    let updates_available = drivers.iter().filter(|d| d.status == "update").count() as u32;
-    Ok(Summary {
-        devices_total: base.devices_total,
-        up_to_date: base.devices_total.saturating_sub(updates_available),
-        updates_available,
-        last_check: base.last_check,
+    run_repository(state, move |repository| {
+        let base = repository.summary();
+        let updates_available = drivers
+            .iter()
+            .filter(|driver| driver.status == "update")
+            .count() as u32;
+        Ok(Summary {
+            devices_total: base.devices_total,
+            up_to_date: base.devices_total.saturating_sub(updates_available),
+            updates_available,
+            last_check: base.last_check,
+        })
     })
+    .await
 }

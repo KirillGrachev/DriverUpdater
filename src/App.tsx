@@ -1,15 +1,18 @@
-import { useEffect } from 'react';
+import { lazy, Suspense, useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
 import { Button, Spinner } from './components/ui';
-import { AboutPage } from './pages/AboutPage';
-import { BackupsPage } from './pages/BackupsPage';
-import { ComponentsPage } from './pages/ComponentsPage';
-import { DriversPage } from './pages/DriversPage';
 import { HomePage } from './pages/HomePage';
-import { SettingsPage } from './pages/SettingsPage';
+
+const AboutPage = lazy(() => import('./pages/AboutPage').then((module) => ({ default: module.AboutPage })));
+const BackupsPage = lazy(() => import('./pages/BackupsPage').then((module) => ({ default: module.BackupsPage })));
+const ComponentsPage = lazy(() =>
+    import('./pages/ComponentsPage').then((module) => ({ default: module.ComponentsPage })),
+);
+const DriversPage = lazy(() => import('./pages/DriversPage').then((module) => ({ default: module.DriversPage })));
+const SettingsPage = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
 import { useApp } from './store/app';
 
 function CurrentPage() {
@@ -36,15 +39,15 @@ export function App() {
     const { booting, bootError, route, t } = useApp();
 
     useEffect(() => {
-        if (booting) return;
         /**
          * The native window starts hidden so the webview never paints a white
-         * frame while the theme and initial data are still loading.
+         * frame. It is shown on the first React commit, with the themed boot
+         * splash already in place while the blocking scan finishes.
          */
         if ('__TAURI_INTERNALS__' in window) {
             void getCurrentWindow().show();
         }
-    }, [booting]);
+    }, []);
 
     if (booting) {
         return (
@@ -78,7 +81,15 @@ export function App() {
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
-                    <CurrentPage key={route} />
+                    <Suspense
+                        fallback={
+                            <div className="page-loading">
+                                <Spinner size={26} />
+                            </div>
+                        }
+                    >
+                        <CurrentPage key={route} />
+                    </Suspense>
                 </main>
             </div>
             <BottomDock />

@@ -270,6 +270,13 @@ a {
 
 /** Application layout. */
 
+.page-loading {
+    display: grid;
+    place-items: center;
+    min-height: 240px;
+    color: var(--c-primary);
+}
+
 .app-body {
     flex: 1;
     display: flex;

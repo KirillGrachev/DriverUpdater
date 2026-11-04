@@ -9,7 +9,7 @@ use std::collections::HashSet;
 use std::fs;
 use std::hash::{Hash, Hasher};
 use std::path::PathBuf;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, InstalledComponent, LocalizedText, RestorePoint,
@@ -36,6 +36,7 @@ pub struct DriverRepository {
     devices_total: u32,
     state_file: Option<PathBuf>,
     backup_dir: PathBuf,
+    needs_scan: bool,
 }
 
 fn now_iso() -> String {
@@ -114,12 +115,24 @@ fn normalize_driver_date(raw: &str) -> String {
     String::new()
 }
 
+/// Runs a Windows PowerShell script with a hard timeout and no console window.
+///
+/// The output is drained on a separate thread so a large CIM/registry payload
+/// cannot fill the pipe and deadlock the child while the timeout is pending.
+///
+/// @param script PowerShell command text
+/// @param timeout maximum wall-clock time for the child process
+/// @returns UTF-8 stdout on success, or `None` on timeout/failure
 #[cfg(target_os = "windows")]
-fn detect_installed_drivers() -> Option<Vec<Driver>> {
-    use std::process::Command;
+fn run_powershell(script: &str, timeout: Duration) -> Option<String> {
+    use std::io::Read;
+    use std::os::windows::process::CommandExt;
+    use std::process::{Command, Stdio};
+    use wait_timeout::ChildExt;
 
-    let script = r#"[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -and $_.DriverVersion } | Select-Object DeviceName,DeviceClass,Manufacturer,DriverVersion,DriverDate,DeviceID | ConvertTo-Json -Compress"#;
-    let output = Command::new("powershell.exe")
+    const CREATE_NO_WINDOW: u32 = 0x08000000;
+
+    let mut child = Command::new("powershell.exe")
         .args([
             "-NoProfile",
             "-NonInteractive",
@@ -128,12 +141,38 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             "-Command",
             script,
         ])
-        .output()
+        .creation_flags(CREATE_NO_WINDOW)
+        .stdout(Stdio::piped())
+        .stderr(Stdio::null())
+        .spawn()
         .ok()?;
-    if !output.status.success() {
+
+    let mut stdout = child.stdout.take()?;
+    let reader = std::thread::spawn(move || {
+        let mut buffer = Vec::new();
+        stdout.read_to_end(&mut buffer).ok().map(|_| buffer)
+    });
+
+    let status = child.wait_timeout(timeout).ok().flatten();
+    let Some(status) = status else {
+        let _ = child.kill();
+        let _ = child.wait();
+        let _ = reader.join();
+        return None;
+    };
+
+    let bytes = reader.join().ok().flatten()?;
+    if !status.success() {
         return None;
     }
-    let value: serde_json::Value = serde_json::from_slice(&output.stdout).ok()?;
+    String::from_utf8(bytes).ok()
+}
+
+#[cfg(target_os = "windows")]
+fn detect_installed_drivers() -> Option<Vec<Driver>> {
+    let script = r#"[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -and $_.DriverVersion } | Select-Object DeviceName,DeviceClass,Manufacturer,DriverVersion,DriverDate,DeviceID | ConvertTo-Json -Compress"#;
+    let stdout = run_powershell(script, Duration::from_secs(20))?;
+    let value: serde_json::Value = serde_json::from_str(&stdout).ok()?;
     let rows: Vec<&serde_json::Value> = match &value {
         serde_json::Value::Array(items) => items.iter().collect(),
         serde_json::Value::Object(_) => vec![&value],
@@ -216,36 +255,36 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
-fn load_or_detect_drivers(state_file: Option<&std::path::Path>) -> Option<Vec<Driver>> {
-    let cache = state_file
+fn driver_cache_path(state_file: Option<&std::path::Path>) -> Option<PathBuf> {
+    state_file
         .and_then(|path| path.parent())
-        .map(|dir| dir.join("installed-drivers.json"));
-    if let Some(path) = &cache {
-        if let Ok(raw) = fs::read_to_string(path) {
-            if let Ok(drivers) = serde_json::from_str::<Vec<Driver>>(&raw) {
-                if !drivers.is_empty() {
-                    return Some(drivers);
-                }
-            }
-        }
-    }
+        .map(|directory| directory.join("installed-drivers.json"))
+}
 
-    let drivers = detect_installed_drivers()?;
-    if let Some(path) = &cache {
-        if let Some(parent) = path.parent() {
-            let _ = fs::create_dir_all(parent);
-        }
-        if let Ok(raw) = serde_json::to_string_pretty(&drivers) {
-            let _ = fs::write(path, raw);
-        }
+fn read_cached_drivers(state_file: Option<&std::path::Path>) -> Option<Vec<Driver>> {
+    let path = driver_cache_path(state_file)?;
+    let raw = fs::read_to_string(path).ok()?;
+    let drivers: Vec<Driver> = serde_json::from_str(&raw).ok()?;
+    (!drivers.is_empty()).then_some(drivers)
+}
+
+fn write_cached_drivers(state_file: Option<&std::path::Path>, drivers: &[Driver]) {
+    let Some(path) = driver_cache_path(state_file) else {
+        return;
+    };
+    if let Some(parent) = path.parent() {
+        let _ = fs::create_dir_all(parent);
     }
-    Some(drivers)
+    if let Ok(raw) = serde_json::to_string_pretty(drivers) {
+        let _ = fs::write(path, raw);
+    }
 }
 
 impl DriverRepository {
     pub fn new(state_file: Option<PathBuf>, backup_dir: PathBuf) -> Self {
-        let detected = load_or_detect_drivers(state_file.as_deref());
-        let drivers: Vec<Driver> = detected.clone().unwrap_or_else(|| {
+        let cached = read_cached_drivers(state_file.as_deref());
+        let needs_scan = cached.is_none();
+        let drivers: Vec<Driver> = cached.clone().unwrap_or_else(|| {
             serde_json::from_str(FIXTURE_DRIVERS).expect("drivers fixture must be valid")
         });
         let restore_points: Vec<RestorePoint> = serde_json::from_str(FIXTURE_RESTORE_POINTS)
@@ -265,13 +304,14 @@ impl DriverRepository {
             devices_total: 0,
             state_file,
             backup_dir,
+            needs_scan,
         };
 
         if let Some(path) = repo.state_file.clone() {
             if let Ok(raw) = fs::read_to_string(&path) {
                 if let Ok(state) = serde_json::from_str::<PersistedState>(&raw) {
                     // A real hardware scan always wins over old test fixtures.
-                    if detected.is_none() {
+                    if cached.is_none() {
                         repo.drivers = state.drivers;
                     }
                     repo.restore_points = state.restore_points;
@@ -324,6 +364,23 @@ impl DriverRepository {
         self.backup_dir.as_path()
     }
 
+    /// Scans Windows once when no fresh driver cache exists.
+    ///
+    /// The setup hook only builds the in-memory repository; the actual CIM
+    /// query runs in the blocking pool on the first IPC request.
+    pub fn ensure_fresh(&mut self) {
+        if !self.needs_scan {
+            return;
+        }
+        self.needs_scan = false;
+        let Some(drivers) = detect_installed_drivers() else {
+            return;
+        };
+        write_cached_drivers(self.state_file.as_deref(), &drivers);
+        self.drivers = drivers;
+        self.devices_total = self.drivers.len() as u32;
+    }
+
     pub fn snapshot(&self) -> InitialData {
         InitialData {
             drivers: self.drivers.clone(),
@@ -338,9 +395,11 @@ impl DriverRepository {
         // Rescan the machine so newly connected devices and updated drivers
         // are reflected without restarting the app.
         if let Some(drivers) = detect_installed_drivers() {
+            write_cached_drivers(self.state_file.as_deref(), &drivers);
             self.drivers = drivers;
             self.devices_total = self.drivers.len() as u32;
         }
+        self.needs_scan = false;
         self.last_check = Some(now_iso());
         self.persist();
         CheckUpdatesResult {
@@ -489,27 +548,11 @@ fn extract_version(text: &str) -> Option<String> {
 
 #[cfg(target_os = "windows")]
 pub fn detect_installed_components() -> Vec<InstalledComponent> {
-    use std::process::Command;
-
     let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,InstallLocation,DisplayIcon | ConvertTo-Json -Compress"#;
-    let output = Command::new("powershell.exe")
-        .args([
-            "-NoProfile",
-            "-NonInteractive",
-            "-ExecutionPolicy",
-            "Bypass",
-            "-Command",
-            script,
-        ])
-        .output()
-        .ok();
-    let Some(output) = output else {
+    let Some(stdout) = run_powershell(script, Duration::from_secs(20)) else {
         return Vec::new();
     };
-    if !output.status.success() {
-        return Vec::new();
-    }
-    let Ok(value) = serde_json::from_slice::<serde_json::Value>(&output.stdout) else {
+    let Ok(value) = serde_json::from_str::<serde_json::Value>(&stdout) else {
         return Vec::new();
     };
     let rows: Vec<&serde_json::Value> = match &value {
@@ -647,4 +690,61 @@ fn detect_os() -> String {
     }
     #[allow(unreachable_code)]
     std::env::consts::OS.to_string()
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn normalizes_dotnet_dates() {
+        assert_eq!(normalize_driver_date("/Date(1735689600000)/"), "2025-01-01");
+    }
+
+    #[test]
+    fn normalizes_slash_dates() {
+        assert_eq!(normalize_driver_date("10/15/2024"), "2024-10-15");
+    }
+
+    #[test]
+    fn normalizes_compact_dates() {
+        assert_eq!(normalize_driver_date("20240704"), "2024-07-04");
+    }
+
+    #[test]
+    fn rejects_invalid_dates() {
+        assert_eq!(normalize_driver_date("not a date"), "");
+    }
+
+    #[test]
+    fn maps_known_components() {
+        assert_eq!(
+            component_id_for("Python 3.12.4 (64-bit)"),
+            Some("python-3-12")
+        );
+        assert_eq!(component_id_for("7-Zip 24.09 (x64)"), Some("seven-zip-24"));
+        assert_eq!(
+            component_id_for("Microsoft Visual C++ 2015-2022 Redistributable"),
+            Some("vcredist-2015-2022")
+        );
+        assert_eq!(component_id_for("Unrelated Tool"), None);
+    }
+
+    #[test]
+    fn extracts_trailing_versions() {
+        assert_eq!(
+            extract_version("Python 3.12.4 (64-bit)").as_deref(),
+            Some("3.12.4")
+        );
+        assert_eq!(
+            extract_version("7-Zip 24.09 (x64)").as_deref(),
+            Some("24.09")
+        );
+        assert_eq!(extract_version("no version here"), None);
+    }
+
+    #[test]
+    fn converts_unix_epoch_to_civil_date() {
+        assert_eq!(days_to_civil(0), (1970, 1, 1));
+    }
 }

@@ -59,7 +59,9 @@ pub fn run() {
             #[cfg(target_os = "windows")]
             apply_backup_folder_icon(&backup_dir);
             let repo = DriverRepository::new(Some(state_dir.join("mock-state.json")), backup_dir);
-            app.manage(AppRepository(std::sync::Mutex::new(repo)));
+            app.manage(AppRepository(std::sync::Arc::new(std::sync::Mutex::new(
+                repo,
+            ))));
 
             // Keep the taskbar/window icon in sync with the bundled app icon.
             if let Some(window) = app.get_webview_window("main") {
