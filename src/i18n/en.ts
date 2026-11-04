@@ -232,6 +232,7 @@ const en: Dictionary = {
         mb: 'MB',
         never: 'No data',
         versionArrow: '→',
+        dismiss: 'Dismiss',
         scanError: 'Could not scan drivers',
         scanErrorHint: 'Check Windows Update and PowerShell access, then try again.',
     },

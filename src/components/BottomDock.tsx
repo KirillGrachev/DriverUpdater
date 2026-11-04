@@ -38,6 +38,7 @@ export function BottomDock() {
                         key={target}
                         type="button"
                         className={`dock-item ${route === target ? 'active' : ''}`}
+                        aria-current={route === target ? 'page' : undefined}
                         onClick={() => navigate(target)}
                     >
                         <Icon size={18} />

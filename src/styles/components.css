@@ -267,6 +267,10 @@
     font-weight: 600;
 }
 
+.select-option.keyboard-active {
+    background: var(--c-control);
+}
+
 .select-check {
     margin-left: auto;
 }

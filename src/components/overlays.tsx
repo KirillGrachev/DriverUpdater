@@ -1,15 +1,19 @@
-import { useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useApp } from '../store/app';
 import { IconAlert, IconCheckCircleFilled, IconClose, IconInfoFilled } from './icons';
 import { Button } from './ui';
 
 export function ToastHost() {
-    const { toasts, dismissToast } = useApp();
+    const { toasts, dismissToast, t } = useApp();
     if (toasts.length === 0) return null;
     return (
         <div className="toast-host" role="status" aria-live="polite">
             {toasts.map((toast) => (
-                <div key={toast.id} className={`toast toast-${toast.tone} ${toast.leaving ? 'leaving' : ''}`}>
+                <div
+                    key={toast.id}
+                    className={`toast toast-${toast.tone} ${toast.leaving ? 'leaving' : ''}`}
+                    role={toast.tone === 'error' ? 'alert' : undefined}
+                >
                     <span className="toast-icon">
                         {toast.tone === 'success' ? (
                             <IconCheckCircleFilled size={20} />
@@ -20,7 +24,12 @@ export function ToastHost() {
                         )}
                     </span>
                     <span className="toast-text">{toast.text}</span>
-                    <button type="button" className="toast-close" onClick={() => dismissToast(toast.id)}>
+                    <button
+                        type="button"
+                        className="toast-close"
+                        aria-label={t('common.dismiss')}
+                        onClick={() => dismissToast(toast.id)}
+                    >
                         <IconClose size={14} />
                     </button>
                 </div>
@@ -31,20 +40,55 @@ export function ToastHost() {
 
 export function ModalHost() {
     const { modal, closeModal } = useApp();
+    const modalRef = useRef<HTMLDivElement>(null);
+    const [busy, setBusy] = useState(false);
 
     useEffect(() => {
         if (!modal) return undefined;
+        const previous = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+        const controls = modalRef.current?.querySelectorAll<HTMLElement>('button');
+        controls?.[0]?.focus();
         const onKeyDown = (event: KeyboardEvent) => {
-            if (event.key === 'Escape') closeModal();
+            if (event.key === 'Escape') {
+                event.preventDefault();
+                closeModal();
+                return;
+            }
+            if (event.key !== 'Tab' || !modalRef.current) return;
+            const focusable = Array.from(modalRef.current.querySelectorAll<HTMLElement>('button:not(:disabled)'));
+            if (focusable.length === 0) return;
+            const first = focusable[0];
+            const last = focusable[focusable.length - 1];
+            if (event.shiftKey && document.activeElement === first) {
+                event.preventDefault();
+                last.focus();
+            } else if (!event.shiftKey && document.activeElement === last) {
+                event.preventDefault();
+                first.focus();
+            }
         };
         document.addEventListener('keydown', onKeyDown);
-        return () => document.removeEventListener('keydown', onKeyDown);
+        return () => {
+            document.removeEventListener('keydown', onKeyDown);
+            previous?.focus();
+        };
     }, [modal, closeModal]);
+
+    const confirm = async () => {
+        if (!modal || busy) return;
+        setBusy(true);
+        try {
+            await modal.onConfirm();
+        } finally {
+            setBusy(false);
+        }
+    };
 
     if (!modal) return null;
     return (
         <div className="modal-backdrop" onClick={closeModal}>
             <div
+                ref={modalRef}
                 className="modal"
                 role="dialog"
                 aria-modal="true"
@@ -59,7 +103,8 @@ export function ModalHost() {
                     </Button>
                     <Button
                         variant={modal.tone === 'danger' ? 'danger' : 'primary'}
-                        onClick={() => void modal.onConfirm()}
+                        loading={busy}
+                        onClick={() => void confirm()}
                     >
                         {modal.confirmLabel}
                     </Button>

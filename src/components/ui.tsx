@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { IconCheck, IconChevronDown } from './icons';
 
 /** Animated height container for disclosure panels. */
@@ -173,7 +173,9 @@ export function Select<T extends string>({
     onOpen?: () => void;
 }) {
     const [open, setOpen] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(0);
     const rootRef = useRef<HTMLDivElement>(null);
+    const listId = useId();
     const current = options.find((o) => o.value === value);
 
     const toggle = () => {
@@ -189,6 +191,51 @@ export function Select<T extends string>({
             }
         }
         setOpen((prev) => !prev);
+        setActiveIndex(
+            Math.max(
+                0,
+                options.findIndex((option) => option.value === value),
+            ),
+        );
+    };
+
+    const choose = (index: number) => {
+        const option = options[index];
+        if (!option) return;
+        onChange(option.value);
+        setOpen(false);
+        setActiveIndex(index);
+    };
+
+    const onKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>) => {
+        if (event.key === 'Escape') {
+            setOpen(false);
+            return;
+        }
+        if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+            event.preventDefault();
+            if (!open) {
+                setOpen(true);
+                return;
+            }
+            const direction = event.key === 'ArrowDown' ? 1 : -1;
+            setActiveIndex((index) => (index + direction + options.length) % options.length);
+            return;
+        }
+        if (event.key === 'Home' && open) {
+            event.preventDefault();
+            setActiveIndex(0);
+            return;
+        }
+        if (event.key === 'End' && open) {
+            event.preventDefault();
+            setActiveIndex(options.length - 1);
+            return;
+        }
+        if ((event.key === 'Enter' || event.key === ' ') && open) {
+            event.preventDefault();
+            choose(activeIndex);
+        }
     };
 
     useEffect(() => {
@@ -214,8 +261,11 @@ export function Select<T extends string>({
                 className="select-trigger"
                 aria-haspopup="listbox"
                 aria-expanded={open}
+                aria-controls={open ? listId : undefined}
+                aria-activedescendant={open ? `${listId}-option-${activeIndex}` : undefined}
                 aria-label={ariaLabel}
                 onClick={toggle}
+                onKeyDown={onKeyDown}
             >
                 {icon ? <span className="select-icon">{icon}</span> : null}
                 {current?.icon ? <span className="select-icon">{current.icon}</span> : null}
@@ -223,18 +273,19 @@ export function Select<T extends string>({
                 <IconChevronDown size={16} className="select-chevron" />
             </button>
             {open ? (
-                <ul className="select-menu" role="listbox" aria-label={ariaLabel}>
-                    {options.map((option) => (
+                <ul className="select-menu" role="listbox" aria-label={ariaLabel} id={listId}>
+                    {options.map((option, index) => (
                         <li key={option.value}>
                             <button
                                 type="button"
                                 role="option"
+                                id={`${listId}-option-${index}`}
                                 aria-selected={option.value === value}
-                                className={`select-option ${option.value === value ? 'active' : ''}`}
-                                onClick={() => {
-                                    onChange(option.value);
-                                    setOpen(false);
-                                }}
+                                className={`select-option ${option.value === value ? 'active' : ''} ${
+                                    index === activeIndex ? 'keyboard-active' : ''
+                                }`}
+                                onMouseEnter={() => setActiveIndex(index)}
+                                onClick={() => choose(index)}
                             >
                                 {option.icon ? <span className="select-icon">{option.icon}</span> : null}
                                 <span>{option.label}</span>

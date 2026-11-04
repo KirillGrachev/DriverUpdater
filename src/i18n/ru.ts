@@ -250,6 +250,7 @@ const ru: Dictionary = {
         mb: 'МБ',
         never: 'Нет данных',
         versionArrow: '→',
+        dismiss: 'Закрыть',
         scanError: 'Не удалось просканировать драйверы',
         scanErrorHint: 'Проверьте доступ к Windows Update и PowerShell и повторите попытку.',
     },
