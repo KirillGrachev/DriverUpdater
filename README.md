@@ -304,7 +304,7 @@ Formatting is enforced with Prettier (4 spaces, 120 columns) and `cargo fmt`:
 npm run format:check
 ```
 
-CI runs typecheck, unit tests, the Vite build and a Windows `cargo check`.
+CI runs Prettier, typecheck, unit tests, the Vite build, `cargo fmt`, `cargo check` and Rust unit tests on Linux and Windows.
 
 ---
 

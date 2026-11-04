@@ -49,6 +49,8 @@ jobs:
         run: cargo check --manifest-path src-tauri/Cargo.toml
       - name: Cargo format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - name: Cargo tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
 
   core-windows:
     name: Tauri core (cargo check, Windows/MSVC)
@@ -63,3 +65,5 @@ jobs:
         run: cargo check --manifest-path src-tauri/Cargo.toml
       - name: Cargo format
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - name: Cargo tests
+        run: cargo test --manifest-path src-tauri/Cargo.toml
