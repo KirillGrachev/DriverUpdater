@@ -265,6 +265,7 @@ fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
 }
 
 /* Component mapping starts here. */
+#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
     let parts: Vec<u32> = version
