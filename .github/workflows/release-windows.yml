@@ -1,0 +1,71 @@
+name: Release Windows
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    name: Windows ${{ matrix.arch }}
+    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-pc-windows-msvc
+            arch: x64
+            msvc: x64
+          - target: aarch64-pc-windows-msvc
+            arch: arm64
+            msvc: arm64
+          - target: i686-pc-windows-msvc
+            arch: x86
+            msvc: x86
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: ${{ matrix.msvc }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+          key: ${{ matrix.target }}
+      - name: Install dependencies
+        run: npm ci
+      - name: Build installers
+        run: npm run tauri -- build --target ${{ matrix.target }} --bundles msi nsis
+      - name: Package portable and symbols
+        shell: pwsh
+        run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-${{ matrix.arch }}
+          path: artifacts/windows-${{ matrix.arch }}
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: build-windows
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: windows-*
+          path: artifacts
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: artifacts/**
+          generate_release_notes: true

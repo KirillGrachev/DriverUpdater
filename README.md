@@ -64,13 +64,13 @@ failed install can leave a machine worse than it started.
 
 Driver Updater keeps the workflow visible:
 
-| Hand-managed drivers | Driver Updater |
-|---|---|
-| Version information split across Device Manager, vendor tools and the registry | One inventory with device, vendor, current version, available version and size |
-| No restore point until something breaks | Optional restore point before install, with a dedicated backups screen |
-| Updates silently replace packages | Update state is explicit: current, update, optional |
-| English-only utilities | 35 interface languages, including Russian and Ukrainian |
-| A web app in a desktop shell | Frameless native window, keyboard-safe layout, no context menu or browser shortcuts |
+| Hand-managed drivers                                                           | Driver Updater                                                                      |
+| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
+| Version information split across Device Manager, vendor tools and the registry | One inventory with device, vendor, current version, available version and size      |
+| No restore point until something breaks                                        | Optional restore point before install, with a dedicated backups screen              |
+| Updates silently replace packages                                              | Update state is explicit: current, update, optional                                 |
+| English-only utilities                                                         | 35 interface languages, including Russian and Ukrainian                             |
+| A web app in a desktop shell                                                   | Frameless native window, keyboard-safe layout, no context menu or browser shortcuts |
 
 The project is intentionally local-first. The driver scan reads Windows APIs
 through PowerShell/CIM, the UI never talks to a remote service, and anonymous
@@ -165,7 +165,8 @@ failure instead of pretending the package was installed.
 
 ### Running the app
 
-- Windows 10 or Windows 11, x64;
+- Windows 10 or Windows 11;
+- x64, ARM64 or 32-bit x86 (x86 is Windows 10 only);
 - no separate WebView2 or Visual C++ installation: both are handled by the installer;
 - about 250 MB of disk space for the installed app and the offline runtime payload.
 
