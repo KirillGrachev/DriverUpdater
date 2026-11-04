@@ -4,6 +4,7 @@ mod models;
 
 use commands::AppRepository;
 use mock::MockRepository;
+use tauri::Manager;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {

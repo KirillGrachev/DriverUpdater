@@ -112,11 +112,12 @@ pub async fn compute_summary(
     drivers: Vec<Driver>,
 ) -> Result<Summary, String> {
     let repo = state.0.lock().map_err(|e| e.to_string())?;
+    let base = repo.summary();
     let updates_available = drivers.iter().filter(|d| d.status == "update").count() as u32;
     Ok(Summary {
-        devices_total: repo.snapshot().summary.devices_total,
-        up_to_date: repo.snapshot().summary.devices_total.saturating_sub(updates_available),
+        devices_total: base.devices_total,
+        up_to_date: base.devices_total.saturating_sub(updates_available),
         updates_available,
-        last_check: repo.snapshot().summary.last_check,
+        last_check: base.last_check,
     })
 }
