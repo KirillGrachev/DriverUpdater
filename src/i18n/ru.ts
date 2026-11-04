@@ -1,7 +1,7 @@
 /**
- * Русская локаль — эталонный словарь приложения.
+ * Русская локаль - эталонный словарь приложения.
  * Значение может быть строкой или набором плюральных форм
- * ({ one, few, many, other } — формы выбираются через Intl.PluralRules).
+ * ({ one, few, many, other }: формы выбираются через Intl.PluralRules).
  */
 export type PluralForms = { one?: string; few?: string; many?: string; other: string };
 export type DictValue = string | PluralForms;
@@ -13,6 +13,7 @@ const ru: Dictionary = {
     home: 'Главная',
     drivers: 'Драйверы',
     updates: 'Обновления',
+    components: 'Компоненты',
     backups: 'Резервные копии',
     settings: 'Настройки',
     about: 'О проекте',
@@ -82,9 +83,20 @@ const ru: Dictionary = {
       input: 'Устройства ввода',
     },
   },
+  components: {
+    title: 'Компоненты',
+    subtitle: 'Языки программирования, среды выполнения и полезные инструменты',
+    runtimes: 'Среды выполнения',
+    languages: 'Языки программирования',
+    tools: 'Инструменты',
+    install: 'Установить',
+    installing: 'Установка…',
+    installed: 'Установлено',
+    installedToast: 'Установлено: {name}',
+    checking: 'Проверяем установленные компоненты…',
+  },
   updates: {
-    title: 'Обновления',
-    subtitle: 'Найдены обновления для ваших драйверов',
+    title: 'Обновления',    subtitle: 'Найдены обновления для ваших драйверов',
     selected: 'Выбрано обновлений: {n}',
     size: 'Примерный размер: {n} МБ',
     installBtn: 'Установить обновления',
@@ -105,6 +117,8 @@ const ru: Dictionary = {
     banner: 'Рекомендуем создавать точки восстановления перед установкой драйверов.',
     bannerSub: 'Это позволит откатить изменения в случае проблем.',
     pointsTitle: 'Точки восстановления',
+    emptyTitle: 'Точек восстановления пока нет',
+    emptySub: 'Создайте первую точку, чтобы можно было откатить изменения.',
     createBtn: 'Создать точку',
     creatingBtn: 'Создание…',
     restoreBtn: 'Восстановить',
@@ -149,7 +163,9 @@ const ru: Dictionary = {
     restoreBefore: 'Создавать точку восстановления перед установкой',
     keepBackups: 'Сохранять резервные копии драйверов',
     backupPath: 'Путь для сохранения копий',
-    browseBtn: 'Выбрать папку',
+    browseBtn: 'Открыть папку',
+    copyPath: 'Скопировать путь',
+    copiedToast: 'Путь скопирован',
     extra: 'Дополнительно',
     telemetry: 'Отправлять анонимную статистику использования',
     telemetrySub: 'Помогает улучшать приложение. Никаких личных данных.',
@@ -175,19 +191,20 @@ const ru: Dictionary = {
     sysInfo: 'Системная информация',
     os: 'Операционная система',
     arch: 'Архитектура',
+    computer: 'Компьютер',
     platform: 'Платформа',
     thanks: 'Спасибо, что используете наш проект!',
     thanksSub1: 'Мы ценим ваш вклад в развитие открытого программного обеспечения.',
-    thanksSub2: 'Если у вас есть идеи, предложения или нашли ошибку — обязательно сообщите нам.',
+    thanksSub2: 'Если у вас есть идеи, предложения или нашли ошибку, обязательно сообщите нам.',
     review: 'Оставить отзыв',
-    footer: '© 2025 Driver Updater. Open Source Project.',
+    footer: '© 2026 Driver Updater. Open Source Project.',
     licenseLink: 'Лицензия проекта',
   },
   common: {
     today: 'Сегодня',
     yesterday: 'Вчера',
     mb: 'МБ',
-    never: '—',
+    never: 'Нет данных',
     versionArrow: '→',
   },
   toasts: {
@@ -195,6 +212,7 @@ const ru: Dictionary = {
     scanFound: { one: 'Найдено {n} обновление', few: 'Найдено {n} обновления', many: 'Найдено {n} обновлений', other: 'Найдено {n} обновлений' },
     driverUpdated: 'Драйвер «{name}» обновлён',
     restorePointCreated: 'Точка восстановления создана',
+    error: 'Не удалось выполнить операцию',
   },
 };
 

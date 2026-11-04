@@ -1,11 +1,12 @@
 import type { Dictionary } from './ru';
 
-/** English locale — mirrors the Russian reference dictionary. */
+/** English locale - mirrors the Russian reference dictionary. */
 const en: Dictionary = {
   nav: {
     home: 'Home',
     drivers: 'Drivers',
     updates: 'Updates',
+    components: 'Components',
     backups: 'Backups',
     settings: 'Settings',
     about: 'About',
@@ -75,6 +76,18 @@ const en: Dictionary = {
       input: 'Input devices',
     },
   },
+  components: {
+    title: 'Components',
+    subtitle: 'Programming languages, runtimes and useful tools',
+    runtimes: 'Runtimes',
+    languages: 'Programming languages',
+    tools: 'Tools',
+    install: 'Install',
+    installing: 'Installing…',
+    installed: 'Installed',
+    installedToast: 'Installed: {name}',
+    checking: 'Checking installed components…',
+  },
   updates: {
     title: 'Updates',
     subtitle: 'Updates found for your drivers',
@@ -98,6 +111,8 @@ const en: Dictionary = {
     banner: 'We recommend creating restore points before installing drivers.',
     bannerSub: 'This lets you roll changes back if something goes wrong.',
     pointsTitle: 'Restore points',
+    emptyTitle: 'No restore points yet',
+    emptySub: 'Create the first point so you can roll back changes.',
     createBtn: 'Create a point',
     creatingBtn: 'Creating…',
     restoreBtn: 'Restore',
@@ -142,7 +157,9 @@ const en: Dictionary = {
     restoreBefore: 'Create a restore point before installing',
     keepBackups: 'Keep driver backups',
     backupPath: 'Backup storage path',
-    browseBtn: 'Browse folder',
+    browseBtn: 'Open folder',
+    copyPath: 'Copy path',
+    copiedToast: 'Path copied',
     extra: 'Extra',
     telemetry: 'Send anonymous usage statistics',
     telemetrySub: 'Helps improve the app. No personal data whatsoever.',
@@ -168,19 +185,20 @@ const en: Dictionary = {
     sysInfo: 'System information',
     os: 'Operating system',
     arch: 'Architecture',
+    computer: 'Computer',
     platform: 'Platform',
     thanks: 'Thank you for using our project!',
     thanksSub1: 'We appreciate your contribution to open source software.',
-    thanksSub2: 'If you have ideas, suggestions or found a bug — please let us know.',
+    thanksSub2: 'If you have ideas, suggestions or found a bug, please let us know.',
     review: 'Leave feedback',
-    footer: '© 2025 Driver Updater. Open Source Project.',
+    footer: '© 2026 Driver Updater. Open Source Project.',
     licenseLink: 'Project license',
   },
   common: {
     today: 'Today',
     yesterday: 'Yesterday',
     mb: 'MB',
-    never: '—',
+    never: 'No data',
     versionArrow: '→',
   },
   toasts: {
@@ -188,6 +206,7 @@ const en: Dictionary = {
     scanFound: { one: '{n} update found', other: '{n} updates found' },
     driverUpdated: 'Driver “{name}” updated',
     restorePointCreated: 'Restore point created',
+    error: 'Operation failed',
   },
 };
 
