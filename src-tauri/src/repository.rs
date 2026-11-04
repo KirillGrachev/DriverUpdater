@@ -213,7 +213,6 @@ impl DriverRepository {
         self.cache.save(&drivers)?;
         self.drivers = drivers;
         self.devices_total = self.drivers.len() as u32;
-        self.last_check = Some(now_iso());
         self.needs_scan = false;
         self.scan_error = None;
         Ok(())
