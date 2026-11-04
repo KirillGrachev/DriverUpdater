@@ -2,7 +2,8 @@
   "name": "driver-updater",
   "private": true,
   "version": "1.0.0",
-  "description": "Driver Updater — free open-source driver manager for Windows (Tauri + React)",
+  "description": "Driver Updater is a free open-source driver manager for Windows (Tauri + React)",
+  "author": "Kirill Grachev (https://github.com/KirillGrachev)",
   "license": "MIT",
   "type": "module",
   "scripts": {
@@ -16,6 +17,7 @@
   },
   "dependencies": {
     "@tauri-apps/api": "^2.5.0",
+    "@tauri-apps/plugin-opener": "^2.7.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },
@@ -24,6 +26,7 @@
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.4.1",
+    "flag-icons": "^7.6.0",
     "typescript": "^5.7.2",
     "vite": "^6.3.5",
     "vitest": "^4.1.12"
