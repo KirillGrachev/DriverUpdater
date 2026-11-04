@@ -101,7 +101,7 @@ function DriverRow({ driver }: { driver: Driver }) {
                         <div>
                             <span className="detail-label">{t('drivers.detailsSize')}</span>
                             <span className="detail-value">
-                                ~ {driver.sizeMb} {t('common.mb')}
+                                {driver.sizeMb > 0 ? `~ ${driver.sizeMb} ${t('common.mb')}` : t('common.never')}
                             </span>
                         </div>
                     </div>
