@@ -1,0 +1,20 @@
+# deps & build artifacts
+node_modules/
+dist/
+coverage/
+src-tauri/target/
+
+# local env / editor
+*.local
+.env
+.env.*
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# os noise
+.DS_Store
+Thumbs.db
+
+# logs
+*.log

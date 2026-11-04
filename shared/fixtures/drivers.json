@@ -1,0 +1,110 @@
+[
+  {
+    "id": "nvidia-graphics-driver",
+    "name": "NVIDIA Graphics Driver",
+    "vendor": "NVIDIA",
+    "category": "video",
+    "icon": { "kind": "gpu", "color": "#76b900" },
+    "current": "572.16",
+    "available": "576.02",
+    "status": "update",
+    "sizeMb": 720,
+    "recommended": true,
+    "device": "NVIDIA GeForce RTX 4070",
+    "released": "2025-10-14",
+    "description": {
+      "ru": "Драйвер видеоадаптера NVIDIA GeForce. Обновление улучшает производительность в играх и исправляет ошибки рендеринга в DX12-приложениях.",
+      "en": "NVIDIA GeForce graphics driver. This update improves gaming performance and fixes DX12 rendering issues."
+    }
+  },
+  {
+    "id": "realtek-audio-driver",
+    "name": "Realtek Audio Driver",
+    "vendor": "Realtek",
+    "category": "audio",
+    "icon": { "kind": "audio", "color": "#64748b" },
+    "current": "6.0.9803.1",
+    "available": "6.0.9805.1",
+    "status": "update",
+    "sizeMb": 45,
+    "recommended": true,
+    "device": "Realtek High Definition Audio",
+    "released": "2025-09-30",
+    "description": {
+      "ru": "Драйвер звукового контроллера Realtek HD Audio. Устраняет прерывания звука при переключении устройств воспроизведения.",
+      "en": "Realtek HD Audio controller driver. Fixes audio dropouts when switching playback devices."
+    }
+  },
+  {
+    "id": "intel-chipset-drivers",
+    "name": "Intel Chipset Drivers",
+    "vendor": "Intel",
+    "category": "chipset",
+    "icon": { "kind": "chip", "color": "#334155" },
+    "current": "10.1.28.6",
+    "available": "10.1.36.7",
+    "status": "update",
+    "sizeMb": 2,
+    "recommended": true,
+    "device": "Intel(R) B760 Chipset",
+    "released": "2025-10-02",
+    "description": {
+      "ru": "Пакет драйверов системной логики Intel: INF-файлы chipset, управление питанием и шины PCI/PCIe.",
+      "en": "Intel chipset device software package: chipset INF files, power management and PCI/PCIe buses."
+    }
+  },
+  {
+    "id": "realtek-gaming-network",
+    "name": "Realtek Gaming 2.5GbE Family Controller",
+    "vendor": "Realtek",
+    "category": "network",
+    "icon": { "kind": "network", "color": "#3b82f6" },
+    "current": "10.68.123.2025",
+    "available": null,
+    "status": "current",
+    "sizeMb": 12,
+    "recommended": false,
+    "device": "Realtek Gaming 2.5GbE Family Controller",
+    "released": "2025-06-18",
+    "description": {
+      "ru": "Драйвер сетевого адаптера Realtek Gaming 2.5GbE. Поддерживает Jumbo Frame и приоритизацию трафика.",
+      "en": "Realtek Gaming 2.5GbE network adapter driver. Supports Jumbo Frames and traffic prioritization."
+    }
+  },
+  {
+    "id": "intel-uhd-graphics",
+    "name": "Intel UHD Graphics",
+    "vendor": "Intel",
+    "category": "video",
+    "icon": { "kind": "display", "color": "#3b82f6" },
+    "current": "31.0.101.5522",
+    "available": "31.0.101.5793",
+    "status": "optional",
+    "sizeMb": 100,
+    "recommended": false,
+    "device": "Intel(R) UHD Graphics 770",
+    "released": "2025-08-21",
+    "description": {
+      "ru": "Драйвер встроенной графики Intel UHD. Обновление необязательно: содержит косметические правки и поддержку новых кодеков.",
+      "en": "Intel UHD integrated graphics driver. Optional update: cosmetic fixes and new codec support."
+    }
+  },
+  {
+    "id": "microsoft-input-config",
+    "name": "Microsoft Input Configuration Device",
+    "vendor": "Microsoft",
+    "category": "input",
+    "icon": { "kind": "input", "color": "#475569" },
+    "current": "10.0.26100.4301",
+    "available": null,
+    "status": "current",
+    "sizeMb": 1,
+    "recommended": false,
+    "device": "Microsoft Input Configuration Device",
+    "released": "2025-05-11",
+    "description": {
+      "ru": "Системный компонент конфигурации устройств ввода Windows (клавиатура, сенсорная панель, перо).",
+      "en": "Windows input configuration system component (keyboard, touchpad, pen)."
+    }
+  }
+]

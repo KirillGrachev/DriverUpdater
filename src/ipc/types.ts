@@ -1,0 +1,86 @@
+/**
+ * Shared IPC contracts between the Tauri core (Rust) and the webview (React).
+ *
+ * NOTE: while real hardware detection is not implemented yet, both sides run
+ * on top of the mock repository backed by `shared/fixtures/*.json`.
+ */
+
+export type LocalizedText = { ru: string; en: string };
+
+export type DriverCategory = 'video' | 'audio' | 'chipset' | 'network' | 'input';
+
+export type DriverStatus = 'update' | 'optional' | 'current';
+
+export type DriverIconKind = 'gpu' | 'audio' | 'chip' | 'network' | 'display' | 'input';
+
+export interface Driver {
+  id: string;
+  name: string;
+  vendor: string;
+  category: DriverCategory;
+  icon: { kind: DriverIconKind; color: string };
+  current: string;
+  available: string | null;
+  status: DriverStatus;
+  sizeMb: number;
+  recommended: boolean;
+  device: string;
+  released: string;
+  description: LocalizedText;
+}
+
+export type RestorePointKind = 'auto' | 'schedule' | 'manual';
+
+export interface RestorePoint {
+  id: string;
+  name: LocalizedText;
+  kind: RestorePointKind;
+  createdAt: string;
+  sizeMb: number;
+}
+
+export type ThemeMode = 'light' | 'dark' | 'system';
+export type CheckInterval = 'hourly' | 'daily' | 'weekly';
+export type RestorePointPeriod = 'daily' | 'weekly' | 'monthly';
+
+export interface Settings {
+  language: 'ru' | 'en';
+  theme: ThemeMode;
+  notifications: boolean;
+  autoCheck: boolean;
+  checkInterval: CheckInterval;
+  restorePointBeforeInstall: boolean;
+  keepBackups: boolean;
+  backupPath: string;
+  telemetry: boolean;
+  autoRestorePoints: boolean;
+  restorePointPeriod: RestorePointPeriod;
+}
+
+export interface Summary {
+  devicesTotal: number;
+  upToDate: number;
+  updatesAvailable: number;
+  /** ISO string of the last successful scan, null if never scanned. */
+  lastCheck: string | null;
+}
+
+export interface SystemInfo {
+  os: string;
+  arch: string;
+  platform: string;
+}
+
+/** Payload returned by the core on application start. */
+export interface InitialData {
+  drivers: Driver[];
+  restorePoints: RestorePoint[];
+  settings: Settings;
+  summary: Summary;
+  systemInfo: SystemInfo;
+}
+
+export interface CheckUpdatesResult {
+  drivers: Driver[];
+  summary: Summary;
+}

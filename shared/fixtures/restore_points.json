@@ -1,0 +1,30 @@
+[
+  {
+    "id": "rp-2025-11-02-preupdate",
+    "name": { "ru": "Перед обновлением драйверов", "en": "Before driver update" },
+    "kind": "auto",
+    "createdAt": "2025-11-02T14:32:00",
+    "sizeMb": 450
+  },
+  {
+    "id": "rp-2025-10-26-weekly",
+    "name": { "ru": "Еженедельная резервная копия", "en": "Weekly backup" },
+    "kind": "schedule",
+    "createdAt": "2025-10-26T20:00:00",
+    "sizeMb": 420
+  },
+  {
+    "id": "rp-2025-10-18-manual",
+    "name": { "ru": "Перед обновлением драйверов", "en": "Before driver update" },
+    "kind": "manual",
+    "createdAt": "2025-10-18T17:21:00",
+    "sizeMb": 438
+  },
+  {
+    "id": "rp-2025-10-10-install",
+    "name": { "ru": "Установка новых драйверов", "en": "New drivers installation" },
+    "kind": "manual",
+    "createdAt": "2025-10-10T12:15:00",
+    "sizeMb": 412
+  }
+]
