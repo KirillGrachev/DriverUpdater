@@ -7,7 +7,10 @@
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:5173",
     "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist"
+    "frontendDist": "../dist",
+    "windows": {
+      "staticVCRuntime": true
+    }
   },
   "app": {
     "windows": [
@@ -42,6 +45,12 @@
     ],
     "category": "Utility",
     "shortDescription": "Free open-source driver manager",
-    "longDescription": "Driver Updater is a free open-source manager that keeps the drivers on your computer up to date."
+    "longDescription": "Driver Updater is a free open-source manager that keeps the drivers on your computer up to date.",
+    "windows": {
+      "webviewInstallMode": {
+        "type": "offlineInstaller",
+        "silent": true
+      }
+    }
   }
 }
