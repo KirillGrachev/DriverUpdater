@@ -43,6 +43,26 @@ pub struct DriverRepository {
     backup_provider: Box<dyn DriverBackupProvider>,
 }
 
+const SUPPORTED_LANGUAGES: &[&str] = &[
+    "ru", "uk", "be", "en", "de", "es", "fr", "it", "pt", "pl", "cs", "sk", "bg", "hr", "sl", "nl",
+    "da", "sv", "fi", "et", "lv", "lt", "ro", "hu", "el", "ga", "mt", "kk", "ky", "tg", "tk", "uz",
+    "az", "ka", "hy",
+];
+
+fn default_language() -> String {
+    let locale = sys_locale::get_locale().unwrap_or_default();
+    let code = locale
+        .split(['-', '_'])
+        .next()
+        .unwrap_or("en")
+        .to_ascii_lowercase();
+    if SUPPORTED_LANGUAGES.contains(&code.as_str()) {
+        code
+    } else {
+        "en".to_string()
+    }
+}
+
 fn clear_update_state(drivers: &mut [Driver]) {
     for driver in drivers {
         driver.available = None;
@@ -89,6 +109,7 @@ impl DriverRepository {
         let drivers = cached.unwrap_or_default();
         let settings = Settings {
             backup_path: backup_dir.to_string_lossy().into_owned(),
+            language: default_language(),
             ..Settings::default()
         };
 
