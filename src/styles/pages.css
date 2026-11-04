@@ -801,8 +801,28 @@
     display: block;
 }
 
-.settings-line-icon {
-    color: var(--settings-icon-accent);
+.settings-asset-icon {
+    display: block;
+    width: 21px;
+    height: 21px;
+    object-fit: contain;
+}
+
+.theme-dark-only {
+    display: none;
+}
+
+[data-theme='dark'] .theme-light-only {
+    display: none;
+}
+
+[data-theme='dark'] .theme-dark-only {
+    display: block;
+}
+
+.icon-btn .settings-asset-icon {
+    width: 18px;
+    height: 18px;
 }
 
 .theme-icon {

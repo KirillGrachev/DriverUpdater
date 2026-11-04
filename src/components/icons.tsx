@@ -109,6 +109,24 @@ export const IconInfoFilled = ({ size = 20, className }: IconProps) => (
 );
 
 /** Monochrome info icon for the inactive About button. */
+export const IconInfoOutline = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={size}
+        height={size}
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth={1.8}
+        className={className}
+        aria-hidden="true"
+        focusable="false"
+    >
+        <rect x="2" y="2" width="20" height="20" rx="5.5" />
+        <circle cx="12" cy="8.1" r="1.2" fill="currentColor" stroke="none" />
+        <path d="M12 11.1v5.4" strokeLinecap="round" />
+    </svg>
+);
+
 export const IconSearch = (p: IconProps) => (
     <Svg {...p}>
         <circle cx="11" cy="11" r="7" />
@@ -359,6 +377,28 @@ export const IconPlusCircle = ({ size = 20, className }: IconProps) => (
 
 /** Settings and security icons. */
 
+export const IconGlobe = (p: IconProps) => (
+    <Svg {...p}>
+        <circle cx="12" cy="12" r="9" />
+        <path d="M3 12h18" />
+        <path d="M12 3a13.5 13.5 0 0 1 0 18 13.5 13.5 0 0 1 0-18z" />
+    </Svg>
+);
+
+export const IconPalette = (p: IconProps) => (
+    <Svg {...p}>
+        <path d="M12 2a10 10 0 0 0 0 20c1 0 1.7-.8 1.7-1.7 0-.44-.18-.84-.44-1.13-.29-.29-.44-.68-.44-1.12a1.64 1.64 0 0 1 1.67-1.67h2c3.05 0 5.55-2.5 5.55-5.55C22.03 5.99 17.5 2 12 2z" />
+        <path d="M7.5 10.5h.01M12 7h.01M16.5 10.5h.01" />
+    </Svg>
+);
+
+export const IconBell = (p: IconProps) => (
+    <Svg {...p}>
+        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+    </Svg>
+);
+
 export const IconSun = (p: IconProps) => (
     <Svg {...p}>
         <circle cx="12" cy="12" r="4" />
@@ -567,94 +607,280 @@ export const IconMenuSettings = ({ size = 20, className }: IconProps) => (
 
 /** Settings row icons. */
 
-/**
- * Renders a settings icon with the shared 1.8 px stroke.
- *
- * @param props icon properties
- * @returns SVG at the row icon size
- */
-function SettingsLineIcon({ children, size = 21, className }: IconProps & { children: ReactNode }) {
-    return (
-        <Svg size={size} className={className} strokeWidth={1.8}>
-            {children}
-        </Svg>
-    );
-}
-
-export const IconLineGlobe = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M3 12h18M12 3a14.5 14.5 0 0 1 0 18M12 3a14.5 14.5 0 0 0 0 18M5 8.5h14M5 15.5h14" />
-    </SettingsLineIcon>
+export const IconSettingsGlobe = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+        <circle cx="128" cy="128" r="116" fill="var(--settings-icon-accent)" />
+        <path
+            d="M12 128h232M128 12c40 34 40 198 0 232M128 12c-40 34-40 198 0 232M46 76h164M46 180h164"
+            stroke="var(--settings-icon-inner)"
+            strokeWidth="10"
+            strokeLinecap="round"
+            opacity=".9"
+        />
+    </svg>
 );
 
-export const IconLinePalette = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M12 3a9 9 0 1 0 0 18c1.7 0 2.5-1 2.5-2.2 0-1.5-1.5-1.8-1.5-3 0-1.1.9-1.8 2-1.8h1.5A4.5 4.5 0 0 0 21 9.5C21 5.9 17 3 12 3Z" />
-        <circle cx="7.5" cy="9" r="1" fill="currentColor" stroke="none" />
-        <circle cx="10.5" cy="6.8" r="1" fill="currentColor" stroke="none" />
-        <circle cx="14.5" cy="6.8" r="1" fill="currentColor" stroke="none" />
-        <circle cx="6.5" cy="13" r="1" fill="currentColor" stroke="none" />
-    </SettingsLineIcon>
+export const IconSettingsClock = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+        <circle
+            cx="128"
+            cy="128"
+            r="116"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+        />
+        <circle cx="128" cy="128" r="86" stroke="var(--settings-icon-stroke)" strokeWidth="5" />
+        <path
+            d="M128 84v50h44"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="20"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
 );
 
-export const IconLineBell = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M18 9a6 6 0 0 0-12 0c0 5-2 6-2 6h16s-2-1-2-6" />
-        <path d="M10 19a2 2 0 0 0 4 0" />
-    </SettingsLineIcon>
+export const IconSettingsBell = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+        <circle cx="128" cy="37" r="30" fill="var(--settings-icon-accent)" />
+        <path d="M92 205c0 30 16 43 36 43s36-13 36-43H92Z" fill="var(--settings-icon-accent)" />
+        <path
+            d="M128 38c48 0 83 37 83 87v15c0 15 6 23 15 34l7 9c10 13 3 28-13 28H36c-16 0-23-15-13-28l7-9c9-11 15-19 15-34v-15c0-50 35-87 83-87Z"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+            strokeLinejoin="round"
+        />
+    </svg>
 );
 
-export const IconLineSync = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M20 12a8 8 0 0 1-13.6 5.7L4 15" />
-        <path d="M4 12a8 8 0 0 1 13.6-5.7L20 9" />
-        <path d="M20 4v5h-5M4 20v-5h5" />
-    </SettingsLineIcon>
+export const IconSettingsPalette = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+        <path
+            d="M140 14c60 0 105 34 105 80 0 36-27 62-56 62h-9c-20 0-34 6-32 24 1 10 8 20 5 32-3 18-20 29-38 29-60 0-104-51-104-112C11 60 70 14 140 14Z"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+            strokeLinejoin="round"
+        />
+        <circle cx="140" cy="67" r="21" fill="var(--settings-icon-accent)" />
+        <circle cx="80" cy="100" r="21" fill="var(--settings-icon-accent)" />
+        <circle cx="192" cy="100" r="21" fill="var(--settings-icon-accent)" />
+        <circle cx="69" cy="157" r="21" fill="var(--settings-icon-accent)" />
+    </svg>
 );
 
-export const IconLineClock = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <circle cx="12" cy="12" r="9" />
-        <path d="M12 7v5l3.5 2" />
-    </SettingsLineIcon>
+export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
+        <path
+            d="M37 95c11-31 39-55 71-62 34-7 67 3 90 29"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="30"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path
+            d="m228 58-9 54-49-26 58-28Z"
+            fill="var(--settings-icon-accent)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="12"
+            strokeLinejoin="round"
+        />
+        <path
+            d="M219 161c-11 31-39 55-71 62-34 7-67-3-90-29"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="30"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path
+            d="m28 198 9-54 49 26-58 28Z"
+            fill="var(--settings-icon-accent)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="12"
+            strokeLinejoin="round"
+        />
+    </svg>
 );
 
-export const IconLineShield = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M12 3 4.5 6v5.5c0 4.4 3 8.2 7.5 9.5 4.5-1.3 7.5-5.1 7.5-9.5V6L12 3Z" />
-        <path d="m8.5 12 2.3 2.3 4.7-4.6" />
-    </SettingsLineIcon>
+export const IconSettingsShield = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={(size * 385) / 409}
+        height={size}
+        viewBox="-16 -16 385 409"
+        fill="none"
+        className={className}
+        aria-hidden="true"
+    >
+        <path
+            d="M176.08 0c17.03 0 32.92 7.04 49.95 16.05 19.99 10.97 50.13 27.03 73.06 35.05 34.07 10.97 53.07 34.89 53.07 69.94 0 75.02-21.13 144.96-66.01 194.92-30.14 32.1-70.1 60.11-110.07 60.11S96.15 348.06 66.01 315.96C21.13 266 0 196.06 0 121.04 0 85.99 19 62.08 53.07 51.1c22.93-8.02 53.07-24.08 73.05-35.05C143.16 7.04 159.04 0 176.08 0Z"
+            fill="var(--settings-icon-accent)"
+        />
+        <path
+            d="M176.08 46.03c15.07 0 25.06 5.07 37.02 10.97 19.98 10.97 49.96 27.03 67.97 35.05 18.02 8.03 28.01 21.95 28.01 39.97 0 76-43.08 152-110.07 191.97-7.86 6.06-15.89 9.01-22.93 9.01-7.04 0-15.07-2.95-22.93-9.01C86.15 284.02 43.08 208.02 43.08 132.02c0-18.02 9.99-31.94 28.01-39.97 18.02-8.02 47.99-24.08 67.97-35.05 11.96-5.9 21.95-10.97 37.02-10.97Z"
+            fill="var(--settings-icon-fill)"
+        />
+        <path
+            d="m126.12 199.01 34.89 34.07 80.09-80.09"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="40"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
 );
 
-export const IconLineDatabase = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <ellipse cx="12" cy="6" rx="7.5" ry="3" />
-        <path d="M4.5 6v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6" />
-        <path d="M4.5 12v6c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3v-6" />
-    </SettingsLineIcon>
+export const IconSettingsDatabase = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={(size * 349) / 412}
+        height={size}
+        viewBox="-16 -16 349 412"
+        fill="none"
+        className={className}
+        aria-hidden="true"
+    >
+        <ellipse cx="158.07" cy="63.56" rx="158.07" ry="63.56" fill="var(--settings-icon-accent)" />
+        <path
+            d="M0 63.56v175.97c0 35.09 70.84 63.39 158.07 63.39s158.07-28.3 158.07-63.39V63.56c0 35.09-70.84 63.39-158.07 63.39S0 98.65 0 63.56Z"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+        />
+        <path
+            d="M0 151.02v18.5c0 35.09 70.84 63.39 158.07 63.39s158.07-28.3 158.07-63.39v-18.5"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="16"
+            fill="none"
+        />
+    </svg>
 );
 
-export const IconLineFolder = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M3.5 7.5A2.5 2.5 0 0 1 6 5h4l2 2h6a2.5 2.5 0 0 1 2.5 2.5v7A2.5 2.5 0 0 1 18 19H6a2.5 2.5 0 0 1-2.5-2.5v-9Z" />
-    </SettingsLineIcon>
+export const IconSettingsFolder = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={(size * 388) / 367}
+        height={size}
+        viewBox="-16 -16 388 367"
+        fill="none"
+        className={className}
+        aria-hidden="true"
+    >
+        <path
+            d="M0 59.9C0 26.84 26.84 0 60.05 0h61.29c13.19 0 25.91 5.28 35.22 14.59l34.6 34.45c3.72 3.72 8.85 5.9 14.12 5.9h85.66c32.12 0 58.03 25.91 58.03 58.03v43L0 155.95V59.9Z"
+            fill="var(--settings-icon-accent)"
+        />
+        <path
+            d="M2.02 151c0-34.3 27.77-62.07 61.91-62.07h230.12c34.14 0 61.91 27.77 61.91 62.07v121.97c0 34.29-27.77 61.91-61.91 61.91H63.93c-34.14 0-61.91-27.62-61.91-61.91V151Z"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+        />
+    </svg>
 );
 
-export const IconLineChart = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <path d="M4 20V10M10 20V4M16 20v-7M22 20H2" />
-    </SettingsLineIcon>
+export const IconSettingsChart = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={(size * 409) / 341}
+        height={size}
+        viewBox="-16 -16 409 341"
+        fill="none"
+        className={className}
+        aria-hidden="true"
+    >
+        <rect
+            x="30.06"
+            y="140"
+            width="93.93"
+            height="105.04"
+            rx="24"
+            fill="var(--settings-icon-accent)"
+            opacity=".55"
+        />
+        <rect
+            x="132.98"
+            y="73.02"
+            width="99.97"
+            height="172.02"
+            rx="24"
+            fill="var(--settings-icon-accent)"
+            opacity=".75"
+        />
+        <rect x="244.06" y="0" width="100" height="245.04" rx="24" fill="var(--settings-icon-accent)" />
+        <rect
+            x="0"
+            y="222.01"
+            width="376.06"
+            height="86.09"
+            rx="43"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+        />
+    </svg>
 );
 
-export const IconLineCards = (p: IconProps) => (
-    <SettingsLineIcon {...p}>
-        <rect x="8" y="8" width="12" height="12" rx="2" />
-        <path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2" />
-    </SettingsLineIcon>
+export const IconSettingsCards = ({ size = 20, className }: IconProps) => (
+    <svg
+        width={(size * 383) / 344}
+        height={size}
+        viewBox="-16 -16 383 344"
+        fill="none"
+        className={className}
+        aria-hidden="true"
+    >
+        <rect x="0" y="0" width="267.48" height="251.46" rx="68" fill="var(--settings-icon-accent)" />
+        <rect
+            x="88.96"
+            y="72.94"
+            width="261.08"
+            height="238.49"
+            rx="68"
+            fill="var(--settings-icon-fill)"
+            stroke="var(--settings-icon-accent)"
+            strokeWidth="8"
+        />
+    </svg>
 );
 
 /** Theme segmented control icons. */
+
+export const IconThemeSun = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+        <rect x="2.5" y="4" width="19" height="16" rx="5" fill="#E2EAFC" stroke="#94A7DE" strokeWidth="1" />
+        <circle cx="12" cy="12" r="3.1" fill="#3075EC" />
+        <g stroke="#3075EC" strokeWidth="1.5" strokeLinecap="round">
+            <path d="M12 7.4v-.9M12 17.5v-.9M16.6 12h.9M7.5 12h-.9" />
+            <path d="m15.25 8.75.65-.65M8.1 15.9l.65-.65M15.25 15.25l.65.65M8.1 8.1l.65.65" />
+        </g>
+    </svg>
+);
+
+export const IconThemeMoon = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+        <rect x="2.5" y="4" width="19" height="16" rx="5" fill="#273053" stroke="#475280" strokeWidth="1" />
+        <path
+            d="M14.8 7.4a5.2 5.2 0 1 0 0 9.2 4.2 4.2 0 0 1 0-9.2Z"
+            fill="#F5F8FD"
+            stroke="#F5F8FD"
+            strokeWidth=".4"
+            strokeLinejoin="round"
+        />
+        <path d="m17.6 8.8.35.8.8.35-.8.35-.35.8-.35-.8-.8-.35.8-.35.35-.8Z" fill="#E1E8FC" />
+        <path d="m18.5 12.6.25.55.55.25-.55.25-.25.55-.25-.55-.55-.25.55-.25.25-.55Z" fill="#E1E8FC" />
+    </svg>
+);
+
+export const IconThemeSystem = ({ size = 20, className }: IconProps) => (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
+        <rect x="2.5" y="4" width="19" height="16" rx="5" fill="#273053" stroke="#475280" strokeWidth="1" />
+        <path d="M12 4.5h4.5a4.5 4.5 0 0 1 0 15H12v-15Z" fill="#E2EAFC" stroke="#94A7DE" strokeWidth=".8" />
+        <path d="M7.7 8.2a3.5 3.5 0 0 0 0 6.6 2.8 2.8 0 0 1 0-6.6Z" fill="#F5F8FD" />
+        <circle cx="16.4" cy="12" r="2.5" fill="#3075EC" />
+        <g stroke="#3075EC" strokeWidth="1.1" strokeLinecap="round">
+            <path d="M16.4 8.2v-.7M16.4 16.5v-.7M20.2 12h.7M11.9 12h.7" />
+        </g>
+    </svg>
+);
 
 export const IconWindows = ({ size = 20, className }: IconProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
