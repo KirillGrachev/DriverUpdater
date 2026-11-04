@@ -1,0 +1,100 @@
+name: Bug report
+description: Report a crash, visual defect or incorrect behavior
+title: "[Bug]: "
+labels: []
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a problem. Please search existing
+        issues first. For security vulnerabilities, use SECURITY.md instead of
+        this form.
+  - type: textarea
+    id: description
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+      placeholder: The drivers page shows a duplicate device after rescanning.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Exact steps, with the screen and the state before the problem.
+      placeholder: |
+        1. Open Drivers
+        2. Search for "Realtek"
+        3. Click "Check for updates"
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Home
+        - Drivers
+        - Components
+        - Backups
+        - Settings
+        - About
+        - Installer / startup
+        - Other
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: Version or commit
+      description: Release tag, installer name or `git rev-parse --short HEAD`.
+      placeholder: 1.0.0 / 3cc4099
+    validations:
+      required: true
+  - type: input
+    id: windows
+    attributes:
+      label: Windows version
+      placeholder: Windows 11 23H2, build 22631.4460
+    validations:
+      required: true
+  - type: dropdown
+    id: theme
+    attributes:
+      label: Theme
+      options:
+        - Light
+        - Dark
+        - System
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Paste relevant console output or attach a screenshot. Remove usernames and personal paths.
+      render: shell
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate.
+          required: true
+        - label: I removed secrets, usernames and personal paths from the report.
+          required: true
+        - label: This is not a security vulnerability (those go through SECURITY.md).
+          required: true
