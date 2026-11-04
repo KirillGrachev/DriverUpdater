@@ -12,10 +12,10 @@ concurrency:
 jobs:
   frontend:
     name: Frontend (typecheck, tests, build)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -28,17 +28,29 @@ jobs:
       - name: Build
         run: npm run build
 
-  core:
-    name: Tauri core (cargo check)
-    runs-on: ubuntu-latest
+  core-linux:
+    name: Tauri core (cargo check, Linux)
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Tauri system dependencies
         run: |
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev \
             libayatana-appindicator3-dev librsvg2-dev libssl-dev pkg-config
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+      - name: Cargo check
+        run: cargo check --manifest-path src-tauri/Cargo.toml
+
+  core-windows:
+    name: Tauri core (cargo check, Windows/MSVC)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
       - uses: dtolnay/rust-toolchain@stable
       - uses: Swatinem/rust-cache@v2
         with:

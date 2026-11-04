@@ -47,6 +47,31 @@ npm run build
 Rust-ядра: выбор реализации происходит в `src/ipc/backend.ts` по наличию
 `window.__TAURI_INTERNALS__`.
 
+## Сборка на Windows и troubleshooting
+
+### Требования (Windows)
+1. **Node.js 22+** и **Rust stable** (rustup).
+2. **Visual Studio Build Tools 2022** с workload'ом C++ — без них cargo падает с
+   `error: linker `link.exe` not found` (MSVC-тулчейн ищет линкер Visual Studio):
+   ```powershell
+   winget install Microsoft.VisualStudio.2022.BuildTools --override "--add Microsoft.VisualStudio.Workload.VCTools --includeRecommended --passive"
+   ```
+   Альтернатива (если Build Tools нежелательны): GNU-тулчейн
+   `rustup toolchain install stable-x86_64-pc-windows-gnu && rustup default stable-x86_64-pc-windows-gnu`
+   плюс MinGW-w64 (`winget install -e --id MingW-w64.MingW-w64`). Для Tauri и бандлинга
+   рекомендуем MSVC; GNU подходит для `cargo check`/отладки ядра.
+3. WebView2 (в Windows 11 присутствует по умолчанию).
+
+### npm 11/12 и install-scripts
+Начиная с npm 11 установочные скрипты зависимостей по умолчанию заблокированы
+(esbuild ставит бинарник через postinstall). Разрешённый набор зафиксирован в
+`package.json` в блоке `allowScripts`; при добавлении новой зависимости с
+postinstall выполните `npm install-scripts approve <pkg>` и закоммитьте блок.
+
+### Требования (Linux, для разработки)
+`libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev libayatana-appindicator3-dev librsvg2-dev libssl-dev pkg-config`
+(в CI они ставятся автоматически, см. `.github/workflows/ci.yml`).
+
 ## Структура проекта
 
 ```

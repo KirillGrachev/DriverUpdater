@@ -181,7 +181,7 @@ impl MockRepository {
             let driver = self
                 .drivers
                 .iter_mut()
-                .find(|d| d.id == id)
+                .find(|d| &d.id == id)
                 .ok_or_else(|| format!("Unknown driver: {id}"))?;
             Self::apply_install(driver);
             updated.push(driver.clone());
