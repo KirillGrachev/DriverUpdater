@@ -1,9 +1,9 @@
 import { DriverGlyph, IconArrowRight, IconCheck, IconClock, IconDownload, IconMonitor, IconRefresh } from '../components/icons';
-import { IllustrationLaptopCheck, IllustrationLaptopSync } from '../components/illustrations';
 import { Button, StatCard } from '../components/ui';
 import { formatRelativeDay } from '../utils/format';
 import { useApp } from '../store/app';
 
+// Home mockup: large stat tiles, a compact last-check card and tight rows.
 export function HomePage() {
   const { t, locale, data, scanning, installingIds, navigate, scan, installDriver } = useApp();
   if (!data) return null;
@@ -37,15 +37,12 @@ export function HomePage() {
               : t('home.subOk', { when })}
           </p>
         </div>
-        <div className="hero-illu">
-          {hasUpdates ? <IllustrationLaptopSync /> : <IllustrationLaptopCheck />}
-        </div>
       </section>
 
       <section className="stats-grid stats-grid-3">
-        <StatCard icon={<IconMonitor size={24} />} tone="blue" value={data.summary.devicesTotal} label={t('home.statDevices')} />
-        <StatCard icon={<IconCheck size={24} />} tone="green" value={data.summary.upToDate} label={t('home.statCurrent')} />
-        <StatCard icon={<IconDownload size={24} />} tone={hasUpdates ? 'orange' : 'blue'} value={data.summary.updatesAvailable} label={t('home.statUpdates')} />
+        <StatCard icon={<IconMonitor size={30} />} tone="blue" value={data.summary.devicesTotal} label={t('home.statDevices')} />
+        <StatCard icon={<IconCheck size={30} />} tone="green" value={data.summary.upToDate} label={t('home.statCurrent')} />
+        <StatCard icon={<IconDownload size={30} />} tone={hasUpdates ? 'orange' : 'blue'} value={data.summary.updatesAvailable} label={t('home.statUpdates')} />
       </section>
 
       <section className="card last-check-card">
@@ -71,7 +68,7 @@ export function HomePage() {
       <section className="card rec-card">
         <div className="card-head">
           <h2 className="card-title">{t('home.recTitle')}</h2>
-          <button type="button" className="link-btn" onClick={() => navigate('updates')}>
+          <button type="button" className="link-btn" onClick={() => navigate('drivers')}>
             {t('home.showAll')}
             <IconArrowRight size={16} />
           </button>

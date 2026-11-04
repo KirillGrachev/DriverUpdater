@@ -1,52 +1,39 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import type { ReactNode } from 'react';
 import {
-  IconBell,
-  IconChart,
-  IconCheck,
-  IconClock,
-  IconDatabase,
-  IconFolder,
-  IconGlobe,
-  IconInfo,
-  IconMonitor,
-  IconMoon,
-  IconPalette,
-  IconRefresh,
-  IconRestore,
-  IconShield,
-  IconSun,
+  IconSettingsBell,
+  IconSettingsClock,
+  IconSettingsPalette,
+  IconSettingsSync,
 } from '../components/icons';
-import { IllustrationGearHero } from '../components/illustrations';
-import { Button, Select, Segmented, Toggle } from '../components/ui';
+import { Select, Segmented, Toggle } from '../components/ui';
+import { LocaleFlag } from '../components/Flags';
+import sunIcon from '../assets/icons/icon-sun.svg';
+import moonIcon from '../assets/icons/icon-moon.svg';
+import systemIcon from '../assets/icons/icon-sun-moon.svg';
+import globeIcon from '../assets/icons/icon-globe.svg';
+import globeDarkIcon from '../assets/icons/icon-globe-dark.svg';
+import shieldIcon from '../assets/icons/icon-shield.svg';
+import shieldDarkIcon from '../assets/icons/icon-shield-dark.svg';
+import cardsIcon from '../assets/icons/icon-cards.svg';
+import cardsDarkIcon from '../assets/icons/icon-cards-dark.svg';
+import databaseIcon from '../assets/icons/icon-database.svg';
+import databaseDarkIcon from '../assets/icons/icon-database-dark.svg';
+import folderIcon from '../assets/icons/icon-folder.svg';
+import folderDarkIcon from '../assets/icons/icon-folder-dark.svg';
+import chartIcon from '../assets/icons/icon-chart.svg';
+import chartDarkIcon from '../assets/icons/icon-chart-dark.svg';
 import { availableLocales } from '../i18n';
 import type { CheckInterval, Settings, ThemeMode } from '../ipc/types';
 import { useApp } from '../store/app';
 
-function FlagRu() {
+function ThemedIcon({ light, dark }: { light: string; dark: string }) {
   return (
-    <svg width="18" height="13" viewBox="0 0 18 13" className="flag" aria-hidden="true">
-      <rect width="18" height="13" rx="2" fill="#fff" />
-      <rect y="4.33" width="18" height="4.34" fill="#0039a6" />
-      <rect y="8.67" width="18" height="4.33" fill="#d52b1e" />
-      <rect width="18" height="13" rx="2" fill="none" stroke="rgba(0,0,0,.15)" />
-    </svg>
+    <>
+      <img className="settings-asset-icon theme-light-only" src={light} alt="" />
+      <img className="settings-asset-icon theme-dark-only" src={dark} alt="" />
+    </>
   );
 }
-
-function FlagEn() {
-  return (
-    <svg width="18" height="13" viewBox="0 0 18 13" className="flag" aria-hidden="true">
-      <rect width="18" height="13" rx="2" fill="#012169" />
-      <path d="M0 0 18 13M18 0 0 13" stroke="#fff" strokeWidth="2.4" />
-      <path d="M0 0 18 13M18 0 0 13" stroke="#C8102E" strokeWidth="1" />
-      <path d="M9 0v13M0 6.5h18" stroke="#fff" strokeWidth="3.4" />
-      <path d="M9 0v13M0 6.5h18" stroke="#C8102E" strokeWidth="1.8" />
-      <rect width="18" height="13" rx="2" fill="none" stroke="rgba(0,0,0,.15)" />
-    </svg>
-  );
-}
-
-const FLAGS: Record<string, () => JSX.Element> = { ru: FlagRu, en: FlagEn };
 
 function Row({
   icon,
@@ -74,18 +61,15 @@ function Row({
 }
 
 function Section({
-  icon,
   title,
   children,
 }: {
-  icon: ReactNode;
   title: string;
   children: ReactNode;
 }) {
   return (
     <section className="card settings-section">
       <div className="settings-section-head">
-        <span className="settings-section-icon">{icon}</span>
         <h2>{title}</h2>
       </div>
       {children}
@@ -94,19 +78,14 @@ function Section({
 }
 
 export function SettingsPage() {
-  const { t, data, saveSettings, resetSettings } = useApp();
-  const [draft, setDraft] = useState<Settings | null>(data?.settings ?? null);
+  const { t, data, updateSettings, applyTheme, applyLanguage, openBackupFolder, pushToast } = useApp();
 
-  useEffect(() => {
-    if (data && !draft) setDraft(data.settings);
-  }, [data, draft]);
+  if (!data) return null;
 
-  if (!data || !draft) return null;
-
-  const set = <K extends keyof Settings>(key: K, value: Settings[K]) =>
-    setDraft((prev) => (prev ? { ...prev, [key]: value } : prev));
-
-  const dirty = JSON.stringify(draft) !== JSON.stringify(data.settings);
+  const settings = data.settings;
+  const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
+    void updateSettings({ [key]: value });
+  };
 
   return (
     <div className="page page-settings">
@@ -115,54 +94,51 @@ export function SettingsPage() {
           <h1 className="hero-title">{t('settings.title')}</h1>
           <p className="hero-sub">{t('settings.subtitle')}</p>
         </div>
-        <div className="hero-illu hero-illu-sm">
-          <IllustrationGearHero />
-        </div>
       </section>
 
-      <Section icon={<IconMonitor size={19} />} title={t('settings.general')}>
-        <Row icon={<IconGlobe size={19} />} label={t('settings.language')}>
+      <Section title={t('settings.general')}>
+        <Row icon={<ThemedIcon light={globeIcon} dark={globeDarkIcon} />} label={t('settings.language')}>
           <Select
-            value={draft.language}
-            onChange={(next) => set('language', next)}
-            options={availableLocales()
-              .filter((l) => l.code === 'ru' || l.code === 'en')
-              .map((l) => {
-                const Flag = FLAGS[l.code];
-                return {
-                  value: l.code as Settings['language'],
-                  label: l.label,
-                  icon: Flag ? <Flag /> : undefined,
-                };
-              })}
+            className="language-select"
+            value={settings.language}
+            onChange={(next) => {
+              void applyLanguage(next);
+            }}
+            options={availableLocales().map((locale) => ({
+              value: locale.code,
+              label: locale.label,
+              icon: <LocaleFlag code={locale.code} />,
+            }))}
             ariaLabel={t('settings.language')}
           />
         </Row>
-        <Row icon={<IconPalette size={19} />} label={t('settings.theme')}>
+        <Row icon={<IconSettingsPalette size={21} />} label={t('settings.theme')}>
           <Segmented<ThemeMode>
-            value={draft.theme}
-            onChange={(next) => set('theme', next)}
+            value={settings.theme}
+            onChange={(next) => {
+              void applyTheme(next);
+            }}
             ariaLabel={t('settings.theme')}
             options={[
-              { value: 'light', label: t('settings.themeLight'), icon: <IconSun size={15} /> },
-              { value: 'dark', label: t('settings.themeDark'), icon: <IconMoon size={15} /> },
-              { value: 'system', label: t('settings.themeSystem'), icon: <IconMonitor size={15} /> },
+              { value: 'light', label: t('settings.themeLight'), icon: <img className="theme-icon" src={sunIcon} alt="" /> },
+              { value: 'dark', label: t('settings.themeDark'), icon: <img className="theme-icon" src={moonIcon} alt="" /> },
+              { value: 'system', label: t('settings.themeSystem'), icon: <img className="theme-icon" src={systemIcon} alt="" /> },
             ]}
           />
         </Row>
-        <Row icon={<IconBell size={19} />} label={t('settings.notifications')} sub={t('settings.notifSub')}>
-          <Toggle checked={draft.notifications} onChange={(v) => set('notifications', v)} label={t('settings.notifications')} />
+        <Row icon={<IconSettingsBell size={21} />} label={t('settings.notifications')} sub={t('settings.notifSub')}>
+          <Toggle checked={settings.notifications} onChange={(v) => update('notifications', v)} label={t('settings.notifications')} />
         </Row>
       </Section>
 
-      <Section icon={<IconRefresh size={19} />} title={t('settings.secUpdates')}>
-        <Row icon={<IconRefresh size={19} />} label={t('settings.autoCheck')} sub={t('settings.autoCheckSub')}>
-          <Toggle checked={draft.autoCheck} onChange={(v) => set('autoCheck', v)} label={t('settings.autoCheck')} />
+      <Section title={t('settings.secUpdates')}>
+        <Row icon={<IconSettingsSync size={21} />} label={t('settings.autoCheck')} sub={t('settings.autoCheckSub')}>
+          <Toggle checked={settings.autoCheck} onChange={(v) => update('autoCheck', v)} label={t('settings.autoCheck')} />
         </Row>
-        <Row icon={<IconClock size={19} />} label={t('settings.interval')}>
+        <Row icon={<IconSettingsClock size={21} />} label={t('settings.interval')}>
           <Select<CheckInterval>
-            value={draft.checkInterval}
-            onChange={(next) => set('checkInterval', next)}
+            value={settings.checkInterval}
+            onChange={(next) => update('checkInterval', next)}
             options={[
               { value: 'hourly', label: t('settings.intervals.hourly') },
               { value: 'daily', label: t('settings.intervals.daily') },
@@ -173,56 +149,54 @@ export function SettingsPage() {
         </Row>
       </Section>
 
-      <Section icon={<IconShield size={19} />} title={t('settings.security')}>
-        <Row icon={<IconShield size={19} />} label={t('settings.restoreBefore')}>
+      <Section title={t('settings.security')}>
+        <Row icon={<ThemedIcon light={shieldIcon} dark={shieldDarkIcon} />} label={t('settings.restoreBefore')}>
           <Toggle
-            checked={draft.restorePointBeforeInstall}
-            onChange={(v) => set('restorePointBeforeInstall', v)}
+            checked={settings.restorePointBeforeInstall}
+            onChange={(v) => update('restorePointBeforeInstall', v)}
             label={t('settings.restoreBefore')}
           />
         </Row>
-        <Row icon={<IconDatabase size={19} />} label={t('settings.keepBackups')}>
-          <Toggle checked={draft.keepBackups} onChange={(v) => set('keepBackups', v)} label={t('settings.keepBackups')} />
+        <Row icon={<ThemedIcon light={databaseIcon} dark={databaseDarkIcon} />} label={t('settings.keepBackups')}>
+          <Toggle checked={settings.keepBackups} onChange={(v) => update('keepBackups', v)} label={t('settings.keepBackups')} />
         </Row>
-        <Row icon={<IconFolder size={19} />} label={t('settings.backupPath')}>
+        <Row icon={<ThemedIcon light={folderIcon} dark={folderDarkIcon} />} label={t('settings.backupPath')}>
           <div className="path-control">
-            <input
-              className="text-input"
-              value={draft.backupPath}
-              onChange={(e) => set('backupPath', e.target.value)}
-              aria-label={t('settings.backupPath')}
-            />
-            <button type="button" className="icon-btn" title={t('settings.browseBtn')} aria-label={t('settings.browseBtn')}>
-              <IconFolder size={17} />
+            <div className="path-readonly path-value" title={settings.backupPath}>
+              {settings.backupPath}
+            </div>
+            <button
+              type="button"
+              className="icon-btn"
+              title={t('settings.copyPath')}
+              aria-label={t('settings.copyPath')}
+              onClick={() => {
+                void navigator.clipboard
+                  .writeText(settings.backupPath)
+                  .then(() => pushToast(t('settings.copiedToast'), 'success'))
+                  .catch(() => pushToast(t('toasts.error'), 'error'));
+              }}
+            >
+              <ThemedIcon light={cardsIcon} dark={cardsDarkIcon} />
+            </button>
+            <button
+              type="button"
+              className="icon-btn"
+              title={t('settings.browseBtn')}
+              aria-label={t('settings.browseBtn')}
+              onClick={() => void openBackupFolder()}
+            >
+              <ThemedIcon light={folderIcon} dark={folderDarkIcon} />
             </button>
           </div>
         </Row>
       </Section>
 
-      <Section icon={<IconInfo size={19} />} title={t('settings.extra')}>
-        <Row icon={<IconChart size={19} />} label={t('settings.telemetry')} sub={t('settings.telemetrySub')}>
-          <Toggle checked={draft.telemetry} onChange={(v) => set('telemetry', v)} label={t('settings.telemetry')} />
+      <Section title={t('settings.extra')}>
+        <Row icon={<ThemedIcon light={chartIcon} dark={chartDarkIcon} />} label={t('settings.telemetry')} sub={t('settings.telemetrySub')}>
+          <Toggle checked={settings.telemetry} onChange={(v) => update('telemetry', v)} label={t('settings.telemetry')} />
         </Row>
       </Section>
-
-      <section className="settings-footer">
-        <Button
-          variant="ghost"
-          icon={<IconRestore size={16} />}
-          onClick={() => {
-            void resetSettings().then(() => setDraft(null));
-          }}
-        >
-          {t('settings.reset')}
-        </Button>
-        <Button
-          icon={<IconCheck size={17} />}
-          disabled={!dirty}
-          onClick={() => void saveSettings(draft)}
-        >
-          {t('settings.save')}
-        </Button>
-      </section>
     </div>
   );
 }

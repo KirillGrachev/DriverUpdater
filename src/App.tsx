@@ -1,13 +1,13 @@
-import { Sidebar } from './components/Sidebar';
+import { BottomDock } from './components/BottomDock';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
 import { Spinner } from './components/ui';
 import { AboutPage } from './pages/AboutPage';
 import { BackupsPage } from './pages/BackupsPage';
+import { ComponentsPage } from './pages/ComponentsPage';
 import { DriversPage } from './pages/DriversPage';
 import { HomePage } from './pages/HomePage';
 import { SettingsPage } from './pages/SettingsPage';
-import { UpdatesPage } from './pages/UpdatesPage';
 import { useApp } from './store/app';
 
 function CurrentPage() {
@@ -17,8 +17,8 @@ function CurrentPage() {
       return <HomePage />;
     case 'drivers':
       return <DriversPage />;
-    case 'updates':
-      return <UpdatesPage />;
+    case 'components':
+      return <ComponentsPage />;
     case 'backups':
       return <BackupsPage />;
     case 'settings':
@@ -31,7 +31,7 @@ function CurrentPage() {
 }
 
 export function App() {
-  const { booting } = useApp();
+  const { booting, route } = useApp();
 
   if (booting) {
     return (
@@ -47,11 +47,11 @@ export function App() {
     <div className="app-window">
       <TitleBar />
       <div className="app-body">
-        <Sidebar />
         <main className="app-main">
-          <CurrentPage />
+          <CurrentPage key={route} />
         </main>
       </div>
+      <BottomDock />
       <ToastHost />
       <ModalHost />
     </div>

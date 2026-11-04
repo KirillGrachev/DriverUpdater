@@ -1,25 +1,38 @@
 import type { TranslateParams } from '../i18n';
 
+/** `en` keeps the previous en-GB output; every other locale uses its own tag. */
+function dateLocale(locale: string): string {
+  return locale === 'en' ? 'en-GB' : locale;
+}
+
+function formatWith(locale: string, options: Intl.DateTimeFormatOptions, date: Date): string {
+  try {
+    return new Intl.DateTimeFormat(dateLocale(locale), options).format(date);
+  } catch {
+    return new Intl.DateTimeFormat('en-GB', options).format(date);
+  }
+}
+
 export function formatDateTime(iso: string, locale: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  return formatWith(
+    locale,
+    {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    },
+    date,
+  );
 }
 
 export function formatDate(iso: string, locale: string): string {
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
-  return new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-  }).format(date);
+  return formatWith(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }, date);
 }
 
 function sameDay(a: Date, b: Date): boolean {
@@ -40,10 +53,7 @@ export function formatRelativeDay(
   const date = new Date(iso);
   if (Number.isNaN(date.getTime())) return iso;
   const now = new Date();
-  const time = new Intl.DateTimeFormat(locale === 'ru' ? 'ru-RU' : 'en-GB', {
-    hour: '2-digit',
-    minute: '2-digit',
-  }).format(date);
+  const time = formatWith(locale, { hour: '2-digit', minute: '2-digit' }, date);
   if (sameDay(date, now)) return `${t('common.today')}, ${time}`;
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);

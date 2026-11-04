@@ -3,13 +3,16 @@ import {
   DriverGlyph,
   IconAlert,
   IconCheck,
+  IconCheckCircleFilled,
   IconChevronDown,
   IconDatabase,
+  IconGrid,
+  IconList,
   IconRefresh,
   IconSearch,
   IconShield,
 } from '../components/icons';
-import { Badge, Button, Select, Segmented, StatCard } from '../components/ui';
+import { Badge, Button, Collapse, Select, Segmented, StatCard } from '../components/ui';
 import type { Driver, DriverCategory } from '../ipc/types';
 import { useApp } from '../store/app';
 import { formatDate, formatRelativeDay } from '../utils/format';
@@ -43,9 +46,9 @@ function DriverRow({ driver }: { driver: Driver }) {
         </div>
         <div className="driver-badge">
           {needsUpdate ? (
-            <Badge tone="info">{t('drivers.badgeUpdate')}</Badge>
+            <span className="badge-plain">{t('drivers.badgeUpdate')}</span>
           ) : optional ? (
-            <Badge tone="warn">{t('drivers.badgeOptional')}</Badge>
+            <Badge tone="neutral">{t('drivers.badgeOptional')}</Badge>
           ) : (
             <Badge tone="neutral">{t('drivers.badgeCurrent')}</Badge>
           )}
@@ -75,7 +78,7 @@ function DriverRow({ driver }: { driver: Driver }) {
           <IconChevronDown size={16} className={expanded ? 'rotated' : ''} />
         </button>
       </div>
-      {expanded ? (
+      <Collapse open={expanded}>
         <div className="driver-details">
           <div className="driver-details-grid">
             <div>
@@ -99,7 +102,7 @@ function DriverRow({ driver }: { driver: Driver }) {
           </div>
           <p className="detail-desc">{driver.description[locale === 'ru' ? 'ru' : 'en']}</p>
         </div>
-      ) : null}
+      </Collapse>
     </li>
   );
 }
@@ -109,7 +112,7 @@ export function DriversPage() {
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState<'all' | DriverCategory>('all');
   const [view, setView] = useState<'list' | 'categories'>('list');
-  const [creatingPoint, setCreatingPoint] = useState(false);
+  const [pointState, setPointState] = useState<'idle' | 'creating' | 'created'>('idle');
 
   const drivers = useMemo(() => {
     if (!data) return [];
@@ -161,17 +164,23 @@ export function DriversPage() {
         <StatCard icon={<IconDatabase size={22} />} tone="blue" value={data.summary.devicesTotal} label={t('drivers.statDevices')} />
         <StatCard icon={<IconCheck size={22} />} tone="green" value={data.summary.upToDate} label={t('drivers.statCurrent')} />
         <StatCard icon={<IconAlert size={22} />} tone="orange" value={needUpdate} label={t('drivers.statNeed')} />
-        <StatCard
-          icon={<IconDatabase size={22} />}
-          tone="blue"
-          value={<span className="stat-value-sm">{when}</span>}
-          label={t('drivers.statLast')}
-          action={
-            <button type="button" className="icon-btn" title={t('home.checkBtn')} onClick={() => void scan()}>
-              <IconRefresh size={17} className={scanning ? 'spin' : ''} />
-            </button>
-          }
-        />
+        <div className="stat-card stat-last">
+          <span className="stat-icon tone-blue">
+            <IconDatabase size={22} />
+          </span>
+          <div className="stat-text">
+            <div className="stat-label">{t('drivers.statLast')}</div>
+            <div className="stat-when">{when}</div>
+          </div>
+          <button
+            type="button"
+            className="icon-btn stat-refresh"
+            title={t('home.checkBtn')}
+            onClick={() => void scan()}
+          >
+            <IconRefresh size={17} className={scanning ? 'spin' : ''} />
+          </button>
+        </div>
       </section>
 
       <section className="drivers-toolbar">
@@ -186,8 +195,8 @@ export function DriversPage() {
           onChange={setView}
           ariaLabel={t('drivers.viewList')}
           options={[
-            { value: 'list', label: t('drivers.viewList'), icon: <IconDatabase size={15} /> },
-            { value: 'categories', label: t('drivers.viewCategories'), icon: <IconCheck size={15} /> },
+            { value: 'list', label: t('drivers.viewList'), icon: <IconList size={16} /> },
+            { value: 'categories', label: t('drivers.viewCategories'), icon: <IconGrid size={15} /> },
           ]}
         />
       </section>
@@ -223,20 +232,33 @@ export function DriversPage() {
         </section>
       )}
 
-      <section className="notice-bar notice-info">
-        <span className="notice-text">{t('drivers.footerNote')}</span>
-        <Button
-          variant="outline"
-          size="sm"
-          icon={<IconShield size={16} />}
-          loading={creatingPoint}
-          onClick={() => {
-            setCreatingPoint(true);
-            void createRestorePoint().finally(() => setCreatingPoint(false));
-          }}
-        >
-          {creatingPoint ? t('backups.creatingBtn') : t('drivers.footerBtn')}
-        </Button>
+      <section className={`notice-bar ${pointState === 'created' ? 'notice-success' : 'notice-info'}`}>
+        {pointState === 'created' ? (
+          <>
+            <span className="notice-icon-green">
+              <IconCheckCircleFilled size={23} />
+            </span>
+            <span className="notice-text">{t('backups.createdToast')}</span>
+          </>
+        ) : (
+          <>
+            <span className="notice-text">{t('drivers.footerNote')}</span>
+            <Button
+              variant="outline"
+              size="sm"
+              icon={<IconShield size={16} />}
+              loading={pointState === 'creating'}
+              onClick={() => {
+                setPointState('creating');
+                void createRestorePoint({ silentSuccess: true }).then((ok) =>
+                  setPointState(ok ? 'created' : 'idle'),
+                );
+              }}
+            >
+              {pointState === 'creating' ? t('backups.creatingBtn') : t('drivers.footerBtn')}
+            </Button>
+          </>
+        )}
       </section>
     </div>
   );

@@ -1,13 +1,11 @@
-import { AppLogo } from '../components/Sidebar';
+import logo from '../assets/branding/logo.png';
+import persona from '../assets/branding/persona.png';
 import {
   IconBug,
-  IconExternal,
   IconGithub,
-  IconHeart,
   IconLink,
   IconWindows,
 } from '../components/icons';
-import { IllustrationLaptopGear } from '../components/illustrations';
 import { Button } from '../components/ui';
 import { useApp } from '../store/app';
 
@@ -23,13 +21,10 @@ export function AboutPage() {
           <h1 className="hero-title">{t('about.title')}</h1>
           <p className="hero-sub">{t('about.subtitle')}</p>
         </div>
-        <div className="hero-illu">
-          <IllustrationLaptopGear />
-        </div>
       </section>
 
       <section className="about-identity">
-        <AppLogo size={116} />
+        <img className="about-logo" src={logo} alt="Driver Updater" draggable={false} />
         <div className="about-identity-text">
           <div className="about-name-row">
             <h2>Driver Updater</h2>
@@ -64,15 +59,33 @@ export function AboutPage() {
             </div>
             <div>
               <dt>{t('about.build')}</dt>
-              <dd>2025.11.02</dd>
+              <dd>2026.11.04</dd>
             </div>
             <div>
               <dt>{t('about.license')}</dt>
-              <dd>MIT License (Open Source)</dd>
+              <dd>
+                <a
+                  className="dev-link"
+                  href={`${REPO_URL}/blob/main/LICENSE`}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  MIT License (Open Source)
+                </a>
+              </dd>
             </div>
             <div>
               <dt>{t('about.developer')}</dt>
-              <dd>{t('about.developerValue')}</dd>
+              <dd>
+                <a
+                  className="dev-link"
+                  href="https://github.com/KirillGrachev"
+                  target="_blank"
+                  rel="noreferrer noopener"
+                >
+                  Kirill Grachev
+                </a>
+              </dd>
             </div>
           </dl>
         </div>
@@ -84,24 +97,26 @@ export function AboutPage() {
           <dl className="about-rows">
             <div>
               <dt>{t('about.os')}</dt>
-              <dd>{systemInfo?.os ?? '—'}</dd>
+              <dd>{systemInfo?.os ?? t('common.never')}</dd>
+            </div>
+            <div>
+              <dt>{t('about.computer')}</dt>
+              <dd>{systemInfo?.hostname ?? t('common.never')}</dd>
             </div>
             <div>
               <dt>{t('about.arch')}</dt>
-              <dd>{systemInfo?.arch ?? '—'}</dd>
+              <dd>{systemInfo?.arch ?? t('common.never')}</dd>
             </div>
             <div>
               <dt>{t('about.platform')}</dt>
-              <dd>{systemInfo?.platform ?? '—'}</dd>
+              <dd>{systemInfo?.platform ?? t('common.never')}</dd>
             </div>
           </dl>
         </div>
       </section>
 
       <section className="card about-thanks">
-        <span className="about-thanks-icon">
-          <IconHeart size={30} />
-        </span>
+        <img className="about-thanks-mascot" src={persona} alt="" draggable={false} />
         <div className="about-thanks-text">
           <h3>{t('about.thanks')}</h3>
           <p>
@@ -117,10 +132,6 @@ export function AboutPage() {
 
       <footer className="about-footer">
         <span>{t('about.footer')}</span>
-        <a className="link-btn" href={`${REPO_URL}/blob/main/LICENSE`} target="_blank" rel="noreferrer noopener">
-          {t('about.licenseLink')}
-          <IconExternal size={15} />
-        </a>
       </footer>
     </div>
   );

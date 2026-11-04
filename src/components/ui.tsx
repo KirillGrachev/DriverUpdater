@@ -1,5 +1,32 @@
-import type { ReactNode } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { IconCheck, IconChevronDown } from './icons';
+
+/* ------------------------------ Collapse ------------------------------ */
+
+export function Collapse({ open, children }: { open: boolean; children: ReactNode }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState(0);
+
+  useLayoutEffect(() => {
+    if (innerRef.current) {
+      setHeight(open ? innerRef.current.scrollHeight : 0);
+    }
+  }, [open, children]);
+
+  useEffect(() => {
+    const inner = innerRef.current;
+    if (!inner || !open) return undefined;
+    const observer = new ResizeObserver(() => setHeight(inner.scrollHeight));
+    observer.observe(inner);
+    return () => observer.disconnect();
+  }, [open]);
+
+  return (
+    <div className="collapse" style={{ height }} aria-hidden={!open}>
+      <div ref={innerRef}>{children}</div>
+    </div>
+  );
+}
 
 /* ------------------------------- Button ------------------------------- */
 
@@ -149,20 +176,78 @@ export function Select<T extends string>({
   className?: string;
   ariaLabel?: string;
 }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
   const current = options.find((o) => o.value === value);
+
+  const toggle = () => {
+    if (!open) {
+      const root = rootRef.current;
+      const scroller = root?.closest('.app-main') as HTMLElement | null;
+      const rect = root?.getBoundingClientRect();
+      const menuHeight = Math.min(400, options.length * 36 + 8);
+      if (scroller && rect) {
+        const room = scroller.getBoundingClientRect().bottom - rect.bottom;
+        if (room < menuHeight + 10) scroller.scrollTop += menuHeight + 10 - room;
+      }
+    }
+    setOpen((prev) => !prev);
+  };
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const onPointerDown = (event: MouseEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) setOpen(false);
+    };
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false);
+    };
+    document.addEventListener('mousedown', onPointerDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onPointerDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
   return (
-    <label className={`select ${className}`}>
-      {icon ? <span className="select-icon">{icon}</span> : null}
-      {current?.icon ? <span className="select-icon">{current.icon}</span> : null}
-      <select value={value} aria-label={ariaLabel} onChange={(e) => onChange(e.target.value as T)}>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
-          </option>
-        ))}
-      </select>
-      <IconChevronDown size={16} className="select-chevron" />
-    </label>
+    <div ref={rootRef} className={`select ${open ? 'open' : ''} ${className}`.trim()}>
+      <button
+        type="button"
+        className="select-trigger"
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        aria-label={ariaLabel}
+        onClick={toggle}
+      >
+        {icon ? <span className="select-icon">{icon}</span> : null}
+        {current?.icon ? <span className="select-icon">{current.icon}</span> : null}
+        <span className="select-value">{current?.label}</span>
+        <IconChevronDown size={16} className="select-chevron" />
+      </button>
+      {open ? (
+        <ul className="select-menu" role="listbox" aria-label={ariaLabel}>
+          {options.map((option) => (
+            <li key={option.value}>
+              <button
+                type="button"
+                role="option"
+                aria-selected={option.value === value}
+                className={`select-option ${option.value === value ? 'active' : ''}`}
+                onClick={() => {
+                  onChange(option.value);
+                  setOpen(false);
+                }}
+              >
+                {option.icon ? <span className="select-icon">{option.icon}</span> : null}
+                <span>{option.label}</span>
+                {option.value === value ? <IconCheck size={14} className="select-check" /> : null}
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : null}
+    </div>
   );
 }
 

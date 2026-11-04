@@ -7,8 +7,7 @@ import {
   IconDownload,
   IconInfoFilled,
 } from '../components/icons';
-import { IllustrationLaptopSync } from '../components/illustrations';
-import { Badge, Button, Checkbox } from '../components/ui';
+import { Badge, Button, Checkbox, Collapse } from '../components/ui';
 import type { Driver } from '../ipc/types';
 import { useApp } from '../store/app';
 import { formatDate } from '../utils/format';
@@ -68,7 +67,7 @@ function UpdateRow({
           <IconChevronDown size={16} className={expanded ? 'rotated' : ''} />
         </button>
       </div>
-      {expanded ? (
+      <Collapse open={expanded}>
         <div className="driver-details">
           <div className="driver-details-grid">
             <div>
@@ -92,7 +91,7 @@ function UpdateRow({
           </div>
           <p className="detail-desc">{driver.description[locale === 'ru' ? 'ru' : 'en']}</p>
         </div>
-      ) : null}
+      </Collapse>
     </li>
   );
 }
@@ -118,9 +117,10 @@ export function UpdatesPage() {
     selected ?? new Set<string>(recommended.map((d) => d.id));
   const allSelectable = [...recommended, ...optional];
   const selectedDrivers = allSelectable.filter((d) => effectiveSelected.has(d.id));
+  const selectedRecommended = recommended.filter((d) => effectiveSelected.has(d.id));
   const totalSize = selectedDrivers.reduce((acc, d) => acc + d.sizeMb, 0);
-  const allChecked = allSelectable.length > 0 && selectedDrivers.length === allSelectable.length;
-  const someChecked = selectedDrivers.length > 0;
+  const allChecked = recommended.length > 0 && selectedRecommended.length === recommended.length;
+  const someChecked = selectedRecommended.length > 0;
   const busy = installing || installingIds.length > 0;
 
   const toggle = (id: string, next: boolean) => {
@@ -131,7 +131,7 @@ export function UpdatesPage() {
   };
 
   const toggleAll = (next: boolean) => {
-    setSelected(next ? new Set(allSelectable.map((d) => d.id)) : new Set());
+    setSelected(next ? new Set(recommended.map((d) => d.id)) : new Set());
   };
 
   const install = async () => {
@@ -150,9 +150,6 @@ export function UpdatesPage() {
         <div className="hero-text">
           <h1 className="hero-title">{t('updates.title')}</h1>
           <p className="hero-sub">{hasAny ? t('updates.subtitle') : t('updates.emptySub')}</p>
-        </div>
-        <div className="hero-illu">
-          <IllustrationLaptopSync />
         </div>
       </section>
 

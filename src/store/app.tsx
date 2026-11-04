@@ -9,16 +9,24 @@ import {
   type ReactNode,
 } from 'react';
 import settingsFixture from '../../shared/fixtures/settings.json';
-import { translate, type TranslateParams } from '../i18n';
+import { isSupportedLocale, loadLocale, translate, type TranslateParams } from '../i18n';
 import { createBackend, type Backend } from '../ipc/backend';
-import type { Driver, InitialData, Settings, SystemInfo } from '../ipc/types';
+import type {
+  Driver,
+  InitialData,
+  InstalledComponent,
+  Settings,
+  SystemInfo,
+  ThemeMode,
+} from '../ipc/types';
 
-export type Route = 'home' | 'drivers' | 'updates' | 'backups' | 'settings' | 'about';
+export type Route = 'home' | 'drivers' | 'components' | 'backups' | 'settings' | 'about';
 
 export interface Toast {
   id: number;
   text: string;
   tone: 'success' | 'info' | 'error';
+  leaving?: boolean;
 }
 
 export interface ConfirmModal {
@@ -38,6 +46,7 @@ interface AppState {
   scanning: boolean;
   installingIds: string[];
   busyRestorePoints: string[];
+  busyDeletePoints: string[];
   toasts: Toast[];
   modal: ConfirmModal | null;
 }
@@ -49,10 +58,15 @@ interface AppContextValue extends AppState {
   scan: () => Promise<void>;
   installDriver: (id: string) => Promise<void>;
   installUpdates: (ids: string[]) => Promise<void>;
-  createRestorePoint: () => Promise<void>;
+  createRestorePoint: (options?: { silentSuccess?: boolean }) => Promise<boolean>;
   requestDeleteRestorePoint: (id: string, name: string) => void;
   requestRestorePoint: (id: string, name: string) => void;
   saveSettings: (settings: Settings) => Promise<void>;
+  updateSettings: (patch: Partial<Settings>) => Promise<void>;
+  applyTheme: (theme: ThemeMode) => Promise<void>;
+  applyLanguage: (language: string) => Promise<void>;
+  openBackupFolder: () => Promise<void>;
+  detectInstalledComponents: () => Promise<InstalledComponent[]>;
   resetSettings: () => Promise<void>;
   pushToast: (text: string, tone?: Toast['tone']) => void;
   dismissToast: (id: number) => void;
@@ -66,6 +80,12 @@ let toastSeq = 0;
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const backendRef = useRef<Backend | null>(null);
+  const dataRef = useRef<InitialData | null>(null);
+  const scanningRef = useRef(false);
+  const themeSeqRef = useRef(0);
+  const languageSeqRef = useRef(0);
+  const detectedComponentsRef = useRef<InstalledComponent[] | null>(null);
+  const settingsQueueRef = useRef<Promise<unknown>>(Promise.resolve());
   const [state, setState] = useState<AppState>({
     route: 'home',
     data: null,
@@ -74,25 +94,42 @@ export function AppProvider({ children }: { children: ReactNode }) {
     scanning: false,
     installingIds: [],
     busyRestorePoints: [],
+    busyDeletePoints: [],
     toasts: [],
     modal: null,
   });
+
+  useEffect(() => {
+    dataRef.current = state.data;
+  }, [state.data]);
 
   const patch = useCallback((partial: Partial<AppState>) => {
     setState((prev) => ({ ...prev, ...partial }));
   }, []);
 
-  const pushToast = useCallback((text: string, tone: Toast['tone'] = 'info') => {
-    const id = ++toastSeq;
-    setState((prev) => ({ ...prev, toasts: [...prev.toasts, { id, text, tone }] }));
+  const dismissToast = useCallback((id: number) => {
+    setState((prev) => {
+      if (prev.toasts.some((toast) => toast.id === id && toast.leaving)) return prev;
+      return {
+        ...prev,
+        toasts: prev.toasts.map((toast) =>
+          toast.id === id ? { ...toast, leaving: true } : toast,
+        ),
+      };
+    });
     window.setTimeout(() => {
       setState((prev) => ({ ...prev, toasts: prev.toasts.filter((t) => t.id !== id) }));
-    }, 4200);
+    }, 240);
   }, []);
 
-  const dismissToast = useCallback((id: number) => {
-    setState((prev) => ({ ...prev, toasts: prev.toasts.filter((t) => t.id !== id) }));
-  }, []);
+  const pushToast = useCallback(
+    (text: string, tone: Toast['tone'] = 'info') => {
+      const id = ++toastSeq;
+      setState((prev) => ({ ...prev, toasts: [...prev.toasts, { id, text, tone }] }));
+      window.setTimeout(() => dismissToast(id), 4200);
+    },
+    [dismissToast],
+  );
 
   const openModal = useCallback((modal: ConfirmModal) => patch({ modal }), [patch]);
   const closeModal = useCallback(() => patch({ modal: null }), [patch]);
@@ -105,6 +142,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       backendRef.current = backend;
       const data = await backend.getInitialData();
       if (cancelled) return;
+      if (isSupportedLocale(data.settings.language)) {
+        await loadLocale(data.settings.language);
+      }
+      if (cancelled) return;
+      dataRef.current = data;
       patch({ data, systemInfo: data.systemInfo, booting: false });
     })();
     return () => {
@@ -112,7 +154,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     };
   }, [patch]);
 
-  const locale = state.data?.settings.language ?? 'ru';
+  const requestedLocale = state.data?.settings.language;
+  const locale = requestedLocale && isSupportedLocale(requestedLocale) ? requestedLocale : 'ru';
   const t = useCallback(
     (key: string, params?: TranslateParams & { count?: number }) =>
       translate(locale, key, params),
@@ -126,6 +169,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const apply = () => {
       const resolved = theme === 'system' ? (media.matches ? 'dark' : 'light') : theme;
       document.documentElement.dataset.theme = resolved;
+      try {
+        localStorage.setItem('driver-updater.theme', theme);
+      } catch {
+        /* storage unavailable */
+      }
     };
     apply();
     if (theme !== 'system') return undefined;
@@ -140,19 +188,40 @@ export function AppProvider({ children }: { children: ReactNode }) {
   // ---- helpers ----------------------------------------------------------
   const refreshSummary = useCallback(async (drivers: Driver[]) => {
     const backend = backendRef.current;
-    if (!backend) return;
+    const current = dataRef.current;
+    if (!backend || !current) return;
     const summary = await backend.computeSummary(drivers);
-    setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers, summary } } : prev));
+    const next = { ...current, drivers, summary };
+    dataRef.current = next;
+    setState((prev) => (prev.data ? { ...prev, data: next } : prev));
   }, []);
 
   const navigate = useCallback((route: Route) => patch({ route }), [patch]);
 
+  /**
+   * Settings are written as a whole document, so concurrent theme/language
+   * saves could otherwise resolve out of order and revert each other.
+   */
+  const enqueueSettingsWrite = useCallback(<T,>(write: () => Promise<T>): Promise<T> => {
+    const result = settingsQueueRef.current.then(write, write);
+    settingsQueueRef.current = result.then(
+      () => undefined,
+      () => undefined,
+    );
+    return result;
+  }, []);
+
   const scan = useCallback(async () => {
     const backend = backendRef.current;
-    if (!backend || state.scanning) return;
+    if (!backend || scanningRef.current) return;
+    scanningRef.current = true;
     patch({ scanning: true });
     try {
       const result = await backend.checkUpdates();
+      const current = dataRef.current;
+      if (current) {
+        dataRef.current = { ...current, drivers: result.drivers, summary: result.summary };
+      }
       setState((prev) =>
         prev.data
           ? {
@@ -169,25 +238,32 @@ export function AppProvider({ children }: { children: ReactNode }) {
           : translate(locale, 'toasts.scanZero'),
         count > 0 ? 'info' : 'success',
       );
+    } catch {
+      pushToast(translate(locale, 'toasts.error'), 'error');
     } finally {
+      scanningRef.current = false;
       patch({ scanning: false });
     }
-  }, [state.scanning, patch, pushToast, locale]);
+  }, [patch, pushToast, locale]);
 
   const installDriver = useCallback(
     async (id: string) => {
       const backend = backendRef.current;
-      if (!backend) return;
+      const base = dataRef.current;
+      if (!backend || !base) return;
       setState((prev) => ({ ...prev, installingIds: [...prev.installingIds, id] }));
       try {
         const updated = await backend.installDriver(id);
-        setState((prev) => {
-          const drivers = (prev.data?.drivers ?? []).map((d) => (d.id === id ? updated : d));
-          return prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev;
-        });
-        const drivers = state.data?.drivers.map((d) => (d.id === id ? updated : d)) ?? [];
+        const latest = dataRef.current ?? base;
+        const drivers = latest.drivers.map((d) => (d.id === id ? updated : d));
+        dataRef.current = { ...latest, drivers };
+        setState((prev) =>
+          prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev,
+        );
         await refreshSummary(drivers);
         pushToast(translate(locale, 'toasts.driverUpdated', { name: updated.name }), 'success');
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
       } finally {
         setState((prev) => ({
           ...prev,
@@ -195,13 +271,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }));
       }
     },
-    [state.data, refreshSummary, pushToast, locale],
+    [refreshSummary, pushToast, locale],
   );
 
   const installUpdates = useCallback(
     async (ids: string[]) => {
       const backend = backendRef.current;
-      if (!backend || ids.length === 0) return;
+      const base = dataRef.current;
+      if (!backend || !base || ids.length === 0) return;
       setState((prev) => ({
         ...prev,
         installingIds: [...prev.installingIds, ...ids],
@@ -209,14 +286,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
       try {
         const updatedList = await backend.installUpdates(ids);
         const updatedById = new Map(updatedList.map((d) => [d.id, d]));
-        setState((prev) => {
-          const drivers = (prev.data?.drivers ?? []).map((d) => updatedById.get(d.id) ?? d);
-          return prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev;
-        });
-        const drivers =
-          state.data?.drivers.map((d) => updatedById.get(d.id) ?? d) ?? [];
+        const latest = dataRef.current ?? base;
+        const drivers = latest.drivers.map((d) => updatedById.get(d.id) ?? d);
+        dataRef.current = { ...latest, drivers };
+        setState((prev) =>
+          prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev,
+        );
         await refreshSummary(drivers);
         pushToast(translate(locale, 'updates.doneToast', { count: ids.length }), 'success');
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
       } finally {
         setState((prev) => ({
           ...prev,
@@ -224,44 +303,52 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }));
       }
     },
-    [state.data, refreshSummary, pushToast, locale],
+    [refreshSummary, pushToast, locale],
   );
 
-  const createRestorePoint = useCallback(async () => {
-    const backend = backendRef.current;
-    if (!backend) return;
-    const name = {
-      ru: translate('ru', 'backups.newName'),
-      en: translate('en', 'backups.newName'),
-    };
-    const point = await backend.createRestorePoint(name);
-    setState((prev) =>
-      prev.data
-        ? {
-            ...prev,
-            data: {
-              ...prev.data,
-              restorePoints: [point, ...prev.data.restorePoints],
-            },
-          }
-        : prev,
-    );
-    pushToast(translate(locale, 'backups.createdToast'), 'success');
-  }, [pushToast, locale]);
+  const createRestorePoint = useCallback(
+    async (options?: { silentSuccess?: boolean }) => {
+      const backend = backendRef.current;
+      const base = dataRef.current;
+      if (!backend || !base) return false;
+      try {
+        const name = {
+          ru: translate('ru', 'backups.newName'),
+          en: translate('en', 'backups.newName'),
+        };
+        const point = await backend.createRestorePoint(name);
+        const latest = dataRef.current ?? base;
+        const next = { ...latest, restorePoints: [point, ...latest.restorePoints] };
+        dataRef.current = next;
+        setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+        if (!options?.silentSuccess) {
+          pushToast(translate(locale, 'backups.createdToast'), 'success');
+        }
+        return true;
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
+        return false;
+      }
+    },
+    [pushToast, locale],
+  );
 
   const withBusyPoint = useCallback(
-    async (id: string, fn: () => Promise<void>) => {
-      setState((prev) => ({ ...prev, busyRestorePoints: [...prev.busyRestorePoints, id] }));
+    async (id: string, fn: () => Promise<void>, kind: 'restore' | 'delete' = 'restore') => {
+      const key = kind === 'delete' ? 'busyDeletePoints' : 'busyRestorePoints';
+      setState((prev) => ({ ...prev, [key]: [...prev[key], id] }));
       try {
         await fn();
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
       } finally {
         setState((prev) => ({
           ...prev,
-          busyRestorePoints: prev.busyRestorePoints.filter((x) => x !== id),
+          [key]: prev[key].filter((x) => x !== id),
         }));
       }
     },
-    [],
+    [pushToast, locale],
   );
 
   const requestDeleteRestorePoint = useCallback(
@@ -278,19 +365,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
           closeModal();
           await withBusyPoint(id, async () => {
             await backend.deleteRestorePoint(id);
-            setState((prev) =>
-              prev.data
-                ? {
-                    ...prev,
-                    data: {
-                      ...prev.data,
-                      restorePoints: prev.data.restorePoints.filter((p) => p.id !== id),
-                    },
-                  }
-                : prev,
-            );
+            const base = dataRef.current;
+            if (base) {
+              const next = {
+                ...base,
+                restorePoints: base.restorePoints.filter((p) => p.id !== id),
+              };
+              dataRef.current = next;
+              setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+            }
             pushToast(translate(locale, 'backups.deletedToast'), 'info');
-          });
+          }, 'delete');
         },
       });
     },
@@ -319,24 +404,137 @@ export function AppProvider({ children }: { children: ReactNode }) {
     [openModal, closeModal, withBusyPoint, pushToast, locale],
   );
 
+  const applyLanguage = useCallback(
+    async (language: string) => {
+      const backend = backendRef.current;
+      const current = dataRef.current?.settings;
+      if (!backend || !current) return;
+      const seq = ++languageSeqRef.current;
+      const loaded = await loadLocale(language);
+      if (!loaded || seq !== languageSeqRef.current) return;
+      const optimistic = { ...current, language };
+      const ref = dataRef.current;
+      if (ref) dataRef.current = { ...ref, settings: optimistic };
+      setState((prev) =>
+        prev.data
+          ? { ...prev, data: { ...prev.data, settings: { ...prev.data.settings, language } } }
+          : prev,
+      );
+      try {
+        const saved = await enqueueSettingsWrite(() => backend.saveSettings({ ...current, language }));
+        if (seq !== languageSeqRef.current) return;
+        const latest = dataRef.current;
+        if (!latest) return;
+        const next = { ...latest, settings: saved };
+        dataRef.current = next;
+        setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
+      }
+    },
+    [enqueueSettingsWrite, pushToast, locale],
+  );
+
   const saveSettings = useCallback(
     async (settings: Settings) => {
       const backend = backendRef.current;
-      if (!backend) return;
-      const saved = await backend.saveSettings(settings);
-      setState((prev) =>
-        prev.data ? { ...prev, data: { ...prev.data, settings: saved } } : prev,
-      );
-      pushToast(translate(locale, 'settings.savedToast'), 'success');
+      const base = dataRef.current;
+      if (!backend || !base) return;
+      try {
+        const saved = await enqueueSettingsWrite(() => backend.saveSettings(settings));
+        const next = { ...(dataRef.current ?? base), settings: saved };
+        dataRef.current = next;
+        setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
+      }
     },
-    [pushToast, locale],
+    [enqueueSettingsWrite, pushToast, locale],
   );
+
+  const updateSettings = useCallback(
+    async (patchSettings: Partial<Settings>) => {
+      const backend = backendRef.current;
+      const current = dataRef.current?.settings;
+      if (!backend || !current) return;
+      const optimistic = { ...current, ...patchSettings };
+      dataRef.current = dataRef.current
+        ? { ...dataRef.current, settings: optimistic }
+        : dataRef.current;
+      setState((prev) =>
+        prev.data ? { ...prev, data: { ...prev.data, settings: optimistic } } : prev,
+      );
+      try {
+        const saved = await enqueueSettingsWrite(() => backend.saveSettings(optimistic));
+        const latest = dataRef.current;
+        if (!latest) return;
+        const next = { ...latest, settings: saved };
+        dataRef.current = next;
+        setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+      } catch {
+        pushToast(translate(locale, 'toasts.error'), 'error');
+      }
+    },
+    [enqueueSettingsWrite, pushToast, locale],
+  );
+
+  const openBackupFolder = useCallback(async () => {
+    try {
+      await backendRef.current?.openBackupFolder();
+    } catch {
+      pushToast(translate(locale, 'toasts.error'), 'error');
+    }
+  }, [pushToast, locale]);
+
+  const detectInstalledComponents = useCallback(async () => {
+    if (detectedComponentsRef.current) return detectedComponentsRef.current;
+    const backend = backendRef.current;
+    if (!backend) return [];
+    try {
+      const detected = await backend.detectInstalledComponents();
+      detectedComponentsRef.current = detected;
+      return detected;
+    } catch {
+      detectedComponentsRef.current = [];
+      return [];
+    }
+  }, []);
 
   const resetSettings = useCallback(async () => {
     const defaults = JSON.parse(JSON.stringify(settingsFixture)) as Settings;
     await saveSettings(defaults);
     pushToast(translate(locale, 'settings.resetToast'), 'info');
   }, [saveSettings, pushToast, locale]);
+
+  // Theme is previewed and persisted immediately, so the switch feels alive
+  // without having to press "Save" first.
+  const applyTheme = useCallback(
+    async (theme: ThemeMode) => {
+      const backend = backendRef.current;
+      const current = dataRef.current?.settings;
+      if (!backend || !current) return;
+      const seq = ++themeSeqRef.current;
+      const optimistic = { ...current, theme };
+      dataRef.current = dataRef.current ? { ...dataRef.current, settings: optimistic } : dataRef.current;
+      setState((prev) =>
+        prev.data
+          ? { ...prev, data: { ...prev.data, settings: { ...prev.data.settings, theme } } }
+          : prev,
+      );
+      try {
+        const saved = await enqueueSettingsWrite(() => backend.saveSettings({ ...current, theme }));
+        if (seq !== themeSeqRef.current) return;
+        const latest = dataRef.current;
+        if (!latest) return;
+        const next = { ...latest, settings: saved };
+        dataRef.current = next;
+        setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+      } catch {
+        /* optimistic update already applied */
+      }
+    },
+    [enqueueSettingsWrite],
+  );
 
   const value = useMemo<AppContextValue>(
     () => ({
@@ -351,6 +549,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requestDeleteRestorePoint,
       requestRestorePoint,
       saveSettings,
+      updateSettings,
+      applyTheme,
+      applyLanguage,
+      openBackupFolder,
+      detectInstalledComponents,
       resetSettings,
       pushToast,
       dismissToast,
@@ -369,6 +572,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       requestDeleteRestorePoint,
       requestRestorePoint,
       saveSettings,
+      updateSettings,
+      applyTheme,
+      applyLanguage,
+      openBackupFolder,
+      detectInstalledComponents,
       resetSettings,
       pushToast,
       dismissToast,

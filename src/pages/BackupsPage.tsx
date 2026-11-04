@@ -1,19 +1,41 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import {
   IconCalendar,
   IconInfoFilled,
   IconPlusCircle,
-  IconRestore,
+  IconRestoreArrow,
   IconTrash,
 } from '../components/icons';
-import { IllustrationDriveClock } from '../components/illustrations';
-import { Button, Select, Toggle } from '../components/ui';
+import { Button, Select, Spinner, Toggle } from '../components/ui';
 import type { RestorePointPeriod } from '../ipc/types';
 import { useApp } from '../store/app';
 import { formatDateTime } from '../utils/format';
 
+function AnimatedHeight({ children }: { children: ReactNode }) {
+  const innerRef = useRef<HTMLDivElement>(null);
+  const [height, setHeight] = useState<number | undefined>(undefined);
+
+  useLayoutEffect(() => {
+    if (innerRef.current) setHeight(innerRef.current.scrollHeight);
+  }, [children]);
+
+  useEffect(() => {
+    const inner = innerRef.current;
+    if (!inner) return undefined;
+    const observer = new ResizeObserver(() => setHeight(inner.scrollHeight));
+    observer.observe(inner);
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div className="animated-height" style={height === undefined ? undefined : { height }}>
+      <div ref={innerRef}>{children}</div>
+    </div>
+  );
+}
+
 export function BackupsPage() {
-  const { t, locale, data, busyRestorePoints, createRestorePoint, requestDeleteRestorePoint, requestRestorePoint, saveSettings } =
+  const { t, locale, data, busyRestorePoints, busyDeletePoints, createRestorePoint, requestDeleteRestorePoint, requestRestorePoint, saveSettings } =
     useApp();
   const [creating, setCreating] = useState(false);
 
@@ -35,9 +57,6 @@ export function BackupsPage() {
         <div className="hero-text">
           <h1 className="hero-title">{t('backups.title')}</h1>
           <p className="hero-sub">{t('backups.subtitle')}</p>
-        </div>
-        <div className="hero-illu">
-          <IllustrationDriveClock />
         </div>
       </section>
 
@@ -62,14 +81,19 @@ export function BackupsPage() {
             {creating ? t('backups.creatingBtn') : t('backups.createBtn')}
           </Button>
         </div>
-        <ul className="backup-list">
+        <AnimatedHeight>
+          {data.restorePoints.length === 0 ? (
+            <div className="backups-empty">
+              <div className="backups-empty-title">{t('backups.emptyTitle')}</div>
+              <div className="backups-empty-sub">{t('backups.emptySub')}</div>
+            </div>
+          ) : (
+            <ul className="backup-list">
           {data.restorePoints.map((point) => {
-            const busy = busyRestorePoints.includes(point.id);
+            const restoring = busyRestorePoints.includes(point.id);
+            const deleting = busyDeletePoints.includes(point.id);
             return (
               <li key={point.id} className="backup-row">
-                <span className="backup-icon">
-                  <IconRestore size={24} />
-                </span>
                 <div className="backup-ident">
                   <div className="backup-name">{pointName(point)}</div>
                   <div className="backup-kind">
@@ -87,30 +111,35 @@ export function BackupsPage() {
                 <Button
                   variant="secondary"
                   size="sm"
-                  icon={<IconRestore size={15} />}
-                  loading={busy}
+                  icon={<IconRestoreArrow size={15} />}
+                  loading={restoring}
+                  disabled={deleting}
                   onClick={() => requestRestorePoint(point.id, pointName(point))}
                 >
-                  {busy ? t('backups.restoringBtn') : t('backups.restoreBtn')}
+                  {restoring ? t('backups.restoringBtn') : t('backups.restoreBtn')}
                 </Button>
                 <button
                   type="button"
-                  className="icon-btn icon-btn-danger"
+                  className="backup-delete"
                   title={t('backups.deleteBtn')}
                   aria-label={t('backups.deleteBtn')}
-                  disabled={busy}
+                  disabled={restoring || deleting}
                   onClick={() => requestDeleteRestorePoint(point.id, pointName(point))}
                 >
-                  <IconTrash size={17} />
+                  {deleting ? <Spinner size={16} /> : <IconTrash size={17} />}
                 </button>
               </li>
             );
           })}
-        </ul>
+          </ul>
+          )}
+        </AnimatedHeight>
       </section>
 
       <section className="card auto-card">
-        <h2 className="card-title">{t('backups.autoTitle')}</h2>
+        <div className="card-head">
+          <h2 className="card-title">{t('backups.autoTitle')}</h2>
+        </div>
         <div className="auto-row">
           <div className="auto-left">
             <Toggle
@@ -126,7 +155,7 @@ export function BackupsPage() {
           <div className="auto-right">
             <div className="auto-period-label">{t('backups.periodLabel')}</div>
             <Select<RestorePointPeriod>
-              icon={<IconCalendar size={16} />}
+              icon={<IconCalendar size={18} />}
               value={settings.restorePointPeriod}
               onChange={(next) => void saveSettings({ ...settings, restorePointPeriod: next })}
               options={[
