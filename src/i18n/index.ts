@@ -142,7 +142,11 @@ const pluralRules = new Map<string, Intl.PluralRules>();
 function pluralCategory(locale: LocaleCode, n: number): string {
     let rules = pluralRules.get(locale);
     if (!rules) {
-        rules = new Intl.PluralRules(locale);
+        try {
+            rules = new Intl.PluralRules(locale);
+        } catch {
+            return 'other';
+        }
         pluralRules.set(locale, rules);
     }
     return rules.select(n);
