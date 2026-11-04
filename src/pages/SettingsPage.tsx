@@ -1,34 +1,24 @@
 import type { ReactNode } from 'react';
-import { IconSettingsBell, IconSettingsClock, IconSettingsPalette, IconSettingsSync } from '../components/icons';
+import {
+    IconLineBell,
+    IconLineCards,
+    IconLineChart,
+    IconLineClock,
+    IconLineDatabase,
+    IconLineFolder,
+    IconLineGlobe,
+    IconLinePalette,
+    IconLineShield,
+    IconLineSync,
+} from '../components/icons';
 import { Select, Segmented, Toggle } from '../components/ui';
 import { LocaleFlag } from '../components/Flags';
 import sunIcon from '../assets/icons/icon-sun.svg';
 import moonIcon from '../assets/icons/icon-moon.svg';
 import systemIcon from '../assets/icons/icon-sun-moon.svg';
-import globeIcon from '../assets/icons/icon-globe.svg';
-import globeDarkIcon from '../assets/icons/icon-globe-dark.svg';
-import shieldIcon from '../assets/icons/icon-shield.svg';
-import shieldDarkIcon from '../assets/icons/icon-shield-dark.svg';
-import cardsIcon from '../assets/icons/icon-cards.svg';
-import cardsDarkIcon from '../assets/icons/icon-cards-dark.svg';
-import databaseIcon from '../assets/icons/icon-database.svg';
-import databaseDarkIcon from '../assets/icons/icon-database-dark.svg';
-import folderIcon from '../assets/icons/icon-folder.svg';
-import folderDarkIcon from '../assets/icons/icon-folder-dark.svg';
-import chartIcon from '../assets/icons/icon-chart.svg';
-import chartDarkIcon from '../assets/icons/icon-chart-dark.svg';
 import { availableLocales } from '../i18n';
 import type { CheckInterval, Settings, ThemeMode } from '../ipc/types';
 import { useApp } from '../store/app';
-
-function ThemedIcon({ light, dark }: { light: string; dark: string }) {
-    return (
-        <>
-            <img className="settings-asset-icon theme-light-only" src={light} alt="" />
-            <img className="settings-asset-icon theme-dark-only" src={dark} alt="" />
-        </>
-    );
-}
 
 function Row({ icon, label, sub, children }: { icon: ReactNode; label: string; sub?: string; children: ReactNode }) {
     return (
@@ -76,7 +66,7 @@ export function SettingsPage() {
             </section>
 
             <Section title={t('settings.general')}>
-                <Row icon={<ThemedIcon light={globeIcon} dark={globeDarkIcon} />} label={t('settings.language')}>
+                <Row icon={<IconLineGlobe className="settings-line-icon" />} label={t('settings.language')}>
                     <Select
                         className="language-select"
                         value={settings.language}
@@ -91,7 +81,7 @@ export function SettingsPage() {
                         ariaLabel={t('settings.language')}
                     />
                 </Row>
-                <Row icon={<IconSettingsPalette size={21} />} label={t('settings.theme')}>
+                <Row icon={<IconLinePalette className="settings-line-icon" />} label={t('settings.theme')}>
                     <Segmented<ThemeMode>
                         value={settings.theme}
                         onChange={(next) => {
@@ -118,7 +108,7 @@ export function SettingsPage() {
                     />
                 </Row>
                 <Row
-                    icon={<IconSettingsBell size={21} />}
+                    icon={<IconLineBell className="settings-line-icon" />}
                     label={t('settings.notifications')}
                     sub={t('settings.notifSub')}
                 >
@@ -132,7 +122,7 @@ export function SettingsPage() {
 
             <Section title={t('settings.secUpdates')}>
                 <Row
-                    icon={<IconSettingsSync size={21} />}
+                    icon={<IconLineSync className="settings-line-icon" />}
                     label={t('settings.autoCheck')}
                     sub={t('settings.autoCheckSub')}
                 >
@@ -142,7 +132,7 @@ export function SettingsPage() {
                         label={t('settings.autoCheck')}
                     />
                 </Row>
-                <Row icon={<IconSettingsClock size={21} />} label={t('settings.interval')}>
+                <Row icon={<IconLineClock className="settings-line-icon" />} label={t('settings.interval')}>
                     <Select<CheckInterval>
                         value={settings.checkInterval}
                         onChange={(next) => update('checkInterval', next)}
@@ -157,24 +147,21 @@ export function SettingsPage() {
             </Section>
 
             <Section title={t('settings.security')}>
-                <Row icon={<ThemedIcon light={shieldIcon} dark={shieldDarkIcon} />} label={t('settings.restoreBefore')}>
+                <Row icon={<IconLineShield className="settings-line-icon" />} label={t('settings.restoreBefore')}>
                     <Toggle
                         checked={settings.restorePointBeforeInstall}
                         onChange={(v) => update('restorePointBeforeInstall', v)}
                         label={t('settings.restoreBefore')}
                     />
                 </Row>
-                <Row
-                    icon={<ThemedIcon light={databaseIcon} dark={databaseDarkIcon} />}
-                    label={t('settings.keepBackups')}
-                >
+                <Row icon={<IconLineDatabase className="settings-line-icon" />} label={t('settings.keepBackups')}>
                     <Toggle
                         checked={settings.keepBackups}
                         onChange={(v) => update('keepBackups', v)}
                         label={t('settings.keepBackups')}
                     />
                 </Row>
-                <Row icon={<ThemedIcon light={folderIcon} dark={folderDarkIcon} />} label={t('settings.backupPath')}>
+                <Row icon={<IconLineFolder className="settings-line-icon" />} label={t('settings.backupPath')}>
                     <div className="path-control">
                         <div className="path-readonly path-value" title={settings.backupPath}>
                             {settings.backupPath}
@@ -191,7 +178,7 @@ export function SettingsPage() {
                                     .catch(() => pushToast(t('toasts.error'), 'error'));
                             }}
                         >
-                            <ThemedIcon light={cardsIcon} dark={cardsDarkIcon} />
+                            <IconLineCards size={18} className="settings-line-icon" />
                         </button>
                         <button
                             type="button"
@@ -200,7 +187,7 @@ export function SettingsPage() {
                             aria-label={t('settings.browseBtn')}
                             onClick={() => void openBackupFolder()}
                         >
-                            <ThemedIcon light={folderIcon} dark={folderDarkIcon} />
+                            <IconLineFolder size={18} className="settings-line-icon" />
                         </button>
                     </div>
                 </Row>
@@ -208,7 +195,7 @@ export function SettingsPage() {
 
             <Section title={t('settings.extra')}>
                 <Row
-                    icon={<ThemedIcon light={chartIcon} dark={chartDarkIcon} />}
+                    icon={<IconLineChart className="settings-line-icon" />}
                     label={t('settings.telemetry')}
                     sub={t('settings.telemetrySub')}
                 >
