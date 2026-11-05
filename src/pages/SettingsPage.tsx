@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { IconSettingsClock, IconSettingsPalette, IconSettingsSync } from '../components/icons';
+import { IconSettingsClock, IconSettingsPalette, IconSettingsSync, IconShield } from '../components/icons';
 import { Select, Segmented, Toggle } from '../components/ui';
 import { LocaleFlag } from '../components/Flags';
 import sunIcon from '../assets/icons/icon-sun.svg';
@@ -7,8 +7,6 @@ import moonIcon from '../assets/icons/icon-moon.svg';
 import systemIcon from '../assets/icons/icon-sun-moon.svg';
 import globeIcon from '../assets/icons/icon-globe.svg';
 import globeDarkIcon from '../assets/icons/icon-globe-dark.svg';
-import shieldIcon from '../assets/icons/icon-shield.svg';
-import shieldDarkIcon from '../assets/icons/icon-shield-dark.svg';
 import cardsIcon from '../assets/icons/icon-cards.svg';
 import cardsDarkIcon from '../assets/icons/icon-cards-dark.svg';
 import databaseIcon from '../assets/icons/icon-database.svg';
@@ -149,7 +147,7 @@ export function SettingsPage() {
             </Section>
 
             <Section title={t('settings.security')}>
-                <Row icon={<ThemedIcon light={shieldIcon} dark={shieldDarkIcon} />} label={t('settings.restoreBefore')}>
+                <Row icon={<IconShield size={21} strokeWidth={2} />} label={t('settings.restoreBefore')}>
                     <Toggle
                         checked={settings.restorePointBeforeInstall}
                         onChange={(v) => update('restorePointBeforeInstall', v)}
