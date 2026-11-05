@@ -18,10 +18,10 @@ $arch = switch ($Target) {
 if (-not $BundleRoot) {
     $BundleRoot = Join-Path $root "src-tauri/target/$Target/release/bundle"
 }
-$nsis = @(Get-ChildItem (Join-Path $BundleRoot 'nsis') -Filter '*-setup.exe' -ErrorAction SilentlyContinue |
+$nsis = @(Get-ChildItem $BundleRoot -Filter '*-setup.exe' -File -Recurse -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending |
     Select-Object -First 1)
-$msi = @(Get-ChildItem (Join-Path $BundleRoot 'msi') -Filter '*.msi' -ErrorAction SilentlyContinue |
+$msi = @(Get-ChildItem $BundleRoot -Filter '*.msi' -File -Recurse -ErrorAction SilentlyContinue |
     Sort-Object LastWriteTime -Descending |
     Select-Object -First 1)
 if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {

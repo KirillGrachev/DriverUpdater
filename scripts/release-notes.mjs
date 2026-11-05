@@ -35,11 +35,9 @@ if (!from || !to || !output) {
 const repository = process.env.GITHUB_REPOSITORY || 'KirillGrachev/DriverUpdater';
 const base = `https://github.com/${repository}`;
 
-const raw = execFileSync(
-    'git',
-    ['log', `${from}..${to}`, '--pretty=format:%H%x1f%s%x1e', '--no-merges'],
-    { encoding: 'utf8' },
-);
+const raw = execFileSync('git', ['log', `${from}..${to}`, '--pretty=format:%H%x1f%s%x1e', '--no-merges'], {
+    encoding: 'utf8',
+});
 const commits = raw
     .split('\x1e')
     .map((record) => record.trim())
@@ -100,12 +98,15 @@ for (const commit of commits) {
         uncategorized.push(commit);
         continue;
     }
+    const acronyms = { ui: 'UI', ci: 'CI', api: 'API', i18n: 'i18n' };
     const scopeLabel = scope
-        ? `**${scope.replace(/[-_]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}:** `
+        ? `**${acronyms[scope] ?? scope.replace(/[-_]/g, ' ').replace(/\b\w/g, (letter) => letter.toUpperCase())}:** `
         : '';
     const breakingLabel = breaking ? '**Breaking:** ' : '';
     const text = message.charAt(0).toUpperCase() + message.slice(1);
-    grouped[section].push(`${breakingLabel}${scopeLabel}${text} ([${commit.hash.slice(0, 7)}](${base}/commit/${commit.hash}))`);
+    grouped[section].push(
+        `${breakingLabel}${scopeLabel}${text} ([${commit.hash.slice(0, 7)}](${base}/commit/${commit.hash}))`,
+    );
 }
 
 const lines = ['## What changed', ''];
