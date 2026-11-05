@@ -65,13 +65,16 @@ fn run_inner(
     let started = Instant::now();
     let status = loop {
         if cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
-            stop_child(&mut child, pid);
+            // Do not kill the whole tree here: winget may already have handed
+            // the transaction to msiexec or DISM. Killing only the CLI keeps a
+            // Windows Installer transaction from being torn in half.
+            stop_child(&mut child, pid, false);
             return Err("process cancelled".to_string());
         }
         match child.try_wait().map_err(|error| error.to_string())? {
             Some(status) => break status,
             None if started.elapsed() >= timeout => {
-                stop_child(&mut child, pid);
+                stop_child(&mut child, pid, true);
                 return Err("process timed out".to_string());
             }
             None => std::thread::sleep(Duration::from_millis(100)),
@@ -88,8 +91,10 @@ fn run_inner(
     })
 }
 
-fn stop_child(child: &mut std::process::Child, pid: u32) {
-    kill_process_tree(pid);
+fn stop_child(child: &mut std::process::Child, pid: u32, kill_tree: bool) {
+    if kill_tree {
+        kill_process_tree(pid);
+    }
     let _ = child.kill();
     let _ = child.wait();
 }
