@@ -283,6 +283,7 @@ fn version_from_title(title: &str) -> String {
     }
 }
 
+#[cfg(target_os = "windows")]
 fn command_error(output: &process::ProcessOutput) -> String {
     let details = if !output.stderr.trim().is_empty() {
         output.stderr.trim()
