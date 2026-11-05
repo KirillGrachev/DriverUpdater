@@ -82,20 +82,23 @@ impl Drop for BusyGuard {
 async fn run_repository_handle<T, F>(
     repository: Arc<Mutex<DriverRepository>>,
     operation: F,
-) -> Result<T, String>
+) -> Result<T, CommandError>
 where
     T: Send + 'static,
     F: FnOnce(&mut DriverRepository) -> Result<T, String> + Send + 'static,
 {
     tauri::async_runtime::spawn_blocking(move || {
         let mut repository = repository.lock().map_err(|error| error.to_string())?;
-        operation(&mut repository)
+        operation(&mut repository).map_err(CommandError::from_message)
     })
     .await
-    .map_err(|error| error.to_string())?
+    .map_err(|error| CommandError::from_message(error.to_string()))?
 }
 
-async fn run_repository<T, F>(state: State<'_, AppRepository>, operation: F) -> Result<T, String>
+async fn run_repository<T, F>(
+    state: State<'_, AppRepository>,
+    operation: F,
+) -> Result<T, CommandError>
 where
     T: Send + 'static,
     F: FnOnce(&mut DriverRepository) -> Result<T, String> + Send + 'static,
@@ -111,13 +114,15 @@ async fn detect_drivers() -> Option<Vec<Driver>> {
 }
 
 #[tauri::command]
-pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
+pub async fn get_initial_data(
+    state: State<'_, AppRepository>,
+) -> Result<InitialData, CommandError> {
     let repository = Arc::clone(&state.0);
     run_repository_handle(repository, |repository| Ok(repository.snapshot())).await
 }
 
 #[tauri::command]
-pub async fn scan_inventory(state: State<'_, AppRepository>) -> Result<InitialData, String> {
+pub async fn scan_inventory(state: State<'_, AppRepository>) -> Result<InitialData, CommandError> {
     let repository = Arc::clone(&state.0);
     let drivers = detect_drivers().await;
     run_repository_handle(repository, move |repository| {
@@ -128,7 +133,9 @@ pub async fn scan_inventory(state: State<'_, AppRepository>) -> Result<InitialDa
 }
 
 #[tauri::command]
-pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
+pub async fn check_updates(
+    state: State<'_, AppRepository>,
+) -> Result<CheckUpdatesResult, CommandError> {
     let repository = Arc::clone(&state.0);
     let drivers_task = tauri::async_runtime::spawn_blocking(|| NativeDetector.detect());
     let updates_task =
@@ -235,6 +242,7 @@ async fn install_one(
         repository.finish_install(&id, outcome, detected_version)
     })
     .await
+    .map_err(|error| error.message)
 }
 
 #[tauri::command]
@@ -337,7 +345,7 @@ pub async fn install_updates(
 #[tauri::command]
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
-) -> Result<Vec<RestorePoint>, String> {
+) -> Result<Vec<RestorePoint>, CommandError> {
     let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
         .await
         .map_err(|error| error.to_string())??;
@@ -354,10 +362,10 @@ pub async fn create_restore_point(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
     name: String,
-) -> Result<RestorePoint, String> {
+) -> Result<RestorePoint, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     if name.trim().is_empty() || name.chars().count() > 200 {
-        return Err("invalid restore point name".to_string());
+        return Err("invalid restore point name".to_string().into());
     }
     let point =
         tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
@@ -378,7 +386,7 @@ pub async fn delete_restore_point(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
     id: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     tauri::async_runtime::spawn_blocking(move || default_restore_provider().delete(&id))
         .await
@@ -398,19 +406,20 @@ pub async fn restore_from_point(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
     id: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let _ = state;
     tauri::async_runtime::spawn_blocking(move || default_restore_provider().restore(&id))
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
 pub async fn save_settings(
     state: State<'_, AppRepository>,
     settings: Settings,
-) -> Result<Settings, String> {
+) -> Result<Settings, CommandError> {
     validate_settings(&settings)?;
     run_repository(state, move |repository| repository.save_settings(settings)).await
 }
@@ -447,14 +456,16 @@ async fn backup_root(state: &State<'_, AppRepository>) -> Result<PathBuf, String
         Ok(repository.backup_dir().to_path_buf())
     })
     .await
+    .map_err(|error| error.message)
 }
 
 #[tauri::command]
-pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), String> {
+pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), CommandError> {
     let folder = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || open_folder(&folder))
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[cfg(target_os = "windows")]
@@ -487,14 +498,14 @@ fn open_folder(path: &Path) -> Result<(), String> {
 #[tauri::command]
 pub async fn detect_installed_components(
     state: State<'_, AppRepository>,
-) -> Result<Vec<crate::models::InstalledComponent>, String> {
+) -> Result<Vec<crate::models::InstalledComponent>, CommandError> {
     run_repository(state, |repository| Ok(repository.detect_components())).await
 }
 
 #[tauri::command]
 pub async fn get_installed_components(
     state: State<'_, AppRepository>,
-) -> Result<Vec<String>, String> {
+) -> Result<Vec<String>, CommandError> {
     run_repository(state, |repository| Ok(repository.installed_components())).await
 }
 
@@ -502,7 +513,7 @@ pub async fn get_installed_components(
 pub async fn save_installed_components(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
-) -> Result<Vec<String>, String> {
+) -> Result<Vec<String>, CommandError> {
     run_repository(state, move |repository| {
         repository.save_installed_components(ids)
     })
@@ -512,23 +523,25 @@ pub async fn save_installed_components(
 #[tauri::command]
 pub async fn list_driver_backups(
     state: State<'_, AppRepository>,
-) -> Result<Vec<crate::backup::DriverBackup>, String> {
+) -> Result<Vec<crate::backup::DriverBackup>, CommandError> {
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).list())
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
 pub async fn create_driver_backup(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
-) -> Result<crate::backup::DriverBackup, String> {
+) -> Result<crate::backup::DriverBackup, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).create())
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -536,12 +549,13 @@ pub async fn restore_driver_backup(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
     id: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).restore(&id))
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -549,28 +563,30 @@ pub async fn delete_driver_backup(
     state: State<'_, AppRepository>,
     busy: State<'_, BusyState>,
     id: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).delete(&id))
         .await
         .map_err(|error| error.to_string())?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
-pub async fn get_system_info() -> Result<SystemInfo, String> {
+pub async fn get_system_info() -> Result<SystemInfo, CommandError> {
     tauri::async_runtime::spawn_blocking(detect_system_info)
         .await
-        .map_err(|error| error.to_string())
+        .map_err(|error| CommandError::from_message(error.to_string()))
 }
 
 #[tauri::command]
-pub async fn list_package_versions(package_id: String) -> Result<Vec<String>, String> {
+pub async fn list_package_versions(package_id: String) -> Result<Vec<String>, CommandError> {
     tauri::async_runtime::spawn_blocking(move || {
         crate::packages::WingetPackageManager.versions(&package_id)
     })
     .await
     .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -579,7 +595,7 @@ pub async fn install_package(
     busy: State<'_, BusyState>,
     package_id: String,
     version: String,
-) -> Result<(), String> {
+) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let cancel = Arc::new(AtomicBool::new(false));
     let job_key = package_id.clone();
@@ -589,7 +605,7 @@ pub async fn install_package(
             .lock()
             .unwrap_or_else(|poisoned| poisoned.into_inner());
         if jobs.contains_key(&job_key) {
-            return Err("package is already installing".to_string());
+            return Err("package is already installing".to_string().into());
         }
         jobs.insert(job_key.clone(), Arc::clone(&cancel));
     }
@@ -603,14 +619,16 @@ pub async fn install_package(
         .lock()
         .unwrap_or_else(|poisoned| poisoned.into_inner())
         .remove(&job_key);
-    result?
+    result
+        .map_err(CommandError::from_message)?
+        .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
 pub async fn cancel_package_install(
     state: State<'_, PackageJobs>,
     package_id: String,
-) -> Result<bool, String> {
+) -> Result<bool, CommandError> {
     let job = state
         .0
         .lock()

@@ -8,6 +8,12 @@ pub struct CommandError {
     pub message: String,
 }
 
+impl From<CommandError> for String {
+    fn from(error: CommandError) -> Self {
+        error.message
+    }
+}
+
 impl From<String> for CommandError {
     fn from(message: String) -> Self {
         Self::from_message(message)

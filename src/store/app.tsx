@@ -169,7 +169,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                             const current = dataRef.current ?? data;
                             dataRef.current = {
                                 ...current,
-                                scanError: error instanceof Error ? error.message : String(error),
+                                scanError: commandErrorInfo(error).message,
                             };
                             patch({ data: dataRef.current });
                         })
@@ -182,7 +182,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 if (cancelled) return;
                 /** Keep the window usable even if the backend or a locale chunk fails. */
                 patch({
-                    bootError: error instanceof Error ? error.message : String(error),
+                    bootError: commandErrorInfo(error).message,
                     booting: false,
                 });
             }
@@ -313,7 +313,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 count > 0 ? 'info' : 'success',
             );
         } catch (error) {
-            const message = error instanceof Error ? error.message : String(error);
+            const message = commandErrorInfo(error).message;
             setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, scanError: message } } : prev));
             pushToast(translate(locale, 'common.scanError'), 'error');
         } finally {
