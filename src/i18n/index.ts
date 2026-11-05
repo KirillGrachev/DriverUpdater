@@ -7,16 +7,22 @@ export type LocaleCode = string;
 type DictValue = string | { [plural: string]: string };
 type DictTree = { [key: string]: DictValue | DictTree };
 
-/** Locale bundles are separate JSON chunks, loaded on demand. */
+/**
+ * Locale bundles are separate JSON chunks, loaded on demand.
+ */
 const localeModules = import.meta.glob<{ default: Dictionary }>('./locales/*.json');
 
 const baseLocales: Record<string, Dictionary> = { ru, en };
 const loadedLocales = new Map<string, Dictionary>();
 
-/** Community/extension locales registered at runtime (see registerLocale). */
+/**
+ * Community/extension locales registered at runtime (see registerLocale).
+ */
 const extraLocales = new Map<string, { label: string; dict: Dictionary }>();
 
-/** Same order as the BirthdayBot language picker. */
+/**
+ * Same order as the BirthdayBot language picker.
+ */
 const LOCALE_ORDER = [
     'ru',
     'uk',
@@ -98,7 +104,9 @@ export function registerLocale(code: string, label: string, dict: Dictionary): v
     localeLabels[code] = label;
 }
 
-/** Load one JSON bundle once; returns false when the locale has no bundle. */
+/**
+ * Load one JSON bundle once; returns false when the locale has no bundle.
+ */
 export async function loadLocale(code: string): Promise<boolean> {
     if (code === 'ru' || code === 'en') return true;
     if (loadedLocales.has(code) || extraLocales.has(code)) return true;
@@ -157,7 +165,9 @@ export interface TranslateParams {
     [key: string]: string | number;
 }
 
-/** Resolve a dotted key, apply plural forms and interpolate {params}. */
+/**
+ * Resolve a dotted key, apply plural forms and interpolate {params}.
+ */
 export function translate(locale: LocaleCode, key: string, params?: TranslateParams & { count?: number }): string {
     const dict = getDictionary(locale) as unknown as DictTree;
     const fallback = getDictionary('en') as unknown as DictTree;

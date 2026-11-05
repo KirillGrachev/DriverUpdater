@@ -1,8 +1,10 @@
-//! Process execution with a wall-clock timeout and deadlock-safe output capture.
-//!
-//! <p>Both stdout and stderr are drained on dedicated threads. A child that
-//! writes more than the pipe buffer therefore cannot block forever while the
-//! timeout is being waited on.</p>
+/*!
+ * Process execution with a wall-clock timeout and deadlock-safe output capture.
+ *
+ * <p>Both stdout and stderr are drained on dedicated threads. A child that
+ * writes more than the pipe buffer therefore cannot block forever while the
+ * timeout is being waited on.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::path::PathBuf;
@@ -12,7 +14,9 @@ use std::time::{Duration, Instant};
 
 const MAX_CAPTURED_OUTPUT: usize = 4 * 1024 * 1024;
 
-/// Captured result of a finished child process.
+/**
+ * Captured result of a finished child process.
+ */
 pub struct ProcessOutput {
     pub success: bool,
     pub code: Option<i32>,
@@ -21,16 +25,20 @@ pub struct ProcessOutput {
     pub cancel_ignored: bool,
 }
 
-/// Runs a command with a timeout, returning its combined text output.
-///
-/// @param command command to spawn; stdio is replaced by the helper
-/// @param timeout maximum wall-clock time for the child process
-/// @returns captured output, or an error for spawn/timeout/non-UTF8 output
+/**
+ * Runs a command with a timeout, returning its combined text output.
+ *
+ * @param command command to spawn; stdio is replaced by the helper
+ * @param timeout maximum wall-clock time for the child process
+ * @returns captured output, or an error for spawn/timeout/non-UTF8 output
+ */
 pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, String> {
     run_inner(&mut command, timeout, None, false)
 }
 
-/// Runs a command and checks a cancellation flag while it is running.
+/**
+ * Runs a command and checks a cancellation flag while it is running.
+ */
 pub fn run_cancellable(
     mut command: Command,
     timeout: Duration,
@@ -75,13 +83,17 @@ fn run_inner(
     let status = loop {
         if !cancel_ignored && cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
             if protect_installer_transaction && installer_transaction_active() {
-                // Once msiexec or DISM owns the transaction, terminating the
-                // winget parent would report a cancellation while the package
-                // is still being applied. Let the transaction finish instead.
+                /*
+                 * Once msiexec or DISM owns the transaction, terminating the
+                 * winget parent would report a cancellation while the package
+                 * is still being applied. Let the transaction finish instead.
+                 */
                 cancel_ignored = true;
                 log::warn!("cancellation ignored because an installer transaction is active");
             } else {
-                // Download-only or preflight phase: stopping the CLI is safe.
+                /*
+                 * Download-only or preflight phase: stopping the CLI is safe.
+                 */
                 stop_child(&mut child, pid, false);
                 return Err("process cancelled".to_string());
             }
@@ -155,13 +167,17 @@ fn read_pipe(pipe: Option<impl std::io::Read>) -> String {
     String::from_utf8_lossy(&buffer).into_owned()
 }
 
-/// Returns an absolute executable path under `%SystemRoot%`.
+/**
+ * Returns an absolute executable path under `%SystemRoot%`.
+ */
 #[cfg(target_os = "windows")]
 pub fn system_executable(name: &str) -> PathBuf {
     windows_directory().join("System32").join(name)
 }
 
-/// Returns an executable stored directly under `%SystemRoot%`, such as explorer.exe.
+/**
+ * Returns an executable stored directly under `%SystemRoot%`, such as explorer.exe.
+ */
 #[cfg(target_os = "windows")]
 pub fn windows_executable(name: &str) -> PathBuf {
     windows_directory().join(name)
@@ -174,7 +190,9 @@ fn windows_directory() -> PathBuf {
         .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
 }
 
-/// Runs PowerShell with an absolute executable path and no profile.
+/**
+ * Runs PowerShell with an absolute executable path and no profile.
+ */
 #[cfg(target_os = "windows")]
 pub fn run_powershell(script: &str, timeout: Duration) -> Result<ProcessOutput, String> {
     let mut command = Command::new(system_executable(r"WindowsPowerShell\v1.0\powershell.exe"));

@@ -1,4 +1,6 @@
-/** Design tokens sampled from the designer mockups (light and dark). */
+/**
+ * Design tokens sampled from the designer mockups (light and dark).
+ */
 
 :root {
     --c-primary: #1f6df8;
@@ -6,7 +8,9 @@
     --c-primary-soft: #e8f0fe;
     --c-primary-softer: #eef3fe;
 
-    /** Colored settings-row icons. */
+    /**
+     * Colored settings-row icons.
+     */
     --settings-icon-accent: #3075ec;
     --settings-icon-fill: #eaf1ff;
     --settings-icon-inner: #f8fafe;
@@ -44,7 +48,9 @@
     --radius-md: 14px;
     --radius-sm: 12px;
 
-    /** Fluid geometry, tuned against the 1536x1024 mockups and the 1240x860 window. */
+    /**
+     * Fluid geometry, tuned against the 1536x1024 mockups and the 1240x860 window.
+     */
     --page-w: min(1180px, 77vw);
     --page-top: clamp(96px, 9.2vw, 141px);
     --content-pad-x: clamp(30px, 3vw, 42px);

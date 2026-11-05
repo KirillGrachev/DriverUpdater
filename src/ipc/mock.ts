@@ -19,7 +19,9 @@ import type {
 
 const STORAGE_KEY = 'driver-updater.mock.v1';
 
-/** Browser preview has no install directory; show the path the desktop app derives. */
+/**
+ * Browser preview has no install directory; show the path the desktop app derives.
+ */
 export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\Driver Updater\\Backups';
 
 interface MockState {
@@ -105,7 +107,9 @@ export class MockBackend implements Backend {
         try {
             localStorage.setItem(STORAGE_KEY, JSON.stringify(this.state));
         } catch {
-            /** Storage may be unavailable in private mode; ignore the failure. */
+            /**
+             * Storage may be unavailable in private mode; ignore the failure.
+             */
         }
     }
 
@@ -214,7 +218,9 @@ export class MockBackend implements Backend {
     }
 
     async openBackupFolder(): Promise<void> {
-        /** The browser preview has no file-manager integration. */
+        /**
+         * The browser preview has no file-manager integration.
+         */
     }
 
     async detectInstalledComponents(): Promise<InstalledComponent[]> {

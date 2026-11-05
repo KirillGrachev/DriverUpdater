@@ -154,7 +154,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const openModal = useCallback((modal: ConfirmModal) => patch({ modal }), [patch]);
     const closeModal = useCallback(() => patch({ modal: null }), [patch]);
 
-    /** Loads the backend, the active locale and the initial application data. */
+    /**
+     * Loads the backend, the active locale and the initial application data.
+     */
     useEffect(() => {
         let cancelled = false;
         (async () => {
@@ -193,7 +195,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 }
             } catch (error) {
                 if (cancelled) return;
-                /** Keep the window usable even if the backend or a locale chunk fails. */
+                /**
+                 * Keep the window usable even if the backend or a locale chunk fails.
+                 */
                 patch({
                     bootError: commandErrorInfo(error).message,
                     booting: false,
@@ -220,7 +224,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 else unlisten = stop;
             })
             .catch(() => {
-                // Progress is optional; the busy state still prevents closing.
+                /*
+                 * Progress is optional; the busy state still prevents closing.
+                 */
             });
         return () => {
             cancelled = true;
@@ -235,7 +241,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         [locale],
     );
 
-    /** Resolves and persists the active theme, including OS theme changes. */
+    /**
+     * Resolves and persists the active theme, including OS theme changes.
+     */
     const theme =
         state.data?.settings.theme ?? ((document.documentElement.dataset.theme as ThemeMode | undefined) || 'light');
     useEffect(() => {
@@ -246,7 +254,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             try {
                 localStorage.setItem('driver-updater.theme', theme);
             } catch {
-                /** storage unavailable */
+                /**
+                 * storage unavailable
+                 */
             }
         };
         apply();
@@ -259,7 +269,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
         document.documentElement.lang = locale;
     }, [locale]);
 
-    /** Shared state helpers used by the command callbacks below. */
+    /**
+     * Shared state helpers used by the command callbacks below.
+     */
     const refreshSummary = useCallback(async (drivers: Driver[]) => {
         const current = dataRef.current;
         if (!current) return;
@@ -499,7 +511,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
             dataRef.current = next;
             setState((prev) => (prev.data ? { ...prev, data: next } : prev));
         } catch {
-            // The Backups page keeps its cached list and shows the action error.
+            /*
+             * The Backups page keeps its cached list and shows the action error.
+             */
         }
     }, []);
 
@@ -769,7 +783,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 dataRef.current = next;
                 setState((prev) => (prev.data ? { ...prev, data: next } : prev));
             } catch {
-                /** optimistic update already applied */
+                /**
+                 * optimistic update already applied
+                 */
             }
         },
         [enqueueSettingsWrite],
@@ -788,8 +804,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!lastCheck || Date.now() - new Date(lastCheck).getTime() >= interval) {
             void scan();
         }
-        // Spread automatic checks by up to ten percent so machines that
-        // started together do not query Windows Update in lockstep.
+        /*
+         * Spread automatic checks by up to ten percent so machines that
+         * started together do not query Windows Update in lockstep.
+         */
         const jitter = Math.round(interval * 0.1 * (Math.random() * 2 - 1));
         const timer = window.setInterval(() => {
             void scan();

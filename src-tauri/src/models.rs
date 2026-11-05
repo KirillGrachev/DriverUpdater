@@ -1,5 +1,7 @@
-//! Shared serde models that mirror {@code src/ipc/types.ts} on the webview side.
-//! All structs serialize to camelCase to match the TypeScript contracts.
+/*!
+ * Shared serde models that mirror {@code src/ipc/types.ts} on the webview side.
+ * All structs serialize to camelCase to match the TypeScript contracts.
+ */
 
 use serde::{Deserialize, Serialize};
 

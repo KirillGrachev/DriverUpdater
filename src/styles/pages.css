@@ -1,4 +1,6 @@
-/** Page-level layouts. */
+/**
+ * Page-level layouts.
+ */
 
 .page {
     display: flex;
@@ -151,7 +153,9 @@
     padding-top: clamp(69px, 7vw, 107px);
 }
 
-/** Page heroes. */
+/**
+ * Page heroes.
+ */
 
 .hero {
     display: flex;
@@ -197,7 +201,9 @@
     color: var(--c-text-2);
 }
 
-/** Page statistics. */
+/**
+ * Page statistics.
+ */
 
 .stats-grid {
     display: grid;
@@ -212,7 +218,9 @@
     grid-template-columns: repeat(3, minmax(0, 1fr)) minmax(0, 1.63fr);
 }
 
-/** Home. */
+/**
+ * Home.
+ */
 
 /**
  * The home mockup is airier than the list pages: larger stat tiles and
@@ -354,7 +362,9 @@
     font-size: 13px;
 }
 
-/** Drivers. */
+/**
+ * Drivers.
+ */
 
 .install-progress {
     display: flex;
@@ -382,7 +392,9 @@
     box-shadow: none;
 }
 
-/** Non-interactive containers must never show a browser focus ring. */
+/**
+ * Non-interactive containers must never show a browser focus ring.
+ */
 .card:focus,
 .card:focus-visible,
 .drivers-card:focus,
@@ -565,7 +577,9 @@
     color: var(--c-success);
 }
 
-/** Last-check stat card in the drivers header. */
+/**
+ * Last-check stat card in the drivers header.
+ */
 .stat-last {
     gap: 14px;
 }
@@ -595,13 +609,17 @@
     margin-left: auto;
 }
 
-/** Drivers notice spacing. */
+/**
+ * Drivers notice spacing.
+ */
 
 .page-drivers .notice-bar {
     margin-top: 4px;
 }
 
-/** Backups. */
+/**
+ * Backups.
+ */
 
 .backups-card .card-head {
     border-bottom: 1px solid var(--c-border-2);
@@ -732,7 +750,9 @@
     color: var(--c-text-2);
 }
 
-/** Settings. */
+/**
+ * Settings.
+ */
 
 .settings-section {
     overflow: visible;
@@ -880,7 +900,9 @@
     display: block;
 }
 
-/** About. */
+/**
+ * About.
+ */
 
 .about-identity {
     display: flex;
@@ -1017,7 +1039,9 @@
     color: var(--c-text-2);
 }
 
-/** Responsive fallbacks. */
+/**
+ * Responsive fallbacks.
+ */
 
 @media (max-width: 1080px) {
     .app-main {

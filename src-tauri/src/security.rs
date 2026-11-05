@@ -1,35 +1,45 @@
-//! At-rest protection for locally persisted application data.
-//!
-//! <p>The desktop app stores settings, driver cache and restore-point metadata
-//! under the current Windows user profile. On Windows, every file is sealed with
-//! DPAPI in the current-user scope, so copying the file to another account or
-//! machine does not reveal its contents. The optional entropy binds ciphertext
-//! to this application identifier.</p>
-//!
-//! <p>This is not a defence against malware already running as the same user:
-//! DPAPI keys are available to that user by design. It does protect backups,
-//! copied profiles and other users on the same PC.</p>
+/*!
+ * At-rest protection for locally persisted application data.
+ *
+ * <p>The desktop app stores settings, driver cache and restore-point metadata
+ * under the current Windows user profile. On Windows, every file is sealed with
+ * DPAPI in the current-user scope, so copying the file to another account or
+ * machine does not reveal its contents. The optional entropy binds ciphertext
+ * to this application identifier.</p>
+ *
+ * <p>This is not a defence against malware already running as the same user:
+ * DPAPI keys are available to that user by design. It does protect backups,
+ * copied profiles and other users on the same PC.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::ffi::c_void;
 
-/// File prefix that distinguishes sealed data from a legacy plaintext file.
+/**
+ * File prefix that distinguishes sealed data from a legacy plaintext file.
+ */
 pub const MAGIC: &[u8; 8] = b"DRVUPD1\0";
 
 #[cfg(target_os = "windows")]
-// Keep this value stable across app-identifier renames so existing DPAPI
-// state remains readable after the migration.
+/*
+ * Keep this value stable across app-identifier renames so existing DPAPI
+ * state remains readable after the migration.
+ */
 const ENTROPY: &[u8] = b"dev.driverupdater.desktop";
 
-/// Returns whether a persisted payload is already sealed.
+/**
+ * Returns whether a persisted payload is already sealed.
+ */
 pub fn is_sealed(payload: &[u8]) -> bool {
     payload.starts_with(MAGIC)
 }
 
-/// Encrypts bytes for storage under the current Windows user.
-///
-/// On non-Windows development builds the payload is returned unchanged so the
-/// browser preview and unit tests can still exercise the storage layer.
+/**
+ * Encrypts bytes for storage under the current Windows user.
+ *
+ * On non-Windows development builds the payload is returned unchanged so the
+ * browser preview and unit tests can still exercise the storage layer.
+ */
 pub fn seal(data: &[u8]) -> Result<Vec<u8>, String> {
     #[cfg(target_os = "windows")]
     {
@@ -46,9 +56,11 @@ pub fn seal(data: &[u8]) -> Result<Vec<u8>, String> {
     }
 }
 
-/// Decrypts bytes previously produced by [`seal`].
-///
-/// A legacy plaintext payload is returned as-is so the caller can migrate it.
+/**
+ * Decrypts bytes previously produced by [`seal`].
+ *
+ * A legacy plaintext payload is returned as-is so the caller can migrate it.
+ */
 pub fn open(payload: &[u8]) -> Result<Vec<u8>, String> {
     if !is_sealed(payload) {
         return Ok(payload.to_vec());

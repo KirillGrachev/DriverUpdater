@@ -11,7 +11,9 @@ import { Button, StatCard } from '../components/ui';
 import { formatRelativeDay } from '../utils/format';
 import { useApp } from '../store/app';
 
-/** Home mockup: large stat tiles, a compact last-check card and tight rows. */
+/**
+ * Home mockup: large stat tiles, a compact last-check card and tight rows.
+ */
 export function HomePage() {
     const { t, locale, data, scanning, installingIds, navigate, scan, installDriver } = useApp();
     if (!data) return null;

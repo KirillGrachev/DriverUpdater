@@ -1,7 +1,9 @@
-//! Tauri command layer.
-//!
-//! <p>Commands are thin async wrappers around the repository; validation and
-//! IPC input checks stay at this boundary.</p>
+/*!
+ * Tauri command layer.
+ *
+ * <p>Commands are thin async wrappers around the repository; validation and
+ * IPC input checks stay at this boundary.</p>
+ */
 
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
@@ -24,7 +26,9 @@ use crate::windows_update::default_update_provider;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 
-/// Package installs that the UI can cancel by package id.
+/**
+ * Package installs that the UI can cancel by package id.
+ */
 #[derive(Default)]
 pub struct PackageJobs(pub Mutex<HashMap<String, Arc<AtomicBool>>>);
 
@@ -49,7 +53,9 @@ fn emit_install_progress(app: &AppHandle, id: &str, current: usize, total: usize
     );
 }
 
-/// Tracks long-running operations that must not be interrupted by closing the window.
+/**
+ * Tracks long-running operations that must not be interrupted by closing the window.
+ */
 #[derive(Default)]
 pub struct BusyState(pub Arc<AtomicUsize>);
 
@@ -424,11 +430,13 @@ pub async fn save_settings(
     run_repository(state, move |repository| repository.save_settings(settings)).await
 }
 
-/// Rejects values the UI never produces, so a compromised or buggy webview
-/// cannot persist arbitrary state or drive code paths with unexpected strings.
-///
-/// @param settings settings document received over IPC
-/// @return validation error, or {@code Ok} when every field is accepted
+/**
+ * Rejects values the UI never produces, so a compromised or buggy webview
+ * cannot persist arbitrary state or drive code paths with unexpected strings.
+ *
+ * @param settings settings document received over IPC
+ * @return validation error, or {@code Ok} when every field is accepted
+ */
 fn validate_settings(settings: &Settings) -> Result<(), String> {
     const THEMES: [&str; 3] = ["light", "dark", "system"];
     const INTERVALS: [&str; 3] = ["hourly", "daily", "weekly"];

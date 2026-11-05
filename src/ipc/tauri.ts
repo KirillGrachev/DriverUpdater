@@ -13,7 +13,9 @@ import type {
     SystemInfo,
 } from './types';
 
-/** Real IPC bridge to the Rust core (`src-tauri/src/commands.rs`). */
+/**
+ * Real IPC bridge to the Rust core (`src-tauri/src/commands.rs`).
+ */
 export class TauriBackend implements Backend {
     getInitialData(): Promise<InitialData> {
         return invoke<InitialData>('get_initial_data');

@@ -27,13 +27,21 @@ export interface Driver {
     recommended: boolean;
     device: string;
     released: string;
-    /** Device instance id from Windows PnP. */
+    /**
+     * Device instance id from Windows PnP.
+     */
     deviceId?: string;
-    /** Hardware ids reported by the driver. */
+    /**
+     * Hardware ids reported by the driver.
+     */
     hardwareIds?: string[];
-    /** Published INF name when available. */
+    /**
+     * Published INF name when available.
+     */
     infName?: string;
-    /** Windows Update identity used to install this update. */
+    /**
+     * Windows Update identity used to install this update.
+     */
     updateId?: string;
     rebootRequired?: boolean;
 }
@@ -82,7 +90,9 @@ export interface Summary {
     devicesTotal: number;
     upToDate: number;
     updatesAvailable: number;
-    /** ISO string of the last successful scan, null if never scanned. */
+    /**
+     * ISO string of the last successful scan, null if never scanned.
+     */
     lastCheck: string | null;
 }
 
@@ -107,7 +117,9 @@ export interface InstalledComponent {
     path: string;
 }
 
-/** Payload returned by the core on application start. */
+/**
+ * Payload returned by the core on application start.
+ */
 export interface InitialData {
     drivers: Driver[];
     restorePoints: RestorePoint[];

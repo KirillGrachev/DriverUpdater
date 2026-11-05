@@ -1,7 +1,9 @@
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode } from 'react';
 import { IconCheck, IconChevronDown } from './icons';
 
-/** Animated height container for disclosure panels. */
+/**
+ * Animated height container for disclosure panels.
+ */
 
 export function Collapse({ open, children }: { open: boolean; children: ReactNode }) {
     const innerRef = useRef<HTMLDivElement>(null);
@@ -28,7 +30,9 @@ export function Collapse({ open, children }: { open: boolean; children: ReactNod
     );
 }
 
-/** Primary button component. */
+/**
+ * Primary button component.
+ */
 
 export interface ButtonProps {
     variant?: 'primary' | 'secondary' | 'ghost' | 'outline' | 'danger';
@@ -97,7 +101,9 @@ export function Button({
     );
 }
 
-/** Accessible switch. */
+/**
+ * Accessible switch.
+ */
 
 export function Toggle({
     checked,
@@ -125,7 +131,9 @@ export function Toggle({
     );
 }
 
-/** Checkbox control. */
+/**
+ * Checkbox control.
+ */
 
 export function Checkbox({
     checked,
@@ -159,7 +167,9 @@ export function Checkbox({
     );
 }
 
-/** Dropdown select with keyboard dismissal. */
+/**
+ * Dropdown select with keyboard dismissal.
+ */
 
 export interface SelectOption<T extends string> {
     value: T;
@@ -353,7 +363,9 @@ export function Select<T extends string>({
     );
 }
 
-/** Segmented control. */
+/**
+ * Segmented control.
+ */
 
 export function Segmented<T extends string>({
     value,
@@ -385,7 +397,9 @@ export function Segmented<T extends string>({
     );
 }
 
-/** Status badge. */
+/**
+ * Status badge.
+ */
 
 export function Badge({
     tone = 'neutral',
@@ -397,7 +411,9 @@ export function Badge({
     return <span className={`badge badge-${tone}`}>{children}</span>;
 }
 
-/** Summary statistic card. */
+/**
+ * Summary statistic card.
+ */
 
 export function StatCard({
     icon,

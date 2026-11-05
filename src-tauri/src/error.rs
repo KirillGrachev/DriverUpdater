@@ -1,6 +1,8 @@
 use serde::Serialize;
 
-/// Serializable error returned by commands that need a stable UI code.
+/**
+ * Serializable error returned by commands that need a stable UI code.
+ */
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct CommandError {

@@ -11,7 +11,9 @@ interface State {
     error: Error | null;
 }
 
-/** Keeps a rendering failure from blanking the whole desktop shell. */
+/**
+ * Keeps a rendering failure from blanking the whole desktop shell.
+ */
 export class ErrorBoundary extends Component<Props, State> {
     state: State = { error: null };
 
@@ -30,12 +32,16 @@ export class ErrorBoundary extends Component<Props, State> {
                 alreadyReloaded = sessionStorage.getItem('driver-updater-chunk-reload') === '1';
                 sessionStorage.setItem('driver-updater-chunk-reload', '1');
             } catch {
-                // Storage can be unavailable in a hardened webview; never turn
-                // the original render failure into a second exception.
+                /*
+                 * Storage can be unavailable in a hardened webview; never turn
+                 * the original render failure into a second exception.
+                 */
             }
             if (!alreadyReloaded) {
-                // A stale lazy chunk usually means the app was updated while the
-                // webview was open. Reload once instead of showing a developer error.
+                /*
+                 * A stale lazy chunk usually means the app was updated while the
+                 * webview was open. Reload once instead of showing a developer error.
+                 */
                 window.location.reload();
             }
         }

@@ -1,4 +1,6 @@
-/** Base: reset, typography, window frame, titlebar and bottom dock. */
+/**
+ * Base: reset, typography, window frame, titlebar and bottom dock.
+ */
 
 @font-face {
     font-family: 'Montserrat';
@@ -58,7 +60,9 @@ body {
     color: var(--c-text);
     background: var(--c-bg);
     -webkit-font-smoothing: antialiased;
-    /** Desktop app, not a web page: UI text must not be selectable. */
+    /**
+     * Desktop app, not a web page: UI text must not be selectable.
+     */
     user-select: none;
     -webkit-user-select: none;
     -webkit-touch-callout: none;
@@ -70,7 +74,9 @@ a {
     user-drag: none;
 }
 
-/** Inputs still need a caret and text selection while editing. */
+/**
+ * Inputs still need a caret and text selection while editing.
+ */
 input,
 textarea,
 [contenteditable='true'] {
@@ -162,7 +168,9 @@ a {
     background: transparent;
 }
 
-/** Window frame. */
+/**
+ * Window frame.
+ */
 
 .app-window {
     position: relative;
@@ -204,7 +212,9 @@ a {
     line-height: 1.5;
 }
 
-/** Titlebar. */
+/**
+ * Titlebar.
+ */
 
 /**
  * The mockups have no separate caption row: the window controls float above
@@ -273,7 +283,9 @@ a {
     color: #fff;
 }
 
-/** Application layout. */
+/**
+ * Application layout.
+ */
 
 .app-content {
     min-height: 100%;
@@ -447,10 +459,10 @@ a {
     overflow-y: auto;
     overflow-x: hidden;
     /**
- * Desktop-app feel: no permanent browser scrollbar. Scrolling still works
- * with the wheel/trackpad; hiding it also removes the reserved gutter that
- * shifted the page when switching views.
- */
+     * Desktop-app feel: no permanent browser scrollbar. Scrolling still works
+     * with the wheel/trackpad; hiding it also removes the reserved gutter that
+     * shifted the page when switching views.
+     */
     scrollbar-width: none;
     -ms-overflow-style: none;
     padding: 0 var(--content-pad-x) 92px;
@@ -462,7 +474,9 @@ a {
     height: 0;
 }
 
-/** Bottom dock. */
+/**
+ * Bottom dock.
+ */
 
 .bottom-dock {
     position: absolute;
@@ -565,7 +579,9 @@ a {
     box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c-primary) 28%, transparent);
 }
 
-/** Shared animations. */
+/**
+ * Shared animations.
+ */
 
 @keyframes rot {
     to {

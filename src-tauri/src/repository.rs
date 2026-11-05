@@ -1,9 +1,11 @@
-//! Application service for driver inventory, updates, restore points and backups.
-//!
-//! <p>Installed drivers come from the native detector. Available driver updates
-//! come from Windows Update; restore points and driver package backups use the
-//! real Windows providers. There is no fixture fallback in the production
-//! repository: a failed scan produces an empty inventory plus a visible error.</p>
+/*!
+ * Application service for driver inventory, updates, restore points and backups.
+ *
+ * <p>Installed drivers come from the native detector. Available driver updates
+ * come from Windows Update; restore points and driver package backups use the
+ * real Windows providers. There is no fixture fallback in the production
+ * repository: a failed scan produces an empty inventory plus a visible error.</p>
+ */
 
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
@@ -23,11 +25,13 @@ pub struct InstallPlan {
     pub backup_dir: PathBuf,
 }
 
-/// Applies the choices made in the unified setup wizard once.
-///
-/// The setup writes a small JSON file next to the app data so the first app
-/// launch uses the selected language and theme even before the user opens
-/// Settings.
+/**
+ * Applies the choices made in the unified setup wizard once.
+ *
+ * The setup writes a small JSON file next to the app data so the first app
+ * launch uses the selected language and theme even before the user opens
+ * Settings.
+ */
 fn apply_installer_preferences(repo: &mut DriverRepository) {
     let Some(local) = std::env::var_os("LOCALAPPDATA").map(PathBuf::from) else {
         return;
@@ -174,9 +178,11 @@ impl DriverRepository {
                     repo.last_check = state.last_check;
                     repo.installed_components = state.installed_components;
                     if state.version == 2 {
-                        // v2 could still contain fixture restore points loaded
-                        // before the real provider was introduced. Keep user
-                        // settings but discard the demo data once.
+                        /*
+                         * v2 could still contain fixture restore points loaded
+                         * before the real provider was introduced. Keep user
+                         * settings but discard the demo data once.
+                         */
                         repo.restore_points.clear();
                         repo.installed_components.clear();
                         repo.settings.auto_check = false;
@@ -224,17 +230,23 @@ impl DriverRepository {
         self.backup_dir.as_path()
     }
 
-    /// Detects installed runtimes and developer tools through the configured adapter.
+    /**
+     * Detects installed runtimes and developer tools through the configured adapter.
+     */
     pub fn detect_components(&self) -> Vec<crate::models::InstalledComponent> {
         self.component_detector.detect()
     }
 
-    /// Returns the component ids persisted by previous installs.
+    /**
+     * Returns the component ids persisted by previous installs.
+     */
     pub fn installed_components(&self) -> Vec<String> {
         self.installed_components.clone()
     }
 
-    /// Replaces the persisted component ids and returns the normalized list.
+    /**
+     * Replaces the persisted component ids and returns the normalized list.
+     */
     pub fn save_installed_components(&mut self, ids: Vec<String>) -> Result<Vec<String>, String> {
         let mut unique = Vec::new();
         for id in ids {

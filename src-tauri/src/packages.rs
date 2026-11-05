@@ -1,8 +1,10 @@
-//! Package installation through the Windows Package Manager (winget).
-//!
-//! <p>Only package ids listed in [`ALLOWED_PACKAGES`] can be queried or
-//! installed. Arguments are passed as separate process arguments, never through
-//! a shell, and versions are checked before they reach winget.</p>
+/*!
+ * Package installation through the Windows Package Manager (winget).
+ *
+ * <p>Only package ids listed in [`ALLOWED_PACKAGES`] can be queried or
+ * installed. Arguments are passed as separate process arguments, never through
+ * a shell, and versions are checked before they reach winget.</p>
+ */
 
 use std::process::Command;
 use std::sync::atomic::AtomicBool;
@@ -12,14 +14,18 @@ use serde::Serialize;
 
 use crate::process;
 
-/// Result of a package installation.
+/**
+ * Result of a package installation.
+ */
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PackageInstallResult {
     pub cancel_ignored: bool,
 }
 
-/// winget packages exposed by the components page.
+/**
+ * winget packages exposed by the components page.
+ */
 pub const ALLOWED_PACKAGES: &[&str] = &[
     "Microsoft.VisualStudio.2022.Community",
     "Microsoft.VisualStudio.2022.Professional",
@@ -89,7 +95,9 @@ pub const ALLOWED_PACKAGES: &[&str] = &[
     "Chocolatey.Chocolatey",
 ];
 
-/// Windows Package Manager implementation.
+/**
+ * Windows Package Manager implementation.
+ */
 #[derive(Default)]
 pub struct WingetPackageManager;
 
@@ -121,7 +129,9 @@ impl WingetPackageManager {
 }
 
 impl WingetPackageManager {
-    /// Installs a package and stops the child process when `cancel` is set.
+    /**
+     * Installs a package and stops the child process when `cancel` is set.
+     */
     pub fn install_cancellable(
         &self,
         package_id: &str,
@@ -188,7 +198,9 @@ fn run_command(
     }
 }
 
-/// Extracts version rows from the tabular `winget show --versions` output.
+/**
+ * Extracts version rows from the tabular `winget show --versions` output.
+ */
 pub fn parse_versions(output: &str) -> Vec<String> {
     let mut versions = Vec::new();
     for line in output.lines() {

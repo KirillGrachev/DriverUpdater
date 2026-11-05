@@ -1,8 +1,10 @@
-//! Driver package backups through `pnputil`.
-//!
-//! <p>A backup exports every third-party driver package into a timestamped
-//! directory. Restoring adds the exported INF files back to the driver store.
-//! Export and restore require administrator rights.</p>
+/*!
+ * Driver package backups through `pnputil`.
+ *
+ * <p>A backup exports every third-party driver package into a timestamped
+ * directory. Restoring adds the exported INF files back to the driver store.
+ * Export and restore require administrator rights.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::fs;
@@ -17,7 +19,9 @@ use std::time::{Duration, SystemTime, UNIX_EPOCH};
 use crate::process;
 use serde::{Deserialize, Serialize};
 
-/// Metadata for one exported driver package set.
+/**
+ * Metadata for one exported driver package set.
+ */
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DriverBackup {
@@ -35,7 +39,9 @@ pub trait DriverBackupProvider: Send + Sync {
     fn delete(&self, id: &str) -> Result<(), String>;
 }
 
-/// Native `pnputil` implementation rooted at the application backup folder.
+/**
+ * Native `pnputil` implementation rooted at the application backup folder.
+ */
 #[cfg(target_os = "windows")]
 pub struct WindowsDriverBackups {
     root: PathBuf,
@@ -168,7 +174,9 @@ impl DriverBackupProvider for WindowsDriverBackups {
     }
 }
 
-/// Non-Windows placeholder.
+/**
+ * Non-Windows placeholder.
+ */
 #[cfg(not(target_os = "windows"))]
 #[derive(Default)]
 pub struct UnsupportedDriverBackups;
@@ -192,7 +200,9 @@ impl DriverBackupProvider for UnsupportedDriverBackups {
     }
 }
 
-/// Returns the provider rooted at the application backup directory.
+/**
+ * Returns the provider rooted at the application backup directory.
+ */
 pub fn default_backup_provider(root: std::path::PathBuf) -> Box<dyn DriverBackupProvider> {
     #[cfg(target_os = "windows")]
     {

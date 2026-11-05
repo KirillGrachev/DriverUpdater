@@ -17,11 +17,13 @@ use commands::AppRepository;
 use repository::DriverRepository;
 use tauri::{Emitter, Manager};
 
-/// Gives the backups folder the app icon in Explorer instead of the generic
-/// folder glyph. Windows reads this from {@code desktop.ini} and expects the
-/// folder itself to be marked read-only.
-///
-/// @param dir backups directory created during application setup
+/**
+ * Gives the backups folder the app icon in Explorer instead of the generic
+ * folder glyph. Windows reads this from {@code desktop.ini} and expects the
+ * folder itself to be marked read-only.
+ *
+ * @param dir backups directory created during application setup
+ */
 #[cfg(target_os = "windows")]
 fn apply_backup_folder_icon(dir: &std::path::Path) {
     use std::os::windows::process::CommandExt;
@@ -219,7 +221,9 @@ pub fn run() {
             app.manage(commands::PackageJobs::default());
             app.manage(commands::BusyState::default());
 
-            // Keep the taskbar/window icon in sync with the bundled app icon.
+            /*
+             * Keep the taskbar/window icon in sync with the bundled app icon.
+             */
             if let Some(window) = app.get_webview_window("main") {
                 let icon = tauri::image::Image::new_owned(
                     include_bytes!("../icons/icon_256.rgba").to_vec(),

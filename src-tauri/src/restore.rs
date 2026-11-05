@@ -1,9 +1,11 @@
-//! Real Windows System Restore integration.
-//!
-//! <p>Restore points are created and removed through `srclient.dll`; listing and
-//! starting a restore use the native System Restore WMI provider directly. These
-//! operations require an elevated process; the caller surfaces the resulting
-//! error.</p>
+/*!
+ * Real Windows System Restore integration.
+ *
+ * <p>Restore points are created and removed through `srclient.dll`; listing and
+ * starting a restore use the native System Restore WMI provider directly. These
+ * operations require an elevated process; the caller surfaces the resulting
+ * error.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::mem::ManuallyDrop;
@@ -82,7 +84,9 @@ fn unix_seconds_iso(seconds: i64) -> String {
     )
 }
 
-/// System Restore operations exposed to the repository.
+/**
+ * System Restore operations exposed to the repository.
+ */
 pub trait RestorePointProvider: Send + Sync {
     fn list(&self) -> Result<Vec<RestorePoint>, String>;
     fn create(&self, name: &str) -> Result<RestorePoint, String>;
@@ -90,7 +94,9 @@ pub trait RestorePointProvider: Send + Sync {
     fn delete(&self, id: &str) -> Result<(), String>;
 }
 
-/// Native Windows implementation.
+/**
+ * Native Windows implementation.
+ */
 #[cfg(target_os = "windows")]
 #[derive(Default)]
 pub struct WindowsRestorePoints;
@@ -223,7 +229,9 @@ impl RestorePointProvider for WindowsRestorePoints {
     }
 }
 
-/// Non-Windows placeholder.
+/**
+ * Non-Windows placeholder.
+ */
 #[cfg(not(target_os = "windows"))]
 #[derive(Default)]
 pub struct UnsupportedRestorePoints;
@@ -247,7 +255,9 @@ impl RestorePointProvider for UnsupportedRestorePoints {
     }
 }
 
-/// Returns the provider for the current target.
+/**
+ * Returns the provider for the current target.
+ */
 pub fn default_restore_provider() -> Box<dyn RestorePointProvider> {
     #[cfg(target_os = "windows")]
     {

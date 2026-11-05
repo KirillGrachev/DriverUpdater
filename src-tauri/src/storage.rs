@@ -1,8 +1,10 @@
-//! Encrypted persistence for application state and the driver cache.
-//!
-//! <p>All files written by this module go through [`security::seal`]. Reads
-//! accept a legacy plaintext payload once, then rewrite it in sealed form. Writes
-//! use a temporary file plus rename so a crash cannot truncate the state.</p>
+/*!
+ * Encrypted persistence for application state and the driver cache.
+ *
+ * <p>All files written by this module go through [`security::seal`]. Reads
+ * accept a legacy plaintext payload once, then rewrite it in sealed form. Writes
+ * use a temporary file plus rename so a crash cannot truncate the state.</p>
+ */
 
 use std::fs;
 use std::io::Write;
@@ -14,7 +16,9 @@ use serde::{Deserialize, Serialize};
 use crate::models::{Driver, RestorePoint, Settings};
 use crate::security;
 
-/// Mutable state persisted between application launches.
+/**
+ * Mutable state persisted between application launches.
+ */
 pub const SCHEMA_VERSION: u32 = 4;
 
 #[derive(Clone, serde::Serialize, serde::Deserialize)]
@@ -30,27 +34,35 @@ pub struct PersistedState {
     pub installed_components: Vec<String>,
 }
 
-/// A single encrypted JSON document on disk.
+/**
+ * A single encrypted JSON document on disk.
+ */
 pub struct EncryptedStore {
     path: Option<PathBuf>,
 }
 
 impl EncryptedStore {
-    /// Creates a store for an optional path. `None` keeps the data in memory.
+    /**
+     * Creates a store for an optional path. `None` keeps the data in memory.
+     */
     pub fn new(path: Option<PathBuf>) -> Self {
         Self { path }
     }
 
-    /// Returns the backing path, if persistence is enabled.
+    /**
+     * Returns the backing path, if persistence is enabled.
+     */
     pub fn path(&self) -> Option<&Path> {
         self.path.as_deref()
     }
 
-    /// Loads and decrypts a document, migrating legacy plaintext on success.
-    ///
-    /// A missing file is `Ok(None)`. Read, decryption and parse failures are
-    /// returned so the caller can surface corruption instead of silently
-    /// replacing user data with defaults.
+    /**
+     * Loads and decrypts a document, migrating legacy plaintext on success.
+     *
+     * A missing file is `Ok(None)`. Read, decryption and parse failures are
+     * returned so the caller can surface corruption instead of silently
+     * replacing user data with defaults.
+     */
     pub fn load<T: DeserializeOwned + Serialize>(&self) -> Result<Option<T>, String> {
         let Some(path) = self.path.as_ref() else {
             return Ok(None);
@@ -71,7 +83,9 @@ impl EncryptedStore {
         Ok(Some(value))
     }
 
-    /// Encrypts and atomically writes a document.
+    /**
+     * Encrypts and atomically writes a document.
+     */
     pub fn save<T: Serialize>(&self, value: &T) -> Result<(), String> {
         let Some(path) = &self.path else {
             return Ok(());
@@ -96,12 +110,16 @@ impl EncryptedStore {
     }
 }
 
-/// Encrypted cache of the last successful driver scan.
+/**
+ * Encrypted cache of the last successful driver scan.
+ */
 pub struct DriverCache {
     store: EncryptedStore,
 }
 
-/// Bump when the driver filter or cache contract changes.
+/**
+ * Bump when the driver filter or cache contract changes.
+ */
 const DRIVER_CACHE_VERSION: u32 = 2;
 
 #[derive(Serialize, Deserialize)]
@@ -118,7 +136,9 @@ enum CachePayload {
 }
 
 impl DriverCache {
-    /// Creates a cache next to the persisted application state.
+    /**
+     * Creates a cache next to the persisted application state.
+     */
     pub fn new(state_file: Option<&Path>) -> Self {
         let path = state_file
             .and_then(Path::parent)
@@ -128,7 +148,9 @@ impl DriverCache {
         }
     }
 
-    /// Loads a non-empty cached driver list.
+    /**
+     * Loads a non-empty cached driver list.
+     */
     pub fn load(&self) -> Result<Option<Vec<Driver>>, String> {
         let Some(payload) = self.store.load::<CachePayload>()? else {
             return Ok(None);
@@ -142,7 +164,9 @@ impl DriverCache {
         Ok((!drivers.is_empty()).then_some(drivers))
     }
 
-    /// Replaces the cache with the latest scan.
+    /**
+     * Replaces the cache with the latest scan.
+     */
     pub fn save(&self, drivers: &[Driver]) -> Result<(), String> {
         self.store.save(&CachedDrivers {
             cache_version: DRIVER_CACHE_VERSION,

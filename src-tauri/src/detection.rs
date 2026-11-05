@@ -1,8 +1,10 @@
-//! Windows detection adapters and parsing helpers.
-//!
-//! <p>All Windows-specific CIM, registry and process probing lives here. The
-//! repository depends on the traits below, not on PowerShell, which keeps the
-//! service testable and the native boundary explicit.</p>
+/*!
+ * Windows detection adapters and parsing helpers.
+ *
+ * <p>All Windows-specific CIM, registry and process probing lives here. The
+ * repository depends on the traits below, not on PowerShell, which keeps the
+ * service testable and the native boundary explicit.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::collections::HashSet;
@@ -13,22 +15,30 @@ use crate::models::{Driver, InstalledComponent, SystemInfo};
 #[cfg(target_os = "windows")]
 use sha2::{Digest, Sha256};
 
-/// Detects installed device drivers.
+/**
+ * Detects installed device drivers.
+ */
 pub trait DriverDetector: Send + Sync {
     fn detect(&self) -> Option<Vec<Driver>>;
 }
 
-/// Detects installed runtimes and developer tools.
+/**
+ * Detects installed runtimes and developer tools.
+ */
 pub trait ComponentDetector: Send + Sync {
     fn detect(&self) -> Vec<InstalledComponent>;
 }
 
-/// Reads basic operating-system and host information.
+/**
+ * Reads basic operating-system and host information.
+ */
 pub trait SystemInfoProvider: Send + Sync {
     fn info(&self) -> SystemInfo;
 }
 
-/// Native Windows implementation of all detection ports.
+/**
+ * Native Windows implementation of all detection ports.
+ */
 #[derive(Default)]
 pub struct NativeDetector;
 
@@ -107,11 +117,13 @@ fn normalize_driver_date(raw: &str) -> String {
     String::new()
 }
 
-/// Runs a Windows PowerShell script with a hard timeout.
-///
-/// @param script PowerShell command text
-/// @param timeout maximum wall-clock time for the child process
-/// @returns stdout on success, or `None` on timeout/failure
+/**
+ * Runs a Windows PowerShell script with a hard timeout.
+ *
+ * @param script PowerShell command text
+ * @param timeout maximum wall-clock time for the child process
+ * @returns stdout on success, or `None` on timeout/failure
+ */
 #[cfg(target_os = "windows")]
 fn run_powershell(script: &str, timeout: Duration) -> Option<String> {
     let output = crate::process::run_powershell(script, timeout).ok()?;
@@ -447,7 +459,9 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
-/// Driver Booster-style filter for devices that cannot receive a useful driver update.
+/**
+ * Driver Booster-style filter for devices that cannot receive a useful driver update.
+ */
 pub(crate) fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
     const IGNORED: &[&str] = &[
         "ACPI\\FIXEDBUTTON",
@@ -693,7 +707,9 @@ fn extract_version(text: &str) -> Option<String> {
     best
 }
 
-/// Reads the current driver version for one device after an install.
+/**
+ * Reads the current driver version for one device after an install.
+ */
 #[cfg(target_os = "windows")]
 pub fn detect_driver_version(device_id: &str) -> Option<String> {
     if device_id.is_empty() {

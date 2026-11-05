@@ -80,7 +80,9 @@ export function ComponentsPage() {
                             loaded[item.id] = remote;
                         }
                     } catch {
-                        // Fall back to the documented catalogue versions.
+                        /*
+                         * Fall back to the documented catalogue versions.
+                         */
                     }
                 }
             };

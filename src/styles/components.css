@@ -1,11 +1,15 @@
-/** Reusable UI components. */
+/**
+ * Reusable UI components.
+ */
 
 .collapse {
     overflow: hidden;
     transition: height 0.26s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 
-/** Buttons. */
+/**
+ * Buttons.
+ */
 
 .btn {
     display: inline-flex;
@@ -93,7 +97,9 @@
     cursor: default;
 }
 
-/** Toggle. */
+/**
+ * Toggle.
+ */
 
 .toggle {
     position: relative;
@@ -127,7 +133,9 @@
     left: 23px;
 }
 
-/** Checkbox. */
+/**
+ * Checkbox.
+ */
 
 .checkbox {
     width: 20px;
@@ -156,7 +164,9 @@
     background: #fff;
 }
 
-/** Select. */
+/**
+ * Select.
+ */
 
 .select {
     position: relative;
@@ -306,7 +316,9 @@
     }
 }
 
-/** Segmented control. */
+/**
+ * Segmented control.
+ */
 
 .segmented {
     display: inline-flex;
@@ -340,7 +352,9 @@
     color: var(--c-primary);
 }
 
-/** Badge. */
+/**
+ * Badge.
+ */
 
 .badge {
     display: inline-flex;
@@ -373,7 +387,9 @@
     color: var(--c-warn);
 }
 
-/** Cards and statistics. */
+/**
+ * Cards and statistics.
+ */
 
 .card {
     background: var(--c-card);
@@ -458,7 +474,9 @@
     margin-left: auto;
 }
 
-/** Small controls. */
+/**
+ * Small controls.
+ */
 
 .icon-btn {
     width: 34px;
@@ -569,7 +587,9 @@
     filter: brightness(1.7) saturate(1.15);
 }
 
-/** Notice bars. */
+/**
+ * Notice bars.
+ */
 
 .notice-bar {
     display: flex;
@@ -625,7 +645,9 @@
     flex: 0 0 auto;
 }
 
-/** Toasts. */
+/**
+ * Toasts.
+ */
 
 .toast-host {
     position: fixed;
@@ -722,7 +744,9 @@
     color: var(--c-text);
 }
 
-/** Modal. */
+/**
+ * Modal.
+ */
 
 .modal-backdrop {
     position: fixed;

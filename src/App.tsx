@@ -61,7 +61,9 @@ export function App() {
     useEffect(() => {
         for (const load of PAGE_LOADERS) {
             void load().catch(() => {
-                // The lazy route still reports the real error when opened.
+                /*
+                 * The lazy route still reports the real error when opened.
+                 */
             });
         }
     }, []);
@@ -81,7 +83,9 @@ export function App() {
                 else unlisten = stop;
             })
             .catch(() => {
-                // The close guard still works without the toast listener.
+                /*
+                 * The close guard still works without the toast listener.
+                 */
             });
         return () => {
             cancelled = true;

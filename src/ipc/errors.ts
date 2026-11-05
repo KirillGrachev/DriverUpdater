@@ -3,7 +3,9 @@ export interface CommandErrorInfo {
     message: string;
 }
 
-/** Normalizes both serialized Rust commands and legacy string errors. */
+/**
+ * Normalizes both serialized Rust commands and legacy string errors.
+ */
 export function commandErrorInfo(error: unknown): CommandErrorInfo {
     if (error && typeof error === 'object') {
         const candidate = error as { code?: unknown; message?: unknown };

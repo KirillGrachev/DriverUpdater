@@ -33,7 +33,9 @@ function Svg({
     );
 }
 
-/** Navigation and window chrome icons. */
+/**
+ * Navigation and window chrome icons.
+ */
 
 export const IconHome = (p: IconProps) => (
     <Svg {...p}>
@@ -108,7 +110,9 @@ export const IconInfoFilled = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-/** Monochrome info icon for the inactive About button. */
+/**
+ * Monochrome info icon for the inactive About button.
+ */
 export const IconInfoOutline = ({ size = 20, className }: IconProps) => (
     <svg
         width={size}
@@ -189,7 +193,9 @@ export const IconExternal = (p: IconProps) => (
     </Svg>
 );
 
-/** Statistics and state icons. */
+/**
+ * Statistics and state icons.
+ */
 
 export const IconMonitor = (p: IconProps) => (
     <Svg {...p}>
@@ -257,7 +263,9 @@ export const IconRestore = (p: IconProps) => (
     </Svg>
 );
 
-/** Custom restore arrow used on the action button, not on list rows. */
+/**
+ * Custom restore arrow used on the action button, not on list rows.
+ */
 export const IconRestoreArrow = ({ size = 20, className }: IconProps) => (
     <svg
         width={size}
@@ -375,7 +383,9 @@ export const IconPlusCircle = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-/** Settings and security icons. */
+/**
+ * Settings and security icons.
+ */
 
 export const IconSun = (p: IconProps) => (
     <Svg {...p}>
@@ -404,7 +414,9 @@ export const IconChart = (p: IconProps) => (
     </Svg>
 );
 
-/** About page and social icons. */
+/**
+ * About page and social icons.
+ */
 
 export const IconGithub = ({ size = 20, className }: IconProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
@@ -454,7 +466,9 @@ export const IconCopy = (p: IconProps) => (
     </Svg>
 );
 
-/** Bottom dock menu icons. */
+/**
+ * Bottom dock menu icons.
+ */
 
 export const IconMenuHome = ({ size = 20, className }: IconProps) => (
     <svg
@@ -583,7 +597,9 @@ export const IconMenuSettings = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-/** Settings row icons. */
+/**
+ * Settings row icons.
+ */
 
 export const IconSettingsClock = ({ size = 20, className }: IconProps) => (
     <svg width={size} height={size} viewBox="-24 -24 304 304" fill="none" className={className} aria-hidden="true">
@@ -669,7 +685,9 @@ export const IconSettingsSync = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-/** Theme segmented control icons. */
+/**
+ * Theme segmented control icons.
+ */
 
 export const IconThemeSun = ({ size = 20, className }: IconProps) => (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} aria-hidden="true">
@@ -709,7 +727,9 @@ export const IconThemeSystem = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-/** Device glyphs used by driver rows. */
+/**
+ * Device glyphs used by driver rows.
+ */
 
 const IconGpu = (p: IconProps) => (
     <Svg {...p}>

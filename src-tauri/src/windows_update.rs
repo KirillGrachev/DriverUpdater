@@ -1,9 +1,11 @@
-//! Windows Update driver discovery and installation.
-//!
-//! <p>Windows Update is the only supported update source for now. It is an
-//! honest source: every candidate comes from Microsoft's update service and is
-//! installed through the Windows Update Agent. A future vendor database can
-//! implement the same [`DriverUpdateProvider`] trait.</p>
+/*!
+ * Windows Update driver discovery and installation.
+ *
+ * <p>Windows Update is the only supported update source for now. It is an
+ * honest source: every candidate comes from Microsoft's update service and is
+ * installed through the Windows Update Agent. A future vendor database can
+ * implement the same [`DriverUpdateProvider`] trait.</p>
+ */
 
 #[cfg(target_os = "windows")]
 use std::time::Duration;
@@ -14,7 +16,9 @@ use crate::models::Driver;
 #[cfg(target_os = "windows")]
 use crate::process;
 
-/// A driver update returned by Windows Update.
+/**
+ * A driver update returned by Windows Update.
+ */
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DriverUpdate {
@@ -40,13 +44,17 @@ pub struct InstallOutcome {
     pub h_result: i64,
 }
 
-/// Finds and installs driver updates.
+/**
+ * Finds and installs driver updates.
+ */
 pub trait DriverUpdateProvider: Send + Sync {
     fn find_updates(&self) -> Result<Vec<DriverUpdate>, String>;
     fn install_update(&self, update_id: &str) -> Result<InstallOutcome, String>;
 }
 
-/// Windows Update Agent implementation.
+/**
+ * Windows Update Agent implementation.
+ */
 #[cfg(target_os = "windows")]
 #[derive(Default)]
 pub struct WindowsUpdateProvider;
@@ -344,8 +352,10 @@ $install = $installer.Install()
     }
 }
 
-/// Non-Windows placeholder so the application can still build and run in a
-/// browser preview without compiling Windows Update code.
+/**
+ * Non-Windows placeholder so the application can still build and run in a
+ * browser preview without compiling Windows Update code.
+ */
 #[cfg(not(target_os = "windows"))]
 #[derive(Default)]
 pub struct UnsupportedUpdateProvider;
@@ -361,7 +371,9 @@ impl DriverUpdateProvider for UnsupportedUpdateProvider {
     }
 }
 
-/// Returns the provider for the current target.
+/**
+ * Returns the provider for the current target.
+ */
 pub fn default_update_provider() -> Box<dyn DriverUpdateProvider> {
     #[cfg(target_os = "windows")]
     {
@@ -393,7 +405,9 @@ pub fn valid_update_id(value: &str) -> bool {
         })
 }
 
-/// Applies matching Windows Update candidates to the detected driver list.
+/**
+ * Applies matching Windows Update candidates to the detected driver list.
+ */
 pub fn merge_updates(drivers: &mut [Driver], updates: &[DriverUpdate]) -> usize {
     let mut applied = 0;
     for update in updates {

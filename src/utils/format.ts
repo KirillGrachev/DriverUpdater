@@ -1,6 +1,8 @@
 import type { TranslateParams } from '../i18n';
 
-/** `en` keeps the previous en-GB output; every other locale uses its own tag. */
+/**
+ * `en` keeps the previous en-GB output; every other locale uses its own tag.
+ */
 function dateLocale(locale: string): string {
     return locale === 'en' ? 'en-GB' : locale;
 }
@@ -30,8 +32,10 @@ export function formatDateTime(iso: string, locale: string): string {
 }
 
 export function formatDate(iso: string, locale: string): string {
-    // Date-only values are calendar dates, not UTC instants. Parsing them at
-    // local noon avoids showing the previous day west of UTC.
+    /*
+     * Date-only values are calendar dates, not UTC instants. Parsing them at
+     * local noon avoids showing the previous day west of UTC.
+     */
     const date = /^\d{4}-\d{2}-\d{2}$/.test(iso) ? new Date(`${iso}T12:00:00`) : new Date(iso);
     if (Number.isNaN(date.getTime())) return iso;
     return formatWith(locale, { day: '2-digit', month: '2-digit', year: 'numeric' }, date);
@@ -41,7 +45,9 @@ function sameDay(a: Date, b: Date): boolean {
     return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
 }
 
-/** "Сегодня, 21:47" / "Yesterday, 21:47" / "02.11.2025, 14:32" */
+/**
+ * "Сегодня, 21:47" / "Yesterday, 21:47" / "02.11.2025, 14:32"
+ */
 export function formatRelativeDay(
     iso: string | null,
     locale: string,

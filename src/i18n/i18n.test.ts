@@ -32,7 +32,9 @@ describe('i18n', () => {
         registerLocale('tt', 'Татарча', partial);
         expect(availableLocales().some((l) => l.code === 'tt')).toBe(true);
         expect(translate('tt', 'nav.home')).toBe('Баш бит');
-        /** missing keys fall back to english */
+        /**
+         * missing keys fall back to english
+         */
         expect(translate('tt', 'nav.drivers')).toBe('Drivers');
     });
 });

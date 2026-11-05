@@ -67,8 +67,12 @@ function installDesktopGuards(): void {
 
 installDesktopGuards();
 
-/** A Tauri webview has no browser tabs: every external <a> must be routed */
-/** through the opener plugin instead of target="_blank". */
+/**
+ * A Tauri webview has no browser tabs: every external <a> must be routed
+ */
+/**
+ * through the opener plugin instead of target="_blank".
+ */
 if (isTauriRuntime()) {
     document.addEventListener('click', (event) => {
         if (event.defaultPrevented || event.button !== 0) return;
