@@ -259,8 +259,10 @@ pub(crate) fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> boo
 
 /* Component mapping starts here. */
 #[cfg(target_os = "windows")]
-fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
+fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
+    let publisher = publisher.to_lowercase();
+    let publisher_matches = |expected: &str| publisher.is_empty() || publisher.contains(expected);
     let parts: Vec<u32> = version
         .split(|character: char| !character.is_ascii_digit())
         .filter(|part| !part.is_empty())
@@ -269,9 +271,12 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let major = parts.first().copied().unwrap_or(0);
     let minor = parts.get(1).copied().unwrap_or(0);
 
-    if name.contains("7-zip") {
+    if name.contains("7-zip") && publisher_matches("igor pavlov") {
         Some("seven-zip")
-    } else if name.contains("python") {
+    } else if name.contains("python")
+        && !name.contains("launcher")
+        && publisher_matches("python software foundation")
+    {
         match (major, minor) {
             (3, 10) => Some("python-3-10"),
             (3, 11) => Some("python-3-11"),
@@ -279,20 +284,24 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
             (3, 13) => Some("python-3-13"),
             _ => None,
         }
-    } else if name.contains("node.js") {
+    } else if name.contains("node.js") && publisher_matches("openjs") {
         match major {
             20 => Some("nodejs-20"),
             22 => Some("nodejs-22"),
             _ => None,
         }
-    } else if name.contains("openjdk") || name.contains("adoptium") || name.contains("temurin") {
+    } else if (name.contains("openjdk") || name.contains("adoptium") || name.contains("temurin"))
+        && (publisher.is_empty() || publisher.contains("eclipse") || publisher.contains("adoptium"))
+    {
         match major {
             17 => Some("openjdk-17"),
             21 => Some("openjdk-21"),
             25 => Some("openjdk-25"),
             _ => None,
         }
-    } else if name.contains("desktop runtime") || name.contains("windows desktop runtime") {
+    } else if (name.contains("desktop runtime") || name.contains("windows desktop runtime"))
+        && publisher_matches("microsoft")
+    {
         match major {
             6 => Some("dotnet-desktop-6"),
             8 => Some("dotnet-desktop-8"),
@@ -303,18 +312,24 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
         Some("go")
     } else if name.contains("rustup") || (name.contains("rust") && name.contains("toolchain")) {
         Some("rust")
-    } else if name.contains("php ") {
+    } else if name.contains("php ") && publisher_matches("php group") {
         match (major, minor) {
             (8, 2) => Some("php-8-2"),
             (8, 3) => Some("php-8-3"),
             (8, 4) => Some("php-8-4"),
             _ => None,
         }
-    } else if name == "git" || name.starts_with("git version") || name.starts_with("git ") {
+    } else if name == "git"
+        || name.starts_with("git version")
+        || (name.starts_with("git ") && publisher_matches("git development community"))
+    {
         Some("git")
-    } else if name.contains("cmake") {
+    } else if name.contains("cmake") && publisher_matches("kitware") {
         Some("cmake")
-    } else if name.contains("visual c++") && name.contains("redistributable") {
+    } else if name.contains("visual c++")
+        && name.contains("redistributable")
+        && publisher_matches("microsoft")
+    {
         if name.contains("x86") {
             Some("vcredist-x86")
         } else {
@@ -324,7 +339,7 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
         Some("dotnet-framework-3-5")
     } else if name.contains(".net") && name.contains("framework") {
         Some("dotnet-framework")
-    } else if name.contains("visual studio") {
+    } else if name.contains("visual studio") && publisher_matches("microsoft") {
         if name.contains("community") {
             Some("visual-studio-community")
         } else if name.contains("professional") {
@@ -334,7 +349,7 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
         } else {
             None
         }
-    } else if name.contains("directx") {
+    } else if name.contains("directx") && publisher_matches("microsoft") {
         Some("directx")
     } else {
         None
@@ -389,7 +404,7 @@ pub fn detect_driver_version(_device_id: &str) -> Option<String> {
 
 #[cfg(target_os = "windows")]
 pub fn detect_installed_components() -> Vec<InstalledComponent> {
-    let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $rows = @(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,InstallLocation,DisplayIcon); $netfx = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5' -ErrorAction SilentlyContinue; if ($netfx -and $netfx.Install -eq 1) { $rows += [pscustomobject]@{ DisplayName='.NET Framework 3.5'; DisplayVersion='3.5 SP1'; InstallLocation=''; DisplayIcon='' } }; ConvertTo-Json -InputObject $rows -Compress"#;
+    let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $rows = @(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,Publisher,InstallLocation,DisplayIcon); $netfx = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5' -ErrorAction SilentlyContinue; if ($netfx -and $netfx.Install -eq 1) { $rows += [pscustomobject]@{ DisplayName='.NET Framework 3.5'; DisplayVersion='3.5 SP1'; InstallLocation=''; DisplayIcon='' } }; ConvertTo-Json -InputObject $rows -Compress"#;
     let Some(stdout) = run_powershell(script, Duration::from_secs(90)) else {
         return Vec::new();
     };
@@ -418,7 +433,12 @@ pub fn detect_installed_components() -> Vec<InstalledComponent> {
             .map(ToString::to_string)
             .or_else(|| extract_version(display_name))
             .unwrap_or_default();
-        let Some(id) = component_id_for(display_name, &version) else {
+        let publisher = row
+            .get("Publisher")
+            .and_then(serde_json::Value::as_str)
+            .unwrap_or_default()
+            .trim();
+        let Some(id) = component_id_for(display_name, &version, publisher) else {
             continue;
         };
         if !seen.insert(id) {
@@ -573,21 +593,31 @@ mod tests {
     #[test]
     fn maps_known_components() {
         assert_eq!(
-            component_id_for("Python 3.12.4 (64-bit)", "3.12.4"),
+            component_id_for(
+                "Python 3.12.4 (64-bit)",
+                "3.12.4",
+                "Python Software Foundation"
+            ),
             Some("python-3-12")
         );
         assert_eq!(
-            component_id_for("7-Zip 24.09 (x64)", "24.09"),
+            component_id_for("7-Zip 24.09 (x64)", "24.09", "Igor Pavlov"),
             Some("seven-zip")
         );
         assert_eq!(
             component_id_for(
                 "Microsoft Visual C++ 2015-2022 Redistributable (x64)",
-                "14.44.35211"
+                "14.44.35211",
+                "Microsoft Corporation"
             ),
             Some("vcredist-x64")
         );
-        assert_eq!(component_id_for("Unrelated Tool", "1.0.0"), None);
+        assert_eq!(component_id_for("Unrelated Tool", "1.0.0", "Acme"), None);
+        assert_eq!(component_id_for("Git LFS", "3.6.0", "Git LFS"), None);
+        assert_eq!(
+            component_id_for("Python Launcher", "3.12.4", "Python Software Foundation"),
+            None
+        );
     }
 
     #[cfg(target_os = "windows")]
