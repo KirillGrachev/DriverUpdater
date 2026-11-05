@@ -49,8 +49,8 @@ interface AppContextValue extends AppState {
     locale: string;
     navigate: (route: Route) => void;
     scan: () => Promise<void>;
-    installDriver: (id: string) => Promise<void>;
-    installUpdates: (ids: string[]) => Promise<void>;
+    installDriver: (id: string, options?: { allowMissingRestore?: boolean }) => Promise<void>;
+    installUpdates: (ids: string[], options?: { allowMissingRestore?: boolean }) => Promise<void>;
     createRestorePoint: (options?: { silentSuccess?: boolean; name?: string }) => Promise<boolean>;
     refreshRestorePoints: () => Promise<void>;
     requestDeleteRestorePoint: (id: string, name: string) => void;
@@ -268,84 +268,112 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }, [patch, pushToast, locale]);
 
     const installDriver = useCallback(
-        async (id: string) => {
-            const backend = backendRef.current;
-            const base = dataRef.current;
-            if (!backend || !base) return;
-            setState((prev) => ({ ...prev, installingIds: [...prev.installingIds, id] }));
-            try {
-                const restorePointName = translate(locale, 'backups.newName');
-                const updated = await backend.installDriver(id, restorePointName);
-                const latest = dataRef.current ?? base;
-                const drivers = latest.drivers.map((d) => (d.id === id ? updated : d));
-                dataRef.current = { ...latest, drivers };
-                setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
-                await refreshSummary(drivers);
-                pushToast(translate(locale, 'toasts.driverUpdated', { name: updated.name }), 'success');
-                if (updated.rebootRequired) {
-                    pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
+        async (id: string, options?: { allowMissingRestore?: boolean }) => {
+            const run = async (allowMissingRestore: boolean) => {
+                const backend = backendRef.current;
+                const base = dataRef.current;
+                if (!backend || !base) return;
+                setState((prev) => ({ ...prev, installingIds: [...prev.installingIds, id] }));
+                try {
+                    const restorePointName = translate(locale, 'backups.newName');
+                    const updated = await backend.installDriver(id, restorePointName, allowMissingRestore);
+                    const latest = dataRef.current ?? base;
+                    const drivers = latest.drivers.map((d) => (d.id === id ? updated : d));
+                    dataRef.current = { ...latest, drivers };
+                    setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
+                    await refreshSummary(drivers);
+                    pushToast(translate(locale, 'toasts.driverUpdated', { name: updated.name }), 'success');
+                    if (updated.rebootRequired) {
+                        pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    if (message.startsWith('E_RESTORE_POINT') && !allowMissingRestore) {
+                        openModal({
+                            title: translate(locale, 'backups.banner'),
+                            text: translate(locale, 'backups.bannerSub'),
+                            confirmLabel: translate(locale, 'backups.confirmOk'),
+                            cancelLabel: translate(locale, 'backups.confirmCancel'),
+                            tone: 'primary',
+                            onConfirm: async () => {
+                                closeModal();
+                                await run(true);
+                            },
+                        });
+                        return;
+                    }
+                    pushToast(translate(locale, 'toasts.error'), 'error');
+                } finally {
+                    setState((prev) => ({
+                        ...prev,
+                        installingIds: prev.installingIds.filter((x) => x !== id),
+                    }));
                 }
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                pushToast(
-                    message.startsWith('E_RESTORE_POINT')
-                        ? translate(locale, 'toasts.error')
-                        : translate(locale, 'toasts.error'),
-                    'error',
-                );
-            } finally {
-                setState((prev) => ({
-                    ...prev,
-                    installingIds: prev.installingIds.filter((x) => x !== id),
-                }));
-            }
+            };
+            await run(options?.allowMissingRestore ?? false);
         },
-        [refreshSummary, pushToast, locale],
+        [refreshSummary, pushToast, locale, openModal, closeModal],
     );
 
     const installUpdates = useCallback(
-        async (ids: string[]) => {
-            const backend = backendRef.current;
-            const base = dataRef.current;
-            if (!backend || !base || ids.length === 0) return;
-            setState((prev) => ({
-                ...prev,
-                installingIds: [...prev.installingIds, ...ids],
-            }));
-            try {
-                const report = await backend.installUpdates(ids, translate(locale, 'backups.newName'));
-                const updatedList = report.succeeded;
-                const updatedById = new Map(updatedList.map((d) => [d.id, d]));
-                const latest = dataRef.current ?? base;
-                const drivers = latest.drivers.map((d) => updatedById.get(d.id) ?? d);
-                dataRef.current = { ...latest, drivers };
-                setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
-                await refreshSummary(drivers);
-                if (updatedList.length > 0) {
-                    pushToast(translate(locale, 'updates.doneToast', { count: updatedList.length }), 'success');
-                }
-                if (report.failed.length > 0) {
-                    pushToast(translate(locale, 'updates.partialToast', { n: report.failed.length }), 'error');
-                }
-                if (updatedList.some((driver) => driver.rebootRequired)) {
-                    pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
-                }
-            } catch (error) {
-                const message = error instanceof Error ? error.message : String(error);
-                pushToast(
-                    message.startsWith('E_RESTORE_POINT')
-                        ? translate(locale, 'toasts.error')
-                        : translate(locale, 'toasts.error'),
-                    'error',
-                );
-            } finally {
+        async (ids: string[], options?: { allowMissingRestore?: boolean }) => {
+            const run = async (allowMissingRestore: boolean) => {
+                const backend = backendRef.current;
+                const base = dataRef.current;
+                if (!backend || !base || ids.length === 0) return;
                 setState((prev) => ({
                     ...prev,
-                    installingIds: prev.installingIds.filter((x) => !ids.includes(x)),
+                    installingIds: [...prev.installingIds, ...ids],
                 }));
-            }
+                try {
+                    const report = await backend.installUpdates(
+                        ids,
+                        translate(locale, 'backups.newName'),
+                        allowMissingRestore,
+                    );
+                    const updatedList = report.succeeded;
+                    const updatedById = new Map(updatedList.map((d) => [d.id, d]));
+                    const latest = dataRef.current ?? base;
+                    const drivers = latest.drivers.map((d) => updatedById.get(d.id) ?? d);
+                    dataRef.current = { ...latest, drivers };
+                    setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
+                    await refreshSummary(drivers);
+                    if (updatedList.length > 0) {
+                        pushToast(translate(locale, 'updates.doneToast', { count: updatedList.length }), 'success');
+                    }
+                    if (report.failed.length > 0) {
+                        pushToast(translate(locale, 'updates.partialToast', { n: report.failed.length }), 'error');
+                    }
+                    if (updatedList.some((driver) => driver.rebootRequired)) {
+                        pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
+                    }
+                } catch (error) {
+                    const message = error instanceof Error ? error.message : String(error);
+                    if (message.startsWith('E_RESTORE_POINT') && !allowMissingRestore) {
+                        openModal({
+                            title: translate(locale, 'backups.banner'),
+                            text: translate(locale, 'backups.bannerSub'),
+                            confirmLabel: translate(locale, 'backups.confirmOk'),
+                            cancelLabel: translate(locale, 'backups.confirmCancel'),
+                            tone: 'primary',
+                            onConfirm: async () => {
+                                closeModal();
+                                await run(true);
+                            },
+                        });
+                        return;
+                    }
+                    pushToast(translate(locale, 'toasts.error'), 'error');
+                } finally {
+                    setState((prev) => ({
+                        ...prev,
+                        installingIds: prev.installingIds.filter((x) => !ids.includes(x)),
+                    }));
+                }
+            };
+            await run(options?.allowMissingRestore ?? false);
         },
-        [refreshSummary, pushToast, locale],
+        [refreshSummary, pushToast, locale, openModal, closeModal],
     );
 
     const createRestorePoint = useCallback(

@@ -23,12 +23,12 @@ export class TauriBackend implements Backend {
         return invoke<CheckUpdatesResult>('check_updates');
     }
 
-    installDriver(id: string, restorePointName: string): Promise<Driver> {
-        return invoke<Driver>('install_driver', { id, restorePointName });
+    installDriver(id: string, restorePointName: string, allowMissingRestore = false): Promise<Driver> {
+        return invoke<Driver>('install_driver', { id, restorePointName, allowMissingRestore });
     }
 
-    installUpdates(ids: string[], restorePointName: string): Promise<InstallReport> {
-        return invoke<InstallReport>('install_updates', { ids, restorePointName });
+    installUpdates(ids: string[], restorePointName: string, allowMissingRestore = false): Promise<InstallReport> {
+        return invoke<InstallReport>('install_updates', { ids, restorePointName, allowMissingRestore });
     }
 
     listRestorePoints(): Promise<RestorePoint[]> {

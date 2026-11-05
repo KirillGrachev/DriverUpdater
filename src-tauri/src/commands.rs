@@ -106,6 +106,7 @@ async fn install_one(
     create_backup: bool,
     restore_point_name: Option<String>,
     create_restore: bool,
+    allow_missing_restore: bool,
 ) -> Result<Driver, String> {
     log::info!("preparing driver install for {id}");
     let plan = run_repository_handle(Arc::clone(&repository), {
@@ -118,21 +119,28 @@ async fn install_one(
         let name = restore_point_name
             .filter(|name| !name.trim().is_empty() && name.chars().count() <= 200)
             .ok_or_else(|| "E_RESTORE_POINT: a restore point name is required".to_string())?;
-        let point =
+        let created =
             tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
                 .await
-                .map_err(|error| error.to_string())?
-                .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
-        let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
-            .await
-            .map_err(|error| error.to_string())?
-            .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
-        let _ = point;
-        run_repository_handle(Arc::clone(&repository), move |repository| {
-            repository.set_restore_points(points);
-            Ok(())
-        })
-        .await?;
+                .map_err(|error| error.to_string())?;
+        match created {
+            Ok(_) => {
+                let points =
+                    tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+                        .await
+                        .map_err(|error| error.to_string())?
+                        .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+                run_repository_handle(Arc::clone(&repository), move |repository| {
+                    repository.set_restore_points(points);
+                    Ok(())
+                })
+                .await?;
+            }
+            Err(error) if allow_missing_restore => {
+                log::warn!("restore point was skipped after an error: {error}");
+            }
+            Err(error) => return Err(format!("E_RESTORE_POINT: {error}")),
+        }
     }
 
     if create_backup && plan.keep_backups {
@@ -166,6 +174,7 @@ pub async fn install_driver(
     state: State<'_, AppRepository>,
     id: String,
     restore_point_name: String,
+    allow_missing_restore: bool,
 ) -> Result<Driver, String> {
     install_one(
         Arc::clone(&state.0),
@@ -173,6 +182,7 @@ pub async fn install_driver(
         true,
         Some(restore_point_name),
         true,
+        allow_missing_restore,
     )
     .await
 }
@@ -182,6 +192,7 @@ pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
     restore_point_name: String,
+    allow_missing_restore: bool,
 ) -> Result<InstallReport, String> {
     let repository = Arc::clone(&state.0);
     let (restore_before_install, keep_backups, backup_dir) =
@@ -195,10 +206,17 @@ pub async fn install_updates(
             return Err("E_RESTORE_POINT: a restore point name is required".to_string());
         }
         let name = restore_point_name;
-        tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
-            .await
-            .map_err(|error| error.to_string())?
-            .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+        let created =
+            tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
+                .await
+                .map_err(|error| error.to_string())?;
+        match created {
+            Ok(_) => {}
+            Err(error) if allow_missing_restore => {
+                log::warn!("restore point was skipped after an error: {error}");
+            }
+            Err(error) => return Err(format!("E_RESTORE_POINT: {error}")),
+        }
     }
     if keep_backups {
         tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
@@ -208,7 +226,16 @@ pub async fn install_updates(
     }
     let mut report = InstallReport::default();
     for id in ids {
-        match install_one(Arc::clone(&repository), id.clone(), false, None, false).await {
+        match install_one(
+            Arc::clone(&repository),
+            id.clone(),
+            false,
+            None,
+            false,
+            true,
+        )
+        .await
+        {
             Ok(driver) => report.succeeded.push(driver),
             Err(message) => report.failed.push(InstallFailure { id, message }),
         }

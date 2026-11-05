@@ -24,8 +24,8 @@ import type {
 export interface Backend {
     getInitialData(): Promise<InitialData>;
     checkUpdates(): Promise<CheckUpdatesResult>;
-    installDriver(id: string, restorePointName: string): Promise<Driver>;
-    installUpdates(ids: string[], restorePointName: string): Promise<InstallReport>;
+    installDriver(id: string, restorePointName: string, allowMissingRestore?: boolean): Promise<Driver>;
+    installUpdates(ids: string[], restorePointName: string, allowMissingRestore?: boolean): Promise<InstallReport>;
     listRestorePoints(): Promise<RestorePoint[]>;
     createRestorePoint(name: string): Promise<RestorePoint>;
     deleteRestorePoint(id: string): Promise<void>;

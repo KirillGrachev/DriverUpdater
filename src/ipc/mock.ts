@@ -136,7 +136,7 @@ export class MockBackend implements Backend {
         return { drivers: clone(this.state.drivers), summary: this.summary() };
     }
 
-    async installDriver(id: string, _restorePointName: string): Promise<Driver> {
+    async installDriver(id: string, _restorePointName: string, _allowMissingRestore = false): Promise<Driver> {
         await sleep(1100 + Math.random() * 500);
         const driver = this.state.drivers.find((d) => d.id === id);
         if (!driver) throw new Error(`Unknown driver: ${id}`);
@@ -147,7 +147,11 @@ export class MockBackend implements Backend {
         return clone(driver);
     }
 
-    async installUpdates(ids: string[], _restorePointName: string): Promise<InstallReport> {
+    async installUpdates(
+        ids: string[],
+        _restorePointName: string,
+        _allowMissingRestore = false,
+    ): Promise<InstallReport> {
         await sleep(1500 + Math.random() * 700);
         const updated: Driver[] = [];
         for (const id of ids) {
