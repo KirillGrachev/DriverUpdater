@@ -27,7 +27,7 @@ const en: Dictionary = {
         titleOk1: 'Your computer',
         titleOk2: 'is good to go!',
         titleUpd1: 'Updates available',
-        titleUpd2: 'for {n} drivers',
+        titleUpd2: { one: 'for {n} driver', other: 'for {n} drivers' },
         titleNew1: 'Ready to scan',
         titleNew2: 'for driver updates',
         titleError: 'Driver scan failed',

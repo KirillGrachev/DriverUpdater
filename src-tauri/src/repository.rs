@@ -9,7 +9,9 @@ use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use crate::backup::{DriverBackup, DriverBackupProvider, WindowsDriverBackups};
-use crate::detection::{days_to_civil, ComponentDetector, NativeDetector, SystemInfoProvider};
+use crate::detection::{
+    days_to_civil, is_ignored_device, ComponentDetector, NativeDetector, SystemInfoProvider,
+};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
 };
@@ -93,9 +95,13 @@ impl DriverRepository {
         let cache = DriverCache::new(store.path());
         let mut scan_error = None;
         let cached = match cache.load() {
-            Ok(Some(drivers)) if drivers.iter().any(|driver| driver.device_id.is_empty()) => {
-                scan_error =
-                    Some("driver cache predates stable device ids; rescanning".to_string());
+            Ok(Some(drivers))
+                if drivers.iter().any(|driver| {
+                    driver.device_id.is_empty()
+                        || is_ignored_device(&driver.device_id, &driver.hardware_ids)
+                }) =>
+            {
+                scan_error = Some("driver cache contains obsolete devices; rescanning".to_string());
                 None
             }
             Ok(cached) => cached,
@@ -145,7 +151,7 @@ impl DriverRepository {
                     repo.settings.backup_path = repo.backup_dir.to_string_lossy().into_owned();
                     repo.last_check = state.last_check;
                     repo.installed_components = state.installed_components;
-                    if state.version < 3 {
+                    if state.version < 4 {
                         // v2 could still contain fixture restore points loaded
                         // before the real provider was introduced. Keep user
                         // settings but discard the demo data once.
@@ -167,7 +173,8 @@ impl DriverRepository {
                 repo.scan_error = Some(format!("saved state could not be read: {error}"));
             }
         }
-        if repo.last_check.is_none() {
+        if !had_cache {
+            repo.last_check = None;
             clear_update_state(&mut repo.drivers);
         }
         repo.devices_total = repo.drivers.len() as u32;
@@ -249,6 +256,7 @@ impl DriverRepository {
         self.cache.save(&drivers)?;
         self.drivers = drivers;
         self.devices_total = self.drivers.len() as u32;
+        self.last_check = None;
         self.needs_scan = false;
         self.scan_error = None;
         Ok(())

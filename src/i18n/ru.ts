@@ -34,7 +34,7 @@ const ru: Dictionary = {
         titleOk1: 'Ваш компьютер',
         titleOk2: 'в порядке!',
         titleUpd1: 'Доступны обновления',
-        titleUpd2: 'драйверов: {n}',
+        titleUpd2: { one: 'драйвер: {n}', few: 'драйвера: {n}', many: 'драйверов: {n}', other: 'драйверов: {n}' },
         titleNew1: 'Готовы к проверке',
         titleNew2: 'обновлений драйверов',
         titleError: 'Не удалось проверить драйверы',

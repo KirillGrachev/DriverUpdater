@@ -67,13 +67,17 @@ failed install can leave a machine worse than it started.
 
 Driver Updater keeps the workflow visible:
 
-| Hand-managed drivers                                                           | Driver Updater                                                                      |
-| ------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------- |
-| Version information split across Device Manager, vendor tools and the registry | One inventory with device, vendor, current version, available version and size      |
-| No restore point until something breaks                                        | Optional restore point before install, with a dedicated backups screen              |
-| Updates silently replace packages                                              | Update state is explicit: current, update, optional                                 |
-| English-only utilities                                                         | 35 interface languages, including Russian and Ukrainian                             |
-| A web app in a desktop shell                                                   | Frameless native window, keyboard-safe layout, no context menu or browser shortcuts |
+<table align="center">
+  <tr>
+    <th align="left">Hand-managed drivers</th>
+    <th align="left">Driver Updater</th>
+  </tr>
+  <tr><td>Version information split across Device Manager, vendor tools and the registry</td><td>One inventory with device, vendor, current version, available version and size</td></tr>
+  <tr><td>No restore point until something breaks</td><td>Optional restore point before install, with a dedicated backups screen</td></tr>
+  <tr><td>Updates silently replace packages</td><td>Update state is explicit: current, update, optional</td></tr>
+  <tr><td>English-only utilities</td><td>35 interface languages, including Russian and Ukrainian</td></tr>
+  <tr><td>A web app in a desktop shell</td><td>Frameless native window, keyboard-safe layout, no context menu or browser shortcuts</td></tr>
+</table>
 
 The project is intentionally local-first. The driver scan reads Windows APIs
 through PowerShell/CIM, the UI never talks to a remote service, and no telemetry
@@ -396,11 +400,13 @@ CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, cl
 
 <h2 align="center" id="documentation">Documentation</h2>
 
-- [Documentation index](docs/README.md)
-- [Contributing](docs/CONTRIBUTING.md)
-- [Security policy](docs/SECURITY.md)
-- [Code of Conduct](docs/CODE_OF_CONDUCT.md)
-- [Third-party notices](docs/THIRD_PARTY_NOTICES.md)
+<p align="center">
+  <a href="docs/README.md">Documentation index</a> ·
+  <a href="docs/CONTRIBUTING.md">Contributing</a> ·
+  <a href="docs/SECURITY.md">Security policy</a> ·
+  <a href="docs/CODE_OF_CONDUCT.md">Code of Conduct</a> ·
+  <a href="docs/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+</p>
 
 Developer-only scripts live in `scripts/`. They are used by CI and maintainers,
 and are not bundled into the installer.

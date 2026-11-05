@@ -38,7 +38,10 @@ export function HomePage() {
                             <>
                                 {t('home.titleUpd1')}
                                 <br />
-                                {t('home.titleUpd2', { n: data.summary.updatesAvailable })}
+                                {t('home.titleUpd2', {
+                                    n: data.summary.updatesAvailable,
+                                    count: data.summary.updatesAvailable,
+                                })}
                             </>
                         ) : (
                             <>

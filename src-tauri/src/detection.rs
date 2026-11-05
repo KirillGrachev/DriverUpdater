@@ -247,7 +247,7 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
 
 #[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 /// Driver Booster-style filter for devices that cannot receive a useful driver update.
-fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
+pub(crate) fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
     const IGNORED: &[&str] = &[
         "ACPI\\FIXEDBUTTON",
         "ACPIAPIC",
