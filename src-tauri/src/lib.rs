@@ -1,6 +1,7 @@
 mod backup;
 mod commands;
 mod detection;
+mod error;
 mod models;
 mod packages;
 mod process;

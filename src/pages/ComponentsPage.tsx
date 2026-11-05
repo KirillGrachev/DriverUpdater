@@ -3,6 +3,7 @@ import { IconCheck, IconDownload, IconPackage } from '../components/icons';
 import { Button, Select, Spinner } from '../components/ui';
 import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup, type ComponentSubgroup } from '../data/components';
 import { PACKAGE_CANCELLED_ERROR, type InstalledComponent } from '../ipc/types';
+import { commandErrorInfo } from '../ipc/errors';
 import { useApp } from '../store/app';
 
 const remoteVersionCache = new Map<string, string[]>();
@@ -117,8 +118,8 @@ export function ComponentsPage() {
             }
             pushToast(t('components.installedToast', { name: item.name }), 'success');
         } catch (error) {
-            const message = typeof error === 'string' ? error : error instanceof Error ? error.message : '';
-            if (message === PACKAGE_CANCELLED_ERROR) {
+            const failure = commandErrorInfo(error);
+            if (failure.code === 'packageCancelled' || failure.message === PACKAGE_CANCELLED_ERROR) {
                 pushToast(t('toasts.error'), 'info');
                 return;
             }

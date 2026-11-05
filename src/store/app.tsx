@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { isSupportedLocale, loadLocale, translate, type TranslateParams } from '../i18n';
 import { createBackend, type Backend } from '../ipc/backend';
+import { commandErrorInfo } from '../ipc/errors';
 import type {
     Driver,
     DriverBackup,
@@ -341,8 +342,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
                         pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
                     }
                 } catch (error) {
-                    const message = error instanceof Error ? error.message : String(error);
-                    if (message.startsWith('E_RESTORE_POINT') && !allowMissingRestore) {
+                    const failure = commandErrorInfo(error);
+                    if (failure.code === 'restorePoint' && !allowMissingRestore) {
                         openModal({
                             title: translate(locale, 'backups.banner'),
                             text: translate(locale, 'backups.bannerSub'),
@@ -403,8 +404,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
                         pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
                     }
                 } catch (error) {
-                    const message = error instanceof Error ? error.message : String(error);
-                    if (message.startsWith('E_RESTORE_POINT') && !allowMissingRestore) {
+                    const failure = commandErrorInfo(error);
+                    if (failure.code === 'restorePoint' && !allowMissingRestore) {
                         openModal({
                             title: translate(locale, 'backups.banner'),
                             text: translate(locale, 'backups.bannerSub'),

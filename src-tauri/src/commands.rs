@@ -13,6 +13,7 @@ use tauri::{AppHandle, Emitter, State};
 
 use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
+use crate::error::CommandError;
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, RestorePoint, Settings,
     SystemInfo,
@@ -249,7 +250,7 @@ pub async fn install_driver(
     allow_missing_restore: bool,
     busy: State<'_, BusyState>,
     app: AppHandle,
-) -> Result<Driver, String> {
+) -> Result<Driver, CommandError> {
     install_one(
         Arc::clone(&state.0),
         Arc::clone(&busy.0),
@@ -265,6 +266,7 @@ pub async fn install_driver(
         },
     )
     .await
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -275,7 +277,7 @@ pub async fn install_updates(
     allow_missing_restore: bool,
     busy: State<'_, BusyState>,
     app: AppHandle,
-) -> Result<InstallReport, String> {
+) -> Result<InstallReport, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let repository = Arc::clone(&state.0);
     let (restore_before_install, keep_backups, backup_dir) =
@@ -287,7 +289,9 @@ pub async fn install_updates(
     if restore_before_install {
         emit_install_progress(&app, "", 0, 0, "restore");
         if restore_point_name.trim().is_empty() || restore_point_name.chars().count() > 200 {
-            return Err("E_RESTORE_POINT: a restore point name is required".to_string());
+            return Err("E_RESTORE_POINT: a restore point name is required"
+                .to_string()
+                .into());
         }
         let name = restore_point_name;
         let created =
@@ -299,7 +303,7 @@ pub async fn install_updates(
             Err(error) if allow_missing_restore => {
                 log::warn!("restore point was skipped after an error: {error}");
             }
-            Err(error) => return Err(format!("E_RESTORE_POINT: {error}")),
+            Err(error) => return Err(format!("E_RESTORE_POINT: {error}").into()),
         }
     }
     if keep_backups {
