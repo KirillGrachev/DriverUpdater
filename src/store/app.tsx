@@ -168,30 +168,28 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 }
                 if (cancelled) return;
                 dataRef.current = data;
-                patch({ data, systemInfo: data.systemInfo, booting: false });
-                if (data.needsScan) {
-                    scanningRef.current = true;
-                    patch({ scanning: true });
-                    void backend
-                        .scanInventory()
-                        .then((next) => {
-                            if (cancelled) return;
-                            dataRef.current = next;
-                            patch({ data: next, systemInfo: next.systemInfo });
-                        })
-                        .catch((error) => {
-                            if (cancelled) return;
-                            const current = dataRef.current ?? data;
-                            dataRef.current = {
-                                ...current,
-                                scanError: commandErrorInfo(error).message,
-                            };
-                            patch({ data: dataRef.current });
-                        })
-                        .finally(() => {
-                            scanningRef.current = false;
-                            if (!cancelled) patch({ scanning: false });
-                        });
+                if (!data.needsScan) {
+                    patch({ data, systemInfo: data.systemInfo, booting: false });
+                    return;
+                }
+                scanningRef.current = true;
+                patch({ data, systemInfo: data.systemInfo, scanning: true });
+                try {
+                    const next = await backend.scanInventory();
+                    if (cancelled) return;
+                    dataRef.current = next;
+                    patch({ data: next, systemInfo: next.systemInfo });
+                } catch (error) {
+                    if (cancelled) return;
+                    const current = dataRef.current ?? data;
+                    dataRef.current = {
+                        ...current,
+                        scanError: commandErrorInfo(error).message,
+                    };
+                    patch({ data: dataRef.current });
+                } finally {
+                    scanningRef.current = false;
+                    if (!cancelled) patch({ scanning: false, booting: false });
                 }
             } catch (error) {
                 if (cancelled) return;

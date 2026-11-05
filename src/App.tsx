@@ -103,7 +103,7 @@ export function App() {
     if (booting) {
         return (
             <div className="app-window boot-window">
-                <LoadingScreen visible />
+                <LoadingScreen visible label={t('components.loading')} />
             </div>
         );
     }
@@ -156,7 +156,7 @@ export function App() {
             <BottomDock />
             <ToastHost />
             <ModalHost />
-            <LoadingScreen visible={loading} />
+            <LoadingScreen visible={loading} label={t('components.loading')} />
         </div>
     );
 }
