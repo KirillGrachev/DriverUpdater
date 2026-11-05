@@ -181,8 +181,19 @@ failure instead of pretending the package was installed.
 
 ## Install
 
-Download the latest `Driver Updater_<version>_x64-setup.exe` from
-[Releases](https://github.com/KirillGrachev/DriverUpdater/releases) and run it.
+Download the installer for your architecture from
+[Releases](https://github.com/KirillGrachev/DriverUpdater/releases):
+
+| Architecture   | Recommended asset                          |
+| -------------- | ------------------------------------------ |
+| Windows x64    | `Driver.Updater_<version>_x64-setup.exe`   |
+| Windows ARM64  | `Driver.Updater_<version>_arm64-setup.exe` |
+| Windows 10 x86 | `Driver.Updater_<version>_x86-setup.exe`   |
+
+MSI, portable ZIP and symbol ZIP variants are published for each architecture.
+
+![The branded Driver Updater setup wizard](docs/screenshots/installer-light.png)
+
 The installer is per-user by default and does not require a reboot.
 
 The installer:

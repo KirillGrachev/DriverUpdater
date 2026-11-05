@@ -1,6 +1,6 @@
 import logo from '../assets/branding/logo.png';
 import aboutMascot from '../assets/branding/about-mascot.png';
-import { IconBug, IconGithub, IconLink, IconWindows } from '../components/icons';
+import { IconBug, IconGithub, IconLink } from '../components/icons';
 import { Button } from '../components/ui';
 import { useApp } from '../store/app';
 
@@ -90,9 +90,6 @@ export function AboutPage() {
                     </dl>
                 </div>
                 <div className="about-info-col">
-                    <span className="about-windows-logo">
-                        <IconWindows size={40} />
-                    </span>
                     <h3 className="card-title">{t('about.sysInfo')}</h3>
                     <dl className="about-rows">
                         <div>

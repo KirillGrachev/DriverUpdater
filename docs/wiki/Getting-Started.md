@@ -14,7 +14,9 @@ not required.
 
 ## Install
 
-1. Download `Driver.Updater_<version>_x64-setup.exe`.
+![Driver Updater setup wizard](https://github.com/KirillGrachev/DriverUpdater/raw/main/docs/screenshots/installer-light.png)
+
+1. Download the installer for your architecture from Releases.
 2. Run the installer. It installs per-user by default.
 3. Approve the Windows UAC prompt if the installer requests it.
 4. Launch Driver Updater from the Start menu.

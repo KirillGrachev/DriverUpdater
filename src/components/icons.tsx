@@ -709,15 +709,6 @@ export const IconThemeSystem = ({ size = 20, className }: IconProps) => (
     </svg>
 );
 
-export const IconWindows = ({ size = 20, className }: IconProps) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" className={className} aria-hidden="true">
-        <path
-            fill="currentColor"
-            d="M3 5.4 10.6 4.3v7.2H3zM10.6 12.5v7.2L3 18.6v-6.1zM11.6 4.2 21 3v8.5h-9.4zM21 12.5V21l-9.4-1.2v-7.3z"
-        />
-    </svg>
-);
-
 /** Device glyphs used by driver rows. */
 
 const IconGpu = (p: IconProps) => (

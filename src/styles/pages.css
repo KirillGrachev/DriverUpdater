@@ -932,13 +932,6 @@
     border-left: 1px solid var(--c-border-2);
 }
 
-.about-windows-logo {
-    position: absolute;
-    top: 22px;
-    right: 26px;
-    color: var(--c-primary);
-}
-
 .about-rows {
     margin-top: 16px;
     display: flex;
