@@ -19,7 +19,10 @@
     "titleOk1": "Ihr Computer",
     "titleOk2": "ist auf dem neuesten Stand!",
     "titleUpd1": "Updates verfügbar",
-    "titleUpd2": "für {n} Treiber",
+    "titleUpd2": {
+      "one": "für {n} Treiber",
+      "other": "für {n} Treiber"
+    },
     "subOk": "Alle Treiber sind aktuell. Letzte Prüfung: {when}",
     "subUpdates": "Gefundene Updates: {n}. Letzte Prüfung: {when}",
     "subNever": "Es wurde noch keine Prüfung durchgeführt",
@@ -38,7 +41,10 @@
     "showAll": "Alle anzeigen",
     "updateBtn": "Aktualisieren",
     "updatingBtn": "Aktualisiere…",
-    "emptyRec": "Alle Treiber sind aktuell"
+    "emptyRec": "Alle Treiber sind aktuell",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Treiber",
@@ -74,7 +80,8 @@
       "chipset": "Systemgeräte",
       "network": "Netzwerkadapter",
       "input": "Eingabegeräte"
-    }
+    },
+    "updateAll": "Alles aktualisieren"
   },
   "updates": {
     "title": "Updates",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} Update installiert",
       "other": "{n} Updates installiert"
-    }
+    },
+    "partialToast": "{n} Updates konnten nicht installiert werden"
   },
   "backups": {
     "title": "Backups",
@@ -128,7 +136,25 @@
       "weekly": "Einmal wöchentlich",
       "monthly": "Einmal monatlich"
     },
-    "newName": "Manueller Wiederherstellungspunkt"
+    "newName": "Manueller Wiederherstellungspunkt",
+    "driverBackups": "Treiber-Backups",
+    "driverBackupsSub": "Exportierte Treiberpakete von Drittanbietern",
+    "createBackup": "Backup erstellen",
+    "creatingBackup": "Sichern…",
+    "backupEmpty": "Keine Treiber-Backups",
+    "backupEmptySub": "Vor jedem Treiberupdate wird automatisch ein Backup erstellt, wenn dies in den Einstellungen aktiviert ist.",
+    "backupPackages": "Pakete: {n}",
+    "restoreBackup": "Wiederherstellen",
+    "deleteBackup": "Sicherung löschen",
+    "backupCreated": "Treiber-Backup erstellt",
+    "backupRestored": "Treiberpakete wiederhergestellt",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Einstellungen",
@@ -161,7 +187,9 @@
     "reset": "Einstellungen zurücksetzen",
     "save": "Änderungen speichern",
     "savedToast": "Einstellungen gespeichert",
-    "resetToast": "Einstellungen auf Standard zurückgesetzt"
+    "resetToast": "Einstellungen auf Standard zurückgesetzt",
+    "copyPath": "Copy path",
+    "copiedToast": "Pfad kopiert"
   },
   "about": {
     "title": "Über",
@@ -194,7 +222,10 @@
     "yesterday": "Gestern",
     "mb": "MB",
     "never": "Keine Daten",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Entlassen",
+    "scanError": "Treiber konnten nicht gescannt werden",
+    "scanErrorHint": "Überprüfen Sie den Windows Update- und PowerShell-Zugriff und versuchen Sie es dann erneut."
   },
   "toasts": {
     "scanZero": "Alle Treiber sind aktuell",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Treiber „{name}“ aktualisiert",
     "restorePointCreated": "Wiederherstellungspunkt erstellt",
-    "error": "Vorgang fehlgeschlagen"
+    "error": "Vorgang fehlgeschlagen",
+    "rebootRequired": "Um die Treiberaktualisierung abzuschließen, ist ein Neustart erforderlich"
   },
   "components": {
     "cancelTooLate": "Das Installationsprogramm läuft bereits. Die aktuelle Installation wird abgeschlossen.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenten",
+    "subtitle": "Programmiersprachen, Laufzeiten und nützliche Tools",
+    "runtimes": "Laufzeiten",
+    "languages": "Programmiersprachen",
+    "tools": "Werkzeuge",
+    "install": "Installieren",
+    "installing": "Installieren…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Version",
+    "loading": "Laden…",
+    "managed": "Fahrerverwaltet",
+    "openglNote": "Wird von Ihrem GPU-Treiber bereitgestellt"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

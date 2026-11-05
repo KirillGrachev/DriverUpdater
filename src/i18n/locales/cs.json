@@ -19,7 +19,10 @@
     "titleOk1": "Váš počítač",
     "titleOk2": "je v pořádku!",
     "titleUpd1": "Dostupné aktualizace",
-    "titleUpd2": "pro {n} ovladačů",
+    "titleUpd2": {
+      "one": "pro {n} ovladačů",
+      "other": "pro {n} ovladačů"
+    },
     "subOk": "Všechny ovladače jsou aktuální. Poslední kontrola: {when}",
     "subUpdates": "Nalezené aktualizace: {n}. Poslední kontrola: {when}",
     "subNever": "Sken zatím nebyl proveden",
@@ -40,7 +43,10 @@
     "showAll": "Zobrazit vše",
     "updateBtn": "Aktualizovat",
     "updatingBtn": "Probíhá aktualizace…",
-    "emptyRec": "Všechny ovladače jsou aktuální"
+    "emptyRec": "Všechny ovladače jsou aktuální",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Ovladače",
@@ -76,7 +82,8 @@
       "chipset": "Systémová zařízení",
       "network": "Síťové adaptéry",
       "input": "Vstupní zařízení"
-    }
+    },
+    "updateAll": "Aktualizovat vše"
   },
   "updates": {
     "title": "Aktualizace",
@@ -98,7 +105,8 @@
       "few": "{n} aktualizace nainstalovány",
       "many": "{n} aktualizace nainstalováno",
       "other": "{n} aktualizací nainstalováno"
-    }
+    },
+    "partialToast": "Nelze nainstalovat aktualizace {n}"
   },
   "backups": {
     "title": "Zálohy",
@@ -132,7 +140,25 @@
       "weekly": "Týdně",
       "monthly": "Měsíčně"
     },
-    "newName": "Ruční bod obnovení"
+    "newName": "Ruční bod obnovení",
+    "driverBackups": "Zálohy ovladačů",
+    "driverBackupsSub": "Exportované balíčky ovladačů třetích stran",
+    "createBackup": "Vytvořte zálohu",
+    "creatingBackup": "Zálohování…",
+    "backupEmpty": "Žádné zálohy ovladačů",
+    "backupEmptySub": "Záloha se vytváří automaticky před každou aktualizací ovladače, pokud je povolena v Nastavení.",
+    "backupPackages": "Balíčky: {n}",
+    "restoreBackup": "Obnovit",
+    "deleteBackup": "Smazat zálohu",
+    "backupCreated": "Záloha ovladače vytvořena",
+    "backupRestored": "Balíčky ovladačů byly obnoveny",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Nastavení",
@@ -165,7 +191,9 @@
     "reset": "Obnovit výchozí nastavení",
     "save": "Uložit změny",
     "savedToast": "Nastavení uloženo",
-    "resetToast": "Nastavení obnoveno na výchozí hodnoty"
+    "resetToast": "Nastavení obnoveno na výchozí hodnoty",
+    "copyPath": "Copy path",
+    "copiedToast": "Cesta zkopírována"
   },
   "about": {
     "title": "O aplikaci",
@@ -198,7 +226,10 @@
     "yesterday": "Včera",
     "mb": "MB",
     "never": "Žádná data",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Odmítnout",
+    "scanError": "Nelze skenovat ovladače",
+    "scanErrorHint": "Zkontrolujte Windows Update a přístup k PowerShellu a zkuste to znovu."
   },
   "toasts": {
     "scanZero": "Všechny ovladače jsou aktuální",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Ovladač „{name}“ aktualizován",
     "restorePointCreated": "Bod obnovení vytvořen",
-    "error": "Operace se nezdařila"
+    "error": "Operace se nezdařila",
+    "rebootRequired": "K dokončení aktualizace ovladače je vyžadován restart"
   },
   "components": {
     "cancelTooLate": "Instalátor již běží. Aktuální instalace bude dokončena.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenty",
+    "subtitle": "Programovací jazyky, runtime a užitečné nástroje",
+    "runtimes": "Běhové časy",
+    "languages": "Programovací jazyky",
+    "tools": "Nástroje",
+    "install": "Instalovat",
+    "installing": "Instalace…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Verze",
+    "loading": "Načítání…",
+    "managed": "Spravováno řidičem",
+    "openglNote": "Poskytuje váš ovladač GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

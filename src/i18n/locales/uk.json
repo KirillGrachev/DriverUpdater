@@ -19,7 +19,10 @@
     "titleOk1": "Ваш комп’ютер",
     "titleOk2": "готовий до роботи!",
     "titleUpd1": "Доступні оновлення",
-    "titleUpd2": "для {n} драйверів",
+    "titleUpd2": {
+      "one": "для {n} драйверів",
+      "other": "для {n} драйверів"
+    },
     "subOk": "Усі драйвери актуальні. Остання перевірка: {when}",
     "subUpdates": "Знайдено оновлень: {n}. Остання перевірка: {when}",
     "subNever": "Сканування ще не виконувалося",
@@ -40,7 +43,10 @@
     "showAll": "Показати всі",
     "updateBtn": "Оновити",
     "updatingBtn": "Оновлення…",
-    "emptyRec": "Усі драйвери актуальні"
+    "emptyRec": "Усі драйвери актуальні",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Драйвери",
@@ -76,7 +82,8 @@
       "chipset": "Системні пристрої",
       "network": "Мережеві адаптери",
       "input": "Пристрої введення"
-    }
+    },
+    "updateAll": "Оновити все"
   },
   "updates": {
     "title": "Оновлення",
@@ -98,7 +105,8 @@
       "few": "{n} оновлення встановлено",
       "many": "{n} оновлень встановлено",
       "other": "{n} оновлення встановлено"
-    }
+    },
+    "partialToast": "Не вдалося встановити оновлення {n}"
   },
   "backups": {
     "title": "Резервні копії",
@@ -132,7 +140,25 @@
       "weekly": "Щотижня",
       "monthly": "Щомісяця"
     },
-    "newName": "Ручна точка відновлення"
+    "newName": "Ручна точка відновлення",
+    "driverBackups": "Резервне копіювання драйверів",
+    "driverBackupsSub": "Експортовані сторонні пакети драйверів",
+    "createBackup": "Створити резервну копію",
+    "creatingBackup": "Резервне копіювання…",
+    "backupEmpty": "Немає резервних копій драйверів",
+    "backupEmptySub": "Резервна копія створюється автоматично перед кожним оновленням драйвера, якщо це ввімкнено в налаштуваннях.",
+    "backupPackages": "Пакунки: {n}",
+    "restoreBackup": "Відновити",
+    "deleteBackup": "Видалити резервну копію",
+    "backupCreated": "Створено резервну копію драйвера",
+    "backupRestored": "Пакети драйверів відновлені",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Налаштування",
@@ -165,7 +191,9 @@
     "reset": "Скинути налаштування",
     "save": "Зберегти зміни",
     "savedToast": "Налаштування збережено",
-    "resetToast": "Налаштування скинуто до стандартних"
+    "resetToast": "Налаштування скинуто до стандартних",
+    "copyPath": "Copy path",
+    "copiedToast": "Шлях скопійовано"
   },
   "about": {
     "title": "Про програму",
@@ -198,7 +226,10 @@
     "yesterday": "Учора",
     "mb": "МБ",
     "never": "Немає даних",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Відхилити",
+    "scanError": "Не вдалося сканувати драйвери",
+    "scanErrorHint": "Перевірте доступ до Windows Update і PowerShell, а потім повторіть спробу."
   },
   "toasts": {
     "scanZero": "Усі драйвери актуальні",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Драйвер «{name}» оновлено",
     "restorePointCreated": "Точку відновлення створено",
-    "error": "Не вдалося виконати операцію"
+    "error": "Не вдалося виконати операцію",
+    "rebootRequired": "Щоб завершити оновлення драйвера, потрібен перезапуск"
   },
   "components": {
     "cancelTooLate": "Інсталятор уже запущено. Поточне встановлення буде завершено.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "компоненти",
+    "subtitle": "Мови програмування, середовища виконання та корисні інструменти",
+    "runtimes": "Час виконання",
+    "languages": "Мови програмування",
+    "tools": "Інструменти",
+    "install": "встановити",
+    "installing": "Встановлення…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Версія",
+    "loading": "Завантаження…",
+    "managed": "Керується водієм",
+    "openglNote": "Надається драйвером графічного процесора"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

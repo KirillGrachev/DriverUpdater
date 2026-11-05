@@ -19,7 +19,10 @@
     "titleOk1": "თქვენი კომპიუტერი",
     "titleOk2": "მზადაა მუშაობისთვის!",
     "titleUpd1": "ხელმისაწვდომია განახლებები",
-    "titleUpd2": "{n} დრაივერისთვის",
+    "titleUpd2": {
+      "one": "{n} დრაივერისთვის",
+      "other": "{n} დრაივერისთვის"
+    },
     "subOk": "ყველა დრაივერი განახლებულია. ბოლო შემოწმება: {when}",
     "subUpdates": "ნაპოვნია განახლებები: {n}. ბოლო შემოწმება: {when}",
     "subNever": "სკანირება ჯერ არ ჩატარებულა",
@@ -39,7 +42,10 @@
     "showAll": "ყველას ჩვენება",
     "updateBtn": "განახლება",
     "updatingBtn": "მიმდინარეობს განახლება…",
-    "emptyRec": "ყველა დრაივერი განახლებულია"
+    "emptyRec": "ყველა დრაივერი განახლებულია",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "დრაივერები",
@@ -75,7 +81,8 @@
       "chipset": "სისტემური მოწყობილობები",
       "network": "ქსელური ადაპტერები",
       "input": "შეყვანის მოწყობილობები"
-    }
+    },
+    "updateAll": "განაახლეთ ყველა"
   },
   "updates": {
     "title": "განახლებები",
@@ -96,7 +103,8 @@
       "one": "დაყენებულია {n} განახლება",
       "many": "დაყენებულია {n} განახლება",
       "other": "დაყენებულია {n} განახლება"
-    }
+    },
+    "partialToast": "{n} განახლებების დაყენება ვერ მოხერხდა"
   },
   "backups": {
     "title": "სარეზერვო ასლები",
@@ -130,7 +138,25 @@
       "weekly": "ყოველკვირეულად",
       "monthly": "ყოველთვიურად"
     },
-    "newName": "ხელით შექმნილი აღდგენის წერტილი"
+    "newName": "ხელით შექმნილი აღდგენის წერტილი",
+    "driverBackups": "დრაივერის სარეზერვო ასლები",
+    "driverBackupsSub": "ექსპორტირებული მესამე მხარის დრაივერების პაკეტები",
+    "createBackup": "შექმენით სარეზერვო საშუალება",
+    "creatingBackup": "სარეზერვო ასლის შექმნა…",
+    "backupEmpty": "მძღოლის სარეზერვო ასლები არ არის",
+    "backupEmptySub": "სარეზერვო ასლი ავტომატურად იქმნება დრაივერის თითოეული განახლებამდე, როდესაც ჩართულია პარამეტრებში.",
+    "backupPackages": "პაკეტები: {n}",
+    "restoreBackup": "აღდგენა",
+    "deleteBackup": "სარეზერვო ასლის წაშლა",
+    "backupCreated": "შეიქმნა დრაივერის სარეზერვო ასლი",
+    "backupRestored": "დრაივერის პაკეტები აღდგენილია",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "პარამეტრები",
@@ -163,7 +189,9 @@
     "reset": "პარამეტრების ნაგულისხმევზე დაბრუნება",
     "save": "ცვლილებების შენახვა",
     "savedToast": "პარამეტრები შენახულია",
-    "resetToast": "პარამეტრები დაბრუნდა ნაგულისხმევზე"
+    "resetToast": "პარამეტრები დაბრუნდა ნაგულისხმევზე",
+    "copyPath": "Copy path",
+    "copiedToast": "ბილიკი კოპირებულია"
   },
   "about": {
     "title": "შესახებ",
@@ -196,7 +224,10 @@
     "yesterday": "გუშინ",
     "mb": "MB",
     "never": "მონაცემები არ არის",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "გაუქმება",
+    "scanError": "დრაივერების სკანირება ვერ მოხერხდა",
+    "scanErrorHint": "შეამოწმეთ Windows Update და PowerShell წვდომა, შემდეგ სცადეთ ხელახლა."
   },
   "toasts": {
     "scanZero": "ყველა დრაივერი განახლებულია",
@@ -207,10 +238,35 @@
     },
     "driverUpdated": "დრაივერი “{name}” განახლდა",
     "restorePointCreated": "აღდგენის წერტილი შეიქმნა",
-    "error": "ოპერაცია ვერ შესრულდა"
+    "error": "ოპერაცია ვერ შესრულდა",
+    "rebootRequired": "დრაივერის განახლების დასასრულებლად საჭიროა გადატვირთვა"
   },
   "components": {
     "cancelTooLate": "ინსტალატორი უკვე გაშვებულია. მიმდინარე ინსტალაცია დასრულდება.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "კომპონენტები",
+    "subtitle": "პროგრამირების ენები, გაშვების დრო და სასარგებლო ინსტრუმენტები",
+    "runtimes": "გაშვების დრო",
+    "languages": "პროგრამირების ენები",
+    "tools": "ხელსაწყოები",
+    "install": "დააინსტალირეთ",
+    "installing": "მიმდინარეობს ინსტალაცია…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "ვერსია",
+    "loading": "იტვირთება…",
+    "managed": "მძღოლის მართვა",
+    "openglNote": "მოწოდებულია თქვენი GPU დრაივერის მიერ"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

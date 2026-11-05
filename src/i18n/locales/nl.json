@@ -19,7 +19,10 @@
     "titleOk1": "Je computer",
     "titleOk2": "is klaar voor gebruik!",
     "titleUpd1": "Updates beschikbaar",
-    "titleUpd2": "voor {n} stuurprogramma's",
+    "titleUpd2": {
+      "one": "voor {n} stuurprogramma's",
+      "other": "voor {n} stuurprogramma's"
+    },
     "subOk": "Alle stuurprogramma's zijn up-to-date. Laatste controle: {when}",
     "subUpdates": "Gevonden updates: {n}. Laatste controle: {when}",
     "subNever": "Er is nog geen scan uitgevoerd",
@@ -38,7 +41,10 @@
     "showAll": "Alles tonen",
     "updateBtn": "Bijwerken",
     "updatingBtn": "Bezig met bijwerken…",
-    "emptyRec": "Alle stuurprogramma's zijn up-to-date"
+    "emptyRec": "Alle stuurprogramma's zijn up-to-date",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Stuurprogramma's",
@@ -74,7 +80,8 @@
       "chipset": "Systeemapparaten",
       "network": "Netwerkadapters",
       "input": "Invoerapparaten"
-    }
+    },
+    "updateAll": "Alles bijwerken"
   },
   "updates": {
     "title": "Updates",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} update geïnstalleerd",
       "other": "{n} updates geïnstalleerd"
-    }
+    },
+    "partialToast": "Kan {n}-updates niet installeren"
   },
   "backups": {
     "title": "Back-ups",
@@ -128,7 +136,25 @@
       "weekly": "Wekelijks",
       "monthly": "Maandelijks"
     },
-    "newName": "Handmatig herstelpunt"
+    "newName": "Handmatig herstelpunt",
+    "driverBackups": "Back-ups van stuurprogramma's",
+    "driverBackupsSub": "Stuurprogrammapakketten van derden geëxporteerd",
+    "createBackup": "Maak een back-up",
+    "creatingBackup": "Een back-up maken…",
+    "backupEmpty": "Geen back-ups van stuurprogramma's",
+    "backupEmptySub": "Er wordt automatisch een back-up gemaakt vóór elke stuurprogramma-update als dit is ingeschakeld in Instellingen.",
+    "backupPackages": "Pakketten: {n}",
+    "restoreBackup": "Herstellen",
+    "deleteBackup": "Back-up verwijderen",
+    "backupCreated": "Back-up van stuurprogramma gemaakt",
+    "backupRestored": "Driverpakketten hersteld",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Instellingen",
@@ -161,7 +187,9 @@
     "reset": "Instellingen herstellen",
     "save": "Wijzigingen opslaan",
     "savedToast": "Instellingen opgeslagen",
-    "resetToast": "Instellingen teruggezet naar de standaardwaarden"
+    "resetToast": "Instellingen teruggezet naar de standaardwaarden",
+    "copyPath": "Copy path",
+    "copiedToast": "Pad gekopieerd"
   },
   "about": {
     "title": "Over",
@@ -194,7 +222,10 @@
     "yesterday": "Gisteren",
     "mb": "MB",
     "never": "Geen gegevens",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Negeren",
+    "scanError": "Kan stuurprogramma's niet scannen",
+    "scanErrorHint": "Controleer de Windows Update- en PowerShell-toegang en probeer het opnieuw."
   },
   "toasts": {
     "scanZero": "Alle stuurprogramma's zijn up-to-date",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Stuurprogramma “{name}” bijgewerkt",
     "restorePointCreated": "Herstelpunt gemaakt",
-    "error": "Bewerking mislukt"
+    "error": "Bewerking mislukt",
+    "rebootRequired": "Een herstart is vereist om de update van het stuurprogramma te voltooien"
   },
   "components": {
     "cancelTooLate": "Het installatieprogramma is al gestart. De huidige installatie wordt voltooid.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Componenten",
+    "subtitle": "Programmeertalen, runtimes en handige tools",
+    "runtimes": "Looptijden",
+    "languages": "Programmeertalen",
+    "tools": "Gereedschap",
+    "install": "Installeren",
+    "installing": "Installeren…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versie",
+    "loading": "Laden...",
+    "managed": "Bestuurder beheerd",
+    "openglNote": "Aangeleverd door uw GPU-stuurprogramma"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

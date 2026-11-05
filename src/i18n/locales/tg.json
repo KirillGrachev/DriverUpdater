@@ -19,7 +19,10 @@
     "titleOk1": "Компютери шумо",
     "titleOk2": "ба кор омода аст!",
     "titleUpd1": "Навсозиҳо мавҷуданд",
-    "titleUpd2": "барои {n} драйвер",
+    "titleUpd2": {
+      "one": "барои {n} драйвер",
+      "other": "барои {n} драйвер"
+    },
     "subOk": "Ҳамаи драйверҳо нав ҳастанд. Санҷиши охирин: {when}",
     "subUpdates": "Навсозиҳои ёфтшуда: {n}. Санҷиши охирин: {when}",
     "subNever": "То ҳол ҳеҷ гуна санҷиш гузаронида нашудааст",
@@ -38,7 +41,10 @@
     "showAll": "Ҳамаро нишон додан",
     "updateBtn": "Навсозӣ",
     "updatingBtn": "Навсозӣ…",
-    "emptyRec": "Ҳамаи драйверҳо нав ҳастанд"
+    "emptyRec": "Ҳамаи драйверҳо нав ҳастанд",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Драйверҳо",
@@ -74,7 +80,8 @@
       "chipset": "Дастгоҳҳои системавӣ",
       "network": "Адаптерҳои шабакавӣ",
       "input": "Дастгоҳҳои вуруд"
-    }
+    },
+    "updateAll": "Ҳамаро навсозӣ кунед"
   },
   "updates": {
     "title": "Навсозиҳо",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} навсозӣ насб шуд",
       "other": "{n} навсозӣ насб шуданд"
-    }
+    },
+    "partialToast": "Навсозии {n} насб карда нашуд"
   },
   "backups": {
     "title": "Нусхаҳои эҳтиётӣ",
@@ -128,7 +136,25 @@
       "weekly": "Ҳар ҳафта",
       "monthly": "Ҳар моҳ"
     },
-    "newName": "Нуқтаи барқарорсозии дастӣ"
+    "newName": "Нуқтаи барқарорсозии дастӣ",
+    "driverBackups": "Нусхаи эҳтиётии драйверҳо",
+    "driverBackupsSub": "Бастаҳои драйверҳои тарафи сеюм содиршуда",
+    "createBackup": "Нусхаи эҳтиётӣ эҷод кунед",
+    "creatingBackup": "Нусхабардорӣ…",
+    "backupEmpty": "Нусхаи эҳтиётии драйверҳо нест",
+    "backupEmptySub": "Пеш аз ҳар як навсозии драйвер ҳангоми фаъол шудан дар Танзимот нусхаи эҳтиётӣ ба таври худкор эҷод карда мешавад.",
+    "backupPackages": "Бастаҳо: {n}",
+    "restoreBackup": "Барқарор кардан",
+    "deleteBackup": "Нусхаи эҳтиётиро нест кунед",
+    "backupCreated": "Нусхаи эҳтиётии драйвер сохта шудааст",
+    "backupRestored": "Бастаҳои драйвер барқарор карда шуданд",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Танзимот",
@@ -161,7 +187,9 @@
     "reset": "Барқарорсозии танзимот",
     "save": "Нигоҳ доштани тағйирот",
     "savedToast": "Танзимот нигоҳ дошта шуд",
-    "resetToast": "Танзимот ба ҳолати пешфарз барқарор карда шуд"
+    "resetToast": "Танзимот ба ҳолати пешфарз барқарор карда шуд",
+    "copyPath": "Copy path",
+    "copiedToast": "Роҳ нусхабардорӣ карда шуд"
   },
   "about": {
     "title": "Дар бораи барнома",
@@ -194,7 +222,10 @@
     "yesterday": "Дирӯз",
     "mb": "MB",
     "never": "Маълумот нест",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Рад кардан",
+    "scanError": "Драйверҳоро скан карда натавонист",
+    "scanErrorHint": "Дастрасии Windows Update ва PowerShell-ро санҷед ва аз нав кӯшиш кунед."
   },
   "toasts": {
     "scanZero": "Ҳамаи драйверҳо нав ҳастанд",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Драйвери «{name}» нав карда шуд",
     "restorePointCreated": "Нуқтаи барқарорсозӣ эҷод шуд",
-    "error": "Амалиёт иҷро нашуд"
+    "error": "Амалиёт иҷро нашуд",
+    "rebootRequired": "Барои анҷом додани навсозии драйвер дубора оғоз кардан лозим аст"
   },
   "components": {
     "cancelTooLate": "Насбкунанда аллакай оғоз шудааст. Насби ҷорӣ анҷом меёбад.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Компонентхо",
+    "subtitle": "Забонҳои барномасозӣ, вақтҳои корӣ ва абзорҳои муфид",
+    "runtimes": "Вақтҳои иҷро",
+    "languages": "Забонҳои барномасозӣ",
+    "tools": "Воситаҳо",
+    "install": "Насб кунед",
+    "installing": "Насб карда мешавад…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Версия",
+    "loading": "Бор карда мешавад…",
+    "managed": "Ронанда идора карда мешавад",
+    "openglNote": "Аз ҷониби ронандаи GPU-и шумо пешниҳод шудааст"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

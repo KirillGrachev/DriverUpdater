@@ -19,7 +19,10 @@
     "titleOk1": "Twój komputer",
     "titleOk2": "jest gotowy do pracy!",
     "titleUpd1": "Dostępne aktualizacje",
-    "titleUpd2": "dla {n} sterowników",
+    "titleUpd2": {
+      "one": "dla {n} sterowników",
+      "other": "dla {n} sterowników"
+    },
     "subOk": "Wszystkie sterowniki są aktualne. Ostatnie sprawdzenie: {when}",
     "subUpdates": "Znalezione aktualizacje: {n}. Ostatnie sprawdzenie: {when}",
     "subNever": "Nie wykonano jeszcze skanowania",
@@ -40,7 +43,10 @@
     "showAll": "Pokaż wszystkie",
     "updateBtn": "Aktualizuj",
     "updatingBtn": "Aktualizowanie…",
-    "emptyRec": "Wszystkie sterowniki są aktualne"
+    "emptyRec": "Wszystkie sterowniki są aktualne",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Sterowniki",
@@ -76,7 +82,8 @@
       "chipset": "Urządzenia systemowe",
       "network": "Karty sieciowe",
       "input": "Urządzenia wejściowe"
-    }
+    },
+    "updateAll": "Zaktualizuj wszystko"
   },
   "updates": {
     "title": "Aktualizacje",
@@ -98,7 +105,8 @@
       "few": "Zainstalowano {n} aktualizacje",
       "many": "Zainstalowano {n} aktualizacji",
       "other": "Zainstalowano {n} aktualizacji"
-    }
+    },
+    "partialToast": "Nie można zainstalować aktualizacji {n}"
   },
   "backups": {
     "title": "Kopie zapasowe",
@@ -132,7 +140,25 @@
       "weekly": "Co tydzień",
       "monthly": "Co miesiąc"
     },
-    "newName": "Ręczny punkt przywracania"
+    "newName": "Ręczny punkt przywracania",
+    "driverBackups": "Kopie zapasowe sterowników",
+    "driverBackupsSub": "Wyeksportowane pakiety sterowników innych firm",
+    "createBackup": "Utwórz kopię zapasową",
+    "creatingBackup": "Tworzenie kopii zapasowej…",
+    "backupEmpty": "Brak kopii zapasowych sterowników",
+    "backupEmptySub": "Kopia zapasowa jest tworzona automatycznie przed każdą aktualizacją sterownika, jeśli jest ona włączona w Ustawieniach.",
+    "backupPackages": "Pakiety: {n}",
+    "restoreBackup": "Przywróć",
+    "deleteBackup": "Usuń kopię zapasową",
+    "backupCreated": "Utworzono kopię zapasową sterownika",
+    "backupRestored": "Przywrócono pakiety sterowników",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Ustawienia",
@@ -165,7 +191,9 @@
     "reset": "Przywróć ustawienia domyślne",
     "save": "Zapisz zmiany",
     "savedToast": "Ustawienia zapisane",
-    "resetToast": "Przywrócono ustawienia domyślne"
+    "resetToast": "Przywrócono ustawienia domyślne",
+    "copyPath": "Copy path",
+    "copiedToast": "Ścieżka skopiowana"
   },
   "about": {
     "title": "O programie",
@@ -198,7 +226,10 @@
     "yesterday": "Wczoraj",
     "mb": "MB",
     "never": "Brak danych",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Odrzuć",
+    "scanError": "Nie można przeskanować sterowników",
+    "scanErrorHint": "Sprawdź dostęp do Windows Update i PowerShell, a następnie spróbuj ponownie."
   },
   "toasts": {
     "scanZero": "Wszystkie sterowniki są aktualne",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Zaktualizowano sterownik „{name}”",
     "restorePointCreated": "Utworzono punkt przywracania",
-    "error": "Operacja nie powiodła się"
+    "error": "Operacja nie powiodła się",
+    "rebootRequired": "Aby zakończyć aktualizację sterownika, wymagane jest ponowne uruchomienie"
   },
   "components": {
     "cancelTooLate": "Instalator został już uruchomiony. Bieżąca instalacja zostanie dokończona.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenty",
+    "subtitle": "Języki programowania, środowiska uruchomieniowe i przydatne narzędzia",
+    "runtimes": "Czasy działania",
+    "languages": "Języki programowania",
+    "tools": "Narzędzia",
+    "install": "Zainstaluj",
+    "installing": "Instaluję…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Wersja",
+    "loading": "Ładowanie…",
+    "managed": "Zarządzany przez kierowcę",
+    "openglNote": "Dostarczone przez sterownik GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

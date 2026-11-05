@@ -19,7 +19,10 @@
     "titleOk1": "Il-komputer tiegħek",
     "titleOk2": "huwa lest!",
     "titleUpd1": "Aġġornamenti disponibbli",
-    "titleUpd2": "għal {n} drajvers",
+    "titleUpd2": {
+      "one": "għal {n} drajvers",
+      "other": "għal {n} drajvers"
+    },
     "subOk": "Id-drajvers kollha huma aġġornati. L-aħħar verifika: {when}",
     "subUpdates": "Aġġornamenti misjuba: {n}. L-aħħar verifika: {when}",
     "subNever": "Għadu ma sar l-ebda skanjar",
@@ -41,7 +44,10 @@
     "showAll": "Uri kollha",
     "updateBtn": "Aġġorna",
     "updatingBtn": "Qed naġġorna…",
-    "emptyRec": "Id-drajvers kollha huma aġġornati"
+    "emptyRec": "Id-drajvers kollha huma aġġornati",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drajvers",
@@ -77,7 +83,8 @@
       "chipset": "Apparati tas-sistema",
       "network": "Adapters tan-netwerk",
       "input": "Apparati tal-input"
-    }
+    },
+    "updateAll": "Aġġorna kollox"
   },
   "updates": {
     "title": "Aġġornamenti",
@@ -100,7 +107,8 @@
       "few": "{n} aġġornamenti installati",
       "many": "{n} aġġornament installat",
       "other": "{n} aġġornament installat"
-    }
+    },
+    "partialToast": "Ma setgħetx tinstalla {n} aġġornamenti"
   },
   "backups": {
     "title": "Backups",
@@ -134,7 +142,25 @@
       "weekly": "Kull ġimgħa",
       "monthly": "Kull xahar"
     },
-    "newName": "Punt ta' rkupru manwali"
+    "newName": "Punt ta' rkupru manwali",
+    "driverBackups": "Backups tas-sewwieq",
+    "driverBackupsSub": "Pakketti ta' sewwieqa ta' partijiet terzi esportati",
+    "createBackup": "Oħloq backup",
+    "creatingBackup": "Tappoġġja...",
+    "backupEmpty": "Ebda backups tas-sewwieq",
+    "backupEmptySub": "Tinħoloq backup awtomatikament qabel kull aġġornament tas-sewwieq meta jkun attivat fis-Settings.",
+    "backupPackages": "Pakketti: {n}",
+    "restoreBackup": "Irrestawra",
+    "deleteBackup": "Ħassar backup",
+    "backupCreated": "Inħoloq backup tas-sewwieq",
+    "backupRestored": "Pakketti tas-sewwieq restawrati",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Impostazzjonijiet",
@@ -167,7 +193,9 @@
     "reset": "Irrisettja l-impostazzjonijiet",
     "save": "Issejvja l-bidliet",
     "savedToast": "L-impostazzjonijiet ġew issejvjati",
-    "resetToast": "L-impostazzjonijiet ġew irrisettjati għall-valuri default"
+    "resetToast": "L-impostazzjonijiet ġew irrisettjati għall-valuri default",
+    "copyPath": "Copy path",
+    "copiedToast": "Mogħdija kkupjata"
   },
   "about": {
     "title": "Dwar",
@@ -200,7 +228,10 @@
     "yesterday": "Ilbieraħ",
     "mb": "MB",
     "never": "L-ebda data",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Tkeċċi",
+    "scanError": "Ma setgħetx tiskennja s-sewwieqa",
+    "scanErrorHint": "Iċċekkja l-Windows Update u l-aċċess għall-PowerShell, imbagħad erġa' pprova."
   },
   "toasts": {
     "scanZero": "Id-drajvers kollha huma aġġornati",
@@ -213,10 +244,35 @@
     },
     "driverUpdated": "Id-drajver “{name}” ġie aġġornat",
     "restorePointCreated": "Punt ta' rkupru maħluq",
-    "error": "L-operazzjoni falliet"
+    "error": "L-operazzjoni falliet",
+    "rebootRequired": "Huwa meħtieġ bidu mill-ġdid biex jintemm l-aġġornament tas-sewwieq"
   },
   "components": {
     "cancelTooLate": "Il-programm tal-installazzjoni diġà beda. L-installazzjoni attwali se titlesta.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenti",
+    "subtitle": "Lingwi tal-ipprogrammar, runtimes u għodod utli",
+    "runtimes": "Runtimes",
+    "languages": "Lingwi tal-ipprogrammar",
+    "tools": "Għodda",
+    "install": "Installa",
+    "installing": "Qed jinstalla...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Verżjoni",
+    "loading": "Tagħbija...",
+    "managed": "Immexxi mis-sewwieq",
+    "openglNote": "Ipprovdut mis-sewwieq tal-GPU tiegħek"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

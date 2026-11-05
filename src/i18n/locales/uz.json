@@ -19,7 +19,10 @@
     "titleOk1": "Kompyuteringiz",
     "titleOk2": "ishlashga tayyor!",
     "titleUpd1": "Yangilanishlar mavjud",
-    "titleUpd2": "{n} ta drayver uchun",
+    "titleUpd2": {
+      "one": "{n} ta drayver uchun",
+      "other": "{n} ta drayver uchun"
+    },
     "subOk": "Barcha drayverlar soʻnggi versiyada. Oxirgi tekshiruv: {when}",
     "subUpdates": "Topilgan yangilanishlar: {n}. Oxirgi tekshiruv: {when}",
     "subNever": "Hali hech qanday skanerlash amalga oshirilmagan",
@@ -38,7 +41,10 @@
     "showAll": "Barchasini koʻrsatish",
     "updateBtn": "Yangilash",
     "updatingBtn": "Yangilanmoqda…",
-    "emptyRec": "Barcha drayverlar soʻnggi versiyada"
+    "emptyRec": "Barcha drayverlar soʻnggi versiyada",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drayverlar",
@@ -74,7 +80,8 @@
       "chipset": "Tizim qurilmalari",
       "network": "Tarmoq adapterlari",
       "input": "Kiritish qurilmalari"
-    }
+    },
+    "updateAll": "Hammasini yangilash"
   },
   "updates": {
     "title": "Yangilanishlar",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} yangilanish oʻrnatildi",
       "other": "{n} ta yangilanish oʻrnatildi"
-    }
+    },
+    "partialToast": "{n} yangilanishlarni oʻrnatib boʻlmadi"
   },
   "backups": {
     "title": "Zaxira nusxalar",
@@ -128,7 +136,25 @@
       "weekly": "Har hafta",
       "monthly": "Har oy"
     },
-    "newName": "Qoʻlda yaratilgan tiklash nuqtasi"
+    "newName": "Qoʻlda yaratilgan tiklash nuqtasi",
+    "driverBackups": "Haydovchi zaxira nusxalari",
+    "driverBackupsSub": "Eksport qilingan uchinchi tomon drayver paketlari",
+    "createBackup": "Zaxira nusxasini yarating",
+    "creatingBackup": "Zaxiralanmoqda…",
+    "backupEmpty": "Haydovchilarning zaxira nusxalari yo'q",
+    "backupEmptySub": "Sozlamalarda yoqilganda, har bir drayverni yangilashdan oldin zaxira avtomatik ravishda yaratiladi.",
+    "backupPackages": "Paketlar: {n}",
+    "restoreBackup": "Qayta tiklash",
+    "deleteBackup": "Zaxira nusxasini o'chirish",
+    "backupCreated": "Haydovchi zaxira nusxasi yaratildi",
+    "backupRestored": "Haydovchilar paketlari tiklandi",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Sozlamalar",
@@ -161,7 +187,9 @@
     "reset": "Sozlamalarni boshlangʻich holatga qaytarish",
     "save": "Oʻzgarishlarni saqlash",
     "savedToast": "Sozlamalar saqlandi",
-    "resetToast": "Sozlamalar standart holatga qaytarildi"
+    "resetToast": "Sozlamalar standart holatga qaytarildi",
+    "copyPath": "Copy path",
+    "copiedToast": "Yoʻl nusxalandi"
   },
   "about": {
     "title": "Dastur haqida",
@@ -194,7 +222,10 @@
     "yesterday": "Kecha",
     "mb": "MB",
     "never": "Maʼlumot yoʻq",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Rad etish",
+    "scanError": "Drayvlarni skanerlab bo'lmadi",
+    "scanErrorHint": "Windows Update va PowerShell ruxsatini tekshiring, keyin qayta urinib ko'ring."
   },
   "toasts": {
     "scanZero": "Barcha drayverlar soʻnggi versiyada",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "“{name}” drayveri yangilandi",
     "restorePointCreated": "Tiklash nuqtasi yaratildi",
-    "error": "Amalni bajarib boʻlmadi"
+    "error": "Amalni bajarib boʻlmadi",
+    "rebootRequired": "Drayv yangilanishini tugatish uchun qayta ishga tushirish talab qilinadi"
   },
   "components": {
     "cancelTooLate": "O'rnatuvchi allaqachon ishga tushgan. Joriy o'rnatish yakunlanadi.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponentlar",
+    "subtitle": "Dasturlash tillari, ish vaqtlari va foydali vositalar",
+    "runtimes": "Ish vaqtlari",
+    "languages": "Dasturlash tillari",
+    "tools": "Asboblar",
+    "install": "O'rnatish",
+    "installing": "Oʻrnatilmoqda…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versiya",
+    "loading": "Yuklanmoqda…",
+    "managed": "Haydovchi tomonidan boshqariladi",
+    "openglNote": "GPU drayveringiz tomonidan taqdim etilgan"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

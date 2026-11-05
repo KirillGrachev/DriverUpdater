@@ -19,7 +19,10 @@
     "titleOk1": "Ο υπολογιστής σας",
     "titleOk2": "είναι έτοιμος!",
     "titleUpd1": "Διαθέσιμες ενημερώσεις",
-    "titleUpd2": "για {n} προγράμματα οδήγησης",
+    "titleUpd2": {
+      "one": "για {n} προγράμματα οδήγησης",
+      "other": "για {n} προγράμματα οδήγησης"
+    },
     "subOk": "Όλα τα προγράμματα οδήγησης είναι ενημερωμένα. Τελευταίος έλεγχος: {when}",
     "subUpdates": "Βρέθηκαν ενημερώσεις: {n}. Τελευταίος έλεγχος: {when}",
     "subNever": "Δεν έχει πραγματοποιηθεί ακόμη σάρωση",
@@ -38,7 +41,10 @@
     "showAll": "Εμφάνιση όλων",
     "updateBtn": "Ενημέρωση",
     "updatingBtn": "Γίνεται ενημέρωση…",
-    "emptyRec": "Όλα τα προγράμματα οδήγησης είναι ενημερωμένα"
+    "emptyRec": "Όλα τα προγράμματα οδήγησης είναι ενημερωμένα",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Προγράμματα οδήγησης",
@@ -74,7 +80,8 @@
       "chipset": "Συσκευές συστήματος",
       "network": "Προσαρμογείς δικτύου",
       "input": "Συσκευές εισόδου"
-    }
+    },
+    "updateAll": "Ενημέρωση όλων"
   },
   "updates": {
     "title": "Ενημερώσεις",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "Εγκαταστάθηκε {n} ενημέρωση",
       "other": "Εγκαταστάθηκαν {n} ενημερώσεις"
-    }
+    },
+    "partialToast": "Δεν ήταν δυνατή η εγκατάσταση ενημερώσεων {n}"
   },
   "backups": {
     "title": "Αντίγραφα ασφαλείας",
@@ -128,7 +136,25 @@
       "weekly": "Εβδομαδιαία",
       "monthly": "Μηνιαία"
     },
-    "newName": "Χειροκίνητο σημείο επαναφοράς"
+    "newName": "Χειροκίνητο σημείο επαναφοράς",
+    "driverBackups": "Αντίγραφα ασφαλείας προγραμμάτων οδήγησης",
+    "driverBackupsSub": "Εξαγόμενα πακέτα προγραμμάτων οδήγησης τρίτων κατασκευαστών",
+    "createBackup": "Δημιουργία αντιγράφου ασφαλείας",
+    "creatingBackup": "Δημιουργία αντιγράφων ασφαλείας…",
+    "backupEmpty": "Δεν υπάρχουν αντίγραφα ασφαλείας προγραμμάτων οδήγησης",
+    "backupEmptySub": "Ένα αντίγραφο ασφαλείας δημιουργείται αυτόματα πριν από κάθε ενημέρωση προγράμματος οδήγησης όταν είναι ενεργοποιημένο στις Ρυθμίσεις.",
+    "backupPackages": "Πακέτα: {n}",
+    "restoreBackup": "Επαναφορά",
+    "deleteBackup": "Διαγραφή αντιγράφου ασφαλείας",
+    "backupCreated": "Δημιουργήθηκε αντίγραφο ασφαλείας του προγράμματος οδήγησης",
+    "backupRestored": "Αποκαταστάθηκαν τα πακέτα προγραμμάτων οδήγησης",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Ρυθμίσεις",
@@ -161,7 +187,9 @@
     "reset": "Επαναφορά ρυθμίσεων",
     "save": "Αποθήκευση αλλαγών",
     "savedToast": "Οι ρυθμίσεις αποθηκεύτηκαν",
-    "resetToast": "Οι ρυθμίσεις επαναφέρθηκαν στις προεπιλογές"
+    "resetToast": "Οι ρυθμίσεις επαναφέρθηκαν στις προεπιλογές",
+    "copyPath": "Copy path",
+    "copiedToast": "Η διαδρομή αντιγράφηκε"
   },
   "about": {
     "title": "Σχετικά",
@@ -194,7 +222,10 @@
     "yesterday": "Χθες",
     "mb": "MB",
     "never": "Δεν υπάρχουν δεδομένα",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Απόρριψη",
+    "scanError": "Δεν ήταν δυνατή η σάρωση προγραμμάτων οδήγησης",
+    "scanErrorHint": "Ελέγξτε την πρόσβαση στο Windows Update και το PowerShell και δοκιμάστε ξανά."
   },
   "toasts": {
     "scanZero": "Όλα τα προγράμματα οδήγησης είναι ενημερωμένα",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Ενημερώθηκε το πρόγραμμα οδήγησης «{name}»",
     "restorePointCreated": "Το σημείο επαναφοράς δημιουργήθηκε",
-    "error": "Η λειτουργία απέτυχε"
+    "error": "Η λειτουργία απέτυχε",
+    "rebootRequired": "Απαιτείται επανεκκίνηση για να ολοκληρωθεί η ενημέρωση του προγράμματος οδήγησης"
   },
   "components": {
     "cancelTooLate": "Το πρόγραμμα εγκατάστασης έχει ήδη ξεκινήσει. Η τρέχουσα εγκατάσταση θα ολοκληρωθεί.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "εξαρτήματα",
+    "subtitle": "Γλώσσες προγραμματισμού, χρόνοι εκτέλεσης και χρήσιμα εργαλεία",
+    "runtimes": "Χρόνοι εκτέλεσης",
+    "languages": "Γλώσσες προγραμματισμού",
+    "tools": "Εργαλεία",
+    "install": "Εγκατάσταση",
+    "installing": "Εγκατάσταση…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Έκδοση",
+    "loading": "Φόρτωση…",
+    "managed": "Διαχείριση οδηγού",
+    "openglNote": "Παρέχεται από το πρόγραμμα οδήγησης GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

@@ -19,7 +19,10 @@
     "titleOk1": "A számítógépe",
     "titleOk2": "teljesen naprakész!",
     "titleUpd1": "Elérhető frissítések",
-    "titleUpd2": "{n} illesztőprogramhoz",
+    "titleUpd2": {
+      "one": "{n} illesztőprogramhoz",
+      "other": "{n} illesztőprogramhoz"
+    },
     "subOk": "Minden illesztőprogram naprakész. Utolsó ellenőrzés: {when}",
     "subUpdates": "Talált frissítések: {n}. Utolsó ellenőrzés: {when}",
     "subNever": "Még nem történt vizsgálat",
@@ -38,7 +41,10 @@
     "showAll": "Összes megjelenítése",
     "updateBtn": "Frissítés",
     "updatingBtn": "Frissítés…",
-    "emptyRec": "Minden illesztőprogram naprakész"
+    "emptyRec": "Minden illesztőprogram naprakész",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Illesztőprogramok",
@@ -74,7 +80,8 @@
       "chipset": "Rendszereszközök",
       "network": "Hálózati adapterek",
       "input": "Bemeneti eszközök"
-    }
+    },
+    "updateAll": "Frissítse az összeset"
   },
   "updates": {
     "title": "Frissítések",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} frissítés telepítve",
       "other": "{n} frissítés telepítve"
-    }
+    },
+    "partialToast": "Nem sikerült telepíteni a {n} frissítéseket"
   },
   "backups": {
     "title": "Biztonsági mentések",
@@ -128,7 +136,25 @@
       "weekly": "Hetente",
       "monthly": "Havonta"
     },
-    "newName": "Kézi visszaállítási pont"
+    "newName": "Kézi visszaállítási pont",
+    "driverBackups": "Driver biztonsági mentések",
+    "driverBackupsSub": "Exportált harmadik féltől származó illesztőprogram-csomagok",
+    "createBackup": "Készítsen biztonsági másolatot",
+    "creatingBackup": "Biztonsági mentés…",
+    "backupEmpty": "Nincsenek biztonsági mentések az illesztőprogramokról",
+    "backupEmptySub": "A rendszer automatikusan biztonsági másolatot készít minden illesztőprogram-frissítés előtt, ha engedélyezve van a Beállításokban.",
+    "backupPackages": "Csomagok: {n}",
+    "restoreBackup": "Visszaállítás",
+    "deleteBackup": "Biztonsági másolat törlése",
+    "backupCreated": "Az illesztőprogram biztonsági mentése létrehozva",
+    "backupRestored": "Az illesztőprogram-csomagok visszaállítva",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Beállítások",
@@ -161,7 +187,9 @@
     "reset": "Beállítások visszaállítása",
     "save": "Módosítások mentése",
     "savedToast": "A beállítások mentve",
-    "resetToast": "A beállítások visszaálltak az alapértelmezett értékekre"
+    "resetToast": "A beállítások visszaálltak az alapértelmezett értékekre",
+    "copyPath": "Copy path",
+    "copiedToast": "Útvonal másolva"
   },
   "about": {
     "title": "Névjegy",
@@ -194,7 +222,10 @@
     "yesterday": "Tegnap",
     "mb": "MB",
     "never": "Nincs adat",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Elvetés",
+    "scanError": "Nem sikerült beolvasni az illesztőprogramokat",
+    "scanErrorHint": "Ellenőrizze a Windows Update és a PowerShell hozzáférést, majd próbálja újra."
   },
   "toasts": {
     "scanZero": "Minden illesztőprogram naprakész",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "„{name}” illesztőprogram frissítve",
     "restorePointCreated": "Visszaállítási pont létrehozva",
-    "error": "A művelet nem sikerült"
+    "error": "A művelet nem sikerült",
+    "rebootRequired": "Az illesztőprogram frissítésének befejezéséhez újraindítás szükséges"
   },
   "components": {
     "cancelTooLate": "A telepítő már elindult. A jelenlegi telepítés befejeződik.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Alkatrészek",
+    "subtitle": "Programozási nyelvek, futási környezetek és hasznos eszközök",
+    "runtimes": "Futási idők",
+    "languages": "Programozási nyelvek",
+    "tools": "Eszközök",
+    "install": "Telepítés",
+    "installing": "Telepítés…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Verzió",
+    "loading": "Betöltés…",
+    "managed": "Sofőr által kezelt",
+    "openglNote": "A GPU illesztőprogramja biztosítja"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

@@ -19,7 +19,10 @@
     "titleOk1": "Vaše računalo",
     "titleOk2": "je spremno!",
     "titleUpd1": "Dostupna su ažuriranja",
-    "titleUpd2": "za {n} upravljačkih programa",
+    "titleUpd2": {
+      "one": "za {n} upravljačkih programa",
+      "other": "za {n} upravljačkih programa"
+    },
     "subOk": "Svi upravljački programi su ažurni. Zadnja provjera: {when}",
     "subUpdates": "Pronađena ažuriranja: {n}. Zadnja provjera: {when}",
     "subNever": "Provjera još nije provedena",
@@ -40,7 +43,10 @@
     "showAll": "Prikaži sve",
     "updateBtn": "Ažuriraj",
     "updatingBtn": "Ažuriranje…",
-    "emptyRec": "Svi upravljački programi su ažurni"
+    "emptyRec": "Svi upravljački programi su ažurni",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Upravljački programi",
@@ -76,7 +82,8 @@
       "chipset": "Sustavni uređaji",
       "network": "Mrežni adapteri",
       "input": "Ulazni uređaji"
-    }
+    },
+    "updateAll": "Ažurirajte sve"
   },
   "updates": {
     "title": "Ažuriranja",
@@ -98,7 +105,8 @@
       "few": "Instalirana su {n} ažuriranja",
       "many": "Instalirano je {n} ažuriranja",
       "other": "Instalirano je {n} ažuriranja"
-    }
+    },
+    "partialToast": "Nije moguće instalirati ažuriranja {n}"
   },
   "backups": {
     "title": "Sigurnosne kopije",
@@ -132,7 +140,25 @@
       "weekly": "Tjedno",
       "monthly": "Mjesečno"
     },
-    "newName": "Ručna točka vraćanja"
+    "newName": "Ručna točka vraćanja",
+    "driverBackups": "Sigurnosne kopije upravljačkih programa",
+    "driverBackupsSub": "Izvezeni paketi upravljačkih programa treće strane",
+    "createBackup": "Napravi sigurnosnu kopiju",
+    "creatingBackup": "Sigurnosno kopiranje...",
+    "backupEmpty": "Nema sigurnosnih kopija upravljačkih programa",
+    "backupEmptySub": "Sigurnosna kopija se automatski stvara prije svakog ažuriranja upravljačkog programa kada je to omogućeno u postavkama.",
+    "backupPackages": "Paketi: {n}",
+    "restoreBackup": "Vratiti",
+    "deleteBackup": "Izbriši sigurnosnu kopiju",
+    "backupCreated": "Stvorena sigurnosna kopija upravljačkog programa",
+    "backupRestored": "Paketi upravljačkih programa vraćeni",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Postavke",
@@ -165,7 +191,9 @@
     "reset": "Vrati zadane postavke",
     "save": "Spremi promjene",
     "savedToast": "Postavke su spremljene",
-    "resetToast": "Postavke su vraćene na zadane vrijednosti"
+    "resetToast": "Postavke su vraćene na zadane vrijednosti",
+    "copyPath": "Copy path",
+    "copiedToast": "Put je kopiran"
   },
   "about": {
     "title": "O aplikaciji",
@@ -198,7 +226,10 @@
     "yesterday": "Jučer",
     "mb": "MB",
     "never": "Nema podataka",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Odbaciti",
+    "scanError": "Nije moguće skenirati upravljačke programe",
+    "scanErrorHint": "Provjerite Windows Update i PowerShell pristup, a zatim pokušajte ponovno."
   },
   "toasts": {
     "scanZero": "Svi upravljački programi su ažurni",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Upravljački program „{name}” je ažuriran",
     "restorePointCreated": "Točka vraćanja je stvorena",
-    "error": "Radnja nije uspjela"
+    "error": "Radnja nije uspjela",
+    "rebootRequired": "Za završetak ažuriranja upravljačkog programa potrebno je ponovno pokretanje"
   },
   "components": {
     "cancelTooLate": "Instalacijski program je već pokrenut. Trenutna instalacija će se dovršiti.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponente",
+    "subtitle": "Programski jezici, runtimes i korisni alati",
+    "runtimes": "Runtimes",
+    "languages": "Programski jezici",
+    "tools": "Alati",
+    "install": "Instalirajte",
+    "installing": "Instaliranje...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Verzija",
+    "loading": "učitavanje...",
+    "managed": "Upravlja vozač",
+    "openglNote": "Omogućuje vaš GPU upravljački program"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

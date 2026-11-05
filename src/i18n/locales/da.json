@@ -19,7 +19,10 @@
     "titleOk1": "Din computer",
     "titleOk2": "er klar til brug!",
     "titleUpd1": "Der er opdateringer",
-    "titleUpd2": "til {n} drivere",
+    "titleUpd2": {
+      "one": "til {n} drivere",
+      "other": "til {n} drivere"
+    },
     "subOk": "Alle drivere er opdaterede. Seneste kontrol: {when}",
     "subUpdates": "Fundne opdateringer: {n}. Seneste kontrol: {when}",
     "subNever": "Der er endnu ikke udført nogen scanning",
@@ -38,7 +41,10 @@
     "showAll": "Vis alle",
     "updateBtn": "Opdater",
     "updatingBtn": "Opdaterer…",
-    "emptyRec": "Alle drivere er opdaterede"
+    "emptyRec": "Alle drivere er opdaterede",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drivere",
@@ -74,7 +80,8 @@
       "chipset": "Systemenheder",
       "network": "Netværkskort",
       "input": "Indtastningsenheder"
-    }
+    },
+    "updateAll": "Opdater alle"
   },
   "updates": {
     "title": "Opdateringer",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} opdatering installeret",
       "other": "{n} opdateringer installeret"
-    }
+    },
+    "partialToast": "Kunne ikke installere {n}-opdateringer"
   },
   "backups": {
     "title": "Sikkerhedskopier",
@@ -128,7 +136,25 @@
       "weekly": "Ugentligt",
       "monthly": "Månedligt"
     },
-    "newName": "Manuelt gendannelsespunkt"
+    "newName": "Manuelt gendannelsespunkt",
+    "driverBackups": "Driver sikkerhedskopier",
+    "driverBackupsSub": "Eksporterede tredjeparts driverpakker",
+    "createBackup": "Opret backup",
+    "creatingBackup": "Sikkerhedskopierer...",
+    "backupEmpty": "Ingen driver backup",
+    "backupEmptySub": "En sikkerhedskopi oprettes automatisk før hver driveropdatering, når den er aktiveret i Indstillinger.",
+    "backupPackages": "Pakker: {n}",
+    "restoreBackup": "Gendan",
+    "deleteBackup": "Slet backup",
+    "backupCreated": "Driver backup oprettet",
+    "backupRestored": "Driverpakker gendannet",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Indstillinger",
@@ -161,7 +187,9 @@
     "reset": "Nulstil indstillinger",
     "save": "Gem ændringer",
     "savedToast": "Indstillinger gemt",
-    "resetToast": "Indstillinger nulstillet til standard"
+    "resetToast": "Indstillinger nulstillet til standard",
+    "copyPath": "Copy path",
+    "copiedToast": "Stien er kopieret"
   },
   "about": {
     "title": "Om",
@@ -194,7 +222,10 @@
     "yesterday": "I går",
     "mb": "MB",
     "never": "Ingen data",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Afvis",
+    "scanError": "Kunne ikke scanne drivere",
+    "scanErrorHint": "Tjek Windows Update og PowerShell-adgang, og prøv derefter igen."
   },
   "toasts": {
     "scanZero": "Alle drivere er opdaterede",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Driveren “{name}” er opdateret",
     "restorePointCreated": "Gendannelsespunkt oprettet",
-    "error": "Handlingen mislykkedes"
+    "error": "Handlingen mislykkedes",
+    "rebootRequired": "En genstart er påkrævet for at afslutte driveropdateringen"
   },
   "components": {
     "cancelTooLate": "Installationsprogrammet er allerede startet. Den aktuelle installation fuldføres.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenter",
+    "subtitle": "Programmeringssprog, køretider og nyttige værktøjer",
+    "runtimes": "Kørselstider",
+    "languages": "Programmeringssprog",
+    "tools": "Værktøjer",
+    "install": "Installer",
+    "installing": "Installerer...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "version",
+    "loading": "Indlæser...",
+    "managed": "Driverstyret",
+    "openglNote": "Leveres af din GPU-driver"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

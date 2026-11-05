@@ -19,7 +19,10 @@
     "titleOk1": "Kompýuteriňiz",
     "titleOk2": "işlemäge taýýar!",
     "titleUpd1": "Täzelenmeler bar",
-    "titleUpd2": "{n} sürüji üçin",
+    "titleUpd2": {
+      "one": "{n} sürüji üçin",
+      "other": "{n} sürüji üçin"
+    },
     "subOk": "Ähli sürüjiler iň soňky wersiýada. Soňky barlag: {when}",
     "subUpdates": "Tapylan täzelenmeler: {n}. Soňky barlag: {when}",
     "subNever": "Barlag entek geçirilmedi",
@@ -38,7 +41,10 @@
     "showAll": "Ählisini görkez",
     "updateBtn": "Täzele",
     "updatingBtn": "Täzelenýär…",
-    "emptyRec": "Ähli sürüjiler iň soňky wersiýada"
+    "emptyRec": "Ähli sürüjiler iň soňky wersiýada",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Sürüjiler",
@@ -74,7 +80,8 @@
       "chipset": "Ulgam enjamlary",
       "network": "Tor adapterleri",
       "input": "Giriş enjamlary"
-    }
+    },
+    "updateAll": "Hemmesini täzeläň"
   },
   "updates": {
     "title": "Täzelenmeler",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} täzelenme guruldy",
       "other": "{n} täzelenme guruldy"
-    }
+    },
+    "partialToast": "{n} täzelenmeleri gurup bolmady"
   },
   "backups": {
     "title": "Ätiýaçlyk nusgalar",
@@ -128,7 +136,25 @@
       "weekly": "Her hepde",
       "monthly": "Her aý"
     },
-    "newName": "El bilen döredilen dikeltme nokady"
+    "newName": "El bilen döredilen dikeltme nokady",
+    "driverBackups": "Sürüjiniň ätiýaçlyk nusgalary",
+    "driverBackupsSub": "Üçünji tarap sürüjiler paketleri eksport edildi",
+    "createBackup": "Uptiýaçlyk dörediň",
+    "creatingBackup": "Uptiýaçlyk…",
+    "backupEmpty": "Sürüjiniň ätiýaçlyk nusgasy ýok",
+    "backupEmptySub": "Sazlamalarda işledilende her sürüjiniň täzelenmeginden öň ätiýaçlyk awtomatiki usulda döredilýär.",
+    "backupPackages": "Paketler: {n}",
+    "restoreBackup": "Dikelt",
+    "deleteBackup": "Uptiýaçlyk nusgasyny poz",
+    "backupCreated": "Sürüjiniň ätiýaçlyk nusgasy döredildi",
+    "backupRestored": "Sürüji paketleri dikeldildi",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Sazlamalar",
@@ -161,7 +187,9 @@
     "reset": "Sazlamalary başlangyç ýagdaýa getir",
     "save": "Üýtgeşmeleri sakla",
     "savedToast": "Sazlamalar saklandy",
-    "resetToast": "Sazlamalar başlangyç ýagdaýa getirildi"
+    "resetToast": "Sazlamalar başlangyç ýagdaýa getirildi",
+    "copyPath": "Copy path",
+    "copiedToast": "Göçürildi"
   },
   "about": {
     "title": "Barada",
@@ -194,7 +222,10 @@
     "yesterday": "Düýn",
     "mb": "MB",
     "never": "Maglumat ýok",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Işden aýyrmak",
+    "scanError": "Sürüjileri skanirläp bolmady",
+    "scanErrorHint": "Windows täzelenmesini we PowerShell girişini barlaň, gaýtadan synanyşyň."
   },
   "toasts": {
     "scanZero": "Ähli sürüjiler iň soňky wersiýada",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "“{name}” sürüjisi täzelendi",
     "restorePointCreated": "Dikeltme nokady döredildi",
-    "error": "Amal başa barmady"
+    "error": "Amal başa barmady",
+    "rebootRequired": "Sürüjiniň täzelenmesini gutarmak üçin täzeden başlamaly"
   },
   "components": {
     "cancelTooLate": "Gurnama programu eýýäm başlady. Häzirki gurnama tamamlanar.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponentler",
+    "subtitle": "Programmirleme dilleri, iş wagty we peýdaly gurallar",
+    "runtimes": "Iş wagty",
+    "languages": "Programma dilleri",
+    "tools": "Gurallar",
+    "install": "Gurnama",
+    "installing": "Gurnamak…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Wersiýa",
+    "loading": "Adingüklenýär…",
+    "managed": "Sürüji tarapyndan dolandyrylýar",
+    "openglNote": "GPU sürüjiňiz tarapyndan üpjün edilýär"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

@@ -19,7 +19,10 @@
     "titleOk1": "Sinu arvuti",
     "titleOk2": "on korras!",
     "titleUpd1": "Värskendusi saadaval",
-    "titleUpd2": "{n} draiveri jaoks",
+    "titleUpd2": {
+      "one": "{n} draiveri jaoks",
+      "other": "{n} draiveri jaoks"
+    },
     "subOk": "Kõik draiverid on ajakohased. Viimane kontroll: {when}",
     "subUpdates": "Leitud värskendusi: {n}. Viimane kontroll: {when}",
     "subNever": "Skaneerimist pole veel tehtud",
@@ -38,7 +41,10 @@
     "showAll": "Näita kõiki",
     "updateBtn": "Värskenda",
     "updatingBtn": "Värskendamine…",
-    "emptyRec": "Kõik draiverid on ajakohased"
+    "emptyRec": "Kõik draiverid on ajakohased",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Draiverid",
@@ -74,7 +80,8 @@
       "chipset": "Süsteemiseadmed",
       "network": "Võrguadapterid",
       "input": "Sisendseadmed"
-    }
+    },
+    "updateAll": "Värskenda kõik"
   },
   "updates": {
     "title": "Värskendused",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} värskendus paigaldatud",
       "other": "{n} värskendust paigaldatud"
-    }
+    },
+    "partialToast": "{n} värskendusi ei saanud installida"
   },
   "backups": {
     "title": "Varukoopiad",
@@ -128,7 +136,25 @@
       "weekly": "Iga nädal",
       "monthly": "Iga kuu"
     },
-    "newName": "Käsitsi loodud taastamispunkt"
+    "newName": "Käsitsi loodud taastamispunkt",
+    "driverBackups": "Draiveri varukoopiad",
+    "driverBackupsSub": "Eksporditud kolmanda osapoole draiveripaketid",
+    "createBackup": "Loo varukoopia",
+    "creatingBackup": "Varundamine…",
+    "backupEmpty": "Draiveri varukoopiaid pole",
+    "backupEmptySub": "Varukoopia luuakse automaatselt enne iga draiveri värskendust, kui see on seadetes lubatud.",
+    "backupPackages": "Paketid: {n}",
+    "restoreBackup": "Taasta",
+    "deleteBackup": "Kustuta varukoopia",
+    "backupCreated": "Draiveri varukoopia loodud",
+    "backupRestored": "Draiveri paketid taastatud",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Seaded",
@@ -161,7 +187,9 @@
     "reset": "Lähtesta seaded",
     "save": "Salvesta muudatused",
     "savedToast": "Seaded salvestatud",
-    "resetToast": "Seaded lähtestatud vaikeväärtustele"
+    "resetToast": "Seaded lähtestatud vaikeväärtustele",
+    "copyPath": "Copy path",
+    "copiedToast": "Tee on kopeeritud"
   },
   "about": {
     "title": "Teave",
@@ -194,7 +222,10 @@
     "yesterday": "Eile",
     "mb": "MB",
     "never": "Andmed puuduvad",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Loobu",
+    "scanError": "Draivereid ei saanud skannida",
+    "scanErrorHint": "Kontrollige Windows Update'i ja PowerShelli juurdepääsu ning proovige uuesti."
   },
   "toasts": {
     "scanZero": "Kõik draiverid on ajakohased",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Draiver „{name}“ värskendatud",
     "restorePointCreated": "Taastamispunkt loodud",
-    "error": "Toiming ebaõnnestus"
+    "error": "Toiming ebaõnnestus",
+    "rebootRequired": "Draiveri värskendamise lõpetamiseks on vaja taaskäivitamist"
   },
   "components": {
     "cancelTooLate": "Paigaldaja on juba käivitatud. Praegune paigaldus viiakse lõpule.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponendid",
+    "subtitle": "Programmeerimiskeeled, käitusajad ja kasulikud tööriistad",
+    "runtimes": "Kestus",
+    "languages": "Programmeerimiskeeled",
+    "tools": "Tööriistad",
+    "install": "Installige",
+    "installing": "Installimine…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versioon",
+    "loading": "Laadimine…",
+    "managed": "Juhi juhitav",
+    "openglNote": "Pakub teie GPU draiverilt"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

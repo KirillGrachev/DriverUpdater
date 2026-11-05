@@ -19,7 +19,10 @@
     "titleOk1": "Вашият компютър",
     "titleOk2": "е готов за работа!",
     "titleUpd1": "Налични актуализации",
-    "titleUpd2": "за {n} драйвера",
+    "titleUpd2": {
+      "one": "за {n} драйвера",
+      "other": "за {n} драйвера"
+    },
     "subOk": "Всички драйвери са актуални. Последна проверка: {when}",
     "subUpdates": "Намерени актуализации: {n}. Последна проверка: {when}",
     "subNever": "Все още не е извършено сканиране",
@@ -38,7 +41,10 @@
     "showAll": "Покажи всички",
     "updateBtn": "Актуализирай",
     "updatingBtn": "Актуализиране…",
-    "emptyRec": "Всички драйвери са актуални"
+    "emptyRec": "Всички драйвери са актуални",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Драйвери",
@@ -74,7 +80,8 @@
       "chipset": "Системни устройства",
       "network": "Мрежови адаптери",
       "input": "Устройства за вход"
-    }
+    },
+    "updateAll": "Актуализирайте всички"
   },
   "updates": {
     "title": "Актуализации",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "Инсталирана е {n} актуализация",
       "other": "Инсталирани са {n} актуализации"
-    }
+    },
+    "partialToast": "Не можах да инсталирам {n} актуализации"
   },
   "backups": {
     "title": "Резервни копия",
@@ -128,7 +136,25 @@
       "weekly": "Седмично",
       "monthly": "Месечно"
     },
-    "newName": "Ръчна точка за възстановяване"
+    "newName": "Ръчна точка за възстановяване",
+    "driverBackups": "Архивиране на драйвери",
+    "driverBackupsSub": "Експортирани пакети драйвери на трети страни",
+    "createBackup": "Създайте резервно копие",
+    "creatingBackup": "Създава се резервно копие...",
+    "backupEmpty": "Няма архивиране на драйвери",
+    "backupEmptySub": "Резервно копие се създава автоматично преди всяка актуализация на драйвера, когато е активирано в Настройки.",
+    "backupPackages": "Пакети: {n}",
+    "restoreBackup": "Възстановяване",
+    "deleteBackup": "Изтриване на резервно копие",
+    "backupCreated": "Създаден е архив на драйвера",
+    "backupRestored": "Пакетите с драйвери са възстановени",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Настройки",
@@ -161,7 +187,9 @@
     "reset": "Нулирай настройките",
     "save": "Запази промените",
     "savedToast": "Настройките са запазени",
-    "resetToast": "Настройките са възстановени по подразбиране"
+    "resetToast": "Настройките са възстановени по подразбиране",
+    "copyPath": "Copy path",
+    "copiedToast": "Пътят е копиран"
   },
   "about": {
     "title": "Относно",
@@ -194,7 +222,10 @@
     "yesterday": "Вчера",
     "mb": "МБ",
     "never": "Няма данни",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Отхвърляне",
+    "scanError": "Не може да сканира драйвери",
+    "scanErrorHint": "Проверете достъпа до Windows Update и PowerShell, след което опитайте отново."
   },
   "toasts": {
     "scanZero": "Всички драйвери са актуални",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Драйверът „{name}“ е актуализиран",
     "restorePointCreated": "Точката за възстановяване е създадена",
-    "error": "Операцията не бе успешна"
+    "error": "Операцията не бе успешна",
+    "rebootRequired": "Необходимо е рестартиране, за да завърши актуализацията на драйвера"
   },
   "components": {
     "cancelTooLate": "Инсталаторът вече е стартиран. Текущата инсталация ще завърши.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Компоненти",
+    "subtitle": "Езици за програмиране, времена за изпълнение и полезни инструменти",
+    "runtimes": "Време за изпълнение",
+    "languages": "Езици за програмиране",
+    "tools": "Инструменти",
+    "install": "Инсталирайте",
+    "installing": "Инсталиране...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Версия",
+    "loading": "Зарежда се...",
+    "managed": "Управляван от водача",
+    "openglNote": "Осигурява се от вашия драйвер за GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

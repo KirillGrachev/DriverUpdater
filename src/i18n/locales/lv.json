@@ -19,7 +19,10 @@
     "titleOk1": "Jūsu dators",
     "titleOk2": "ir gatavs darbam!",
     "titleUpd1": "Pieejami atjauninājumi",
-    "titleUpd2": "{n} draiveriem",
+    "titleUpd2": {
+      "one": "{n} draiveriem",
+      "other": "{n} draiveriem"
+    },
     "subOk": "Visi draiveri ir atjaunināti. Pēdējā pārbaude: {when}",
     "subUpdates": "Atrasti atjauninājumi: {n}. Pēdējā pārbaude: {when}",
     "subNever": "Skenēšana vēl nav veikta",
@@ -40,7 +43,10 @@
     "showAll": "Rādīt visus",
     "updateBtn": "Atjaunināt",
     "updatingBtn": "Atjaunina…",
-    "emptyRec": "Visi draiveri ir atjaunināti"
+    "emptyRec": "Visi draiveri ir atjaunināti",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Draiveri",
@@ -76,7 +82,8 @@
       "chipset": "Sistēmas ierīces",
       "network": "Tīkla adapteri",
       "input": "Ievades ierīces"
-    }
+    },
+    "updateAll": "Atjaunināt visu"
   },
   "updates": {
     "title": "Atjauninājumi",
@@ -98,7 +105,8 @@
       "few": "Instalēti {n} atjauninājumi",
       "many": "Instalēts {n} atjauninājumu",
       "other": "Instalēti {n} atjauninājumi"
-    }
+    },
+    "partialToast": "Nevarēja instalēt {n} atjauninājumus"
   },
   "backups": {
     "title": "Dublējumi",
@@ -132,7 +140,25 @@
       "weekly": "Katru nedēļu",
       "monthly": "Katru mēnesi"
     },
-    "newName": "Manuālais atjaunošanas punkts"
+    "newName": "Manuālais atjaunošanas punkts",
+    "driverBackups": "Draiveru dublējumkopijas",
+    "driverBackupsSub": "Eksportētas trešās puses draiveru pakotnes",
+    "createBackup": "Izveidojiet dublējumu",
+    "creatingBackup": "Notiek dublēšana…",
+    "backupEmpty": "Nav draiveru dublējumkopiju",
+    "backupEmptySub": "Dublējums tiek izveidots automātiski pirms katra draivera atjaunināšanas, ja tas ir iespējots sadaļā Iestatījumi.",
+    "backupPackages": "Pakas: {n}",
+    "restoreBackup": "Atjaunot",
+    "deleteBackup": "Dzēst dublējumu",
+    "backupCreated": "Draivera dublējums ir izveidots",
+    "backupRestored": "Draiveru pakotnes atjaunotas",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Iestatījumi",
@@ -165,7 +191,9 @@
     "reset": "Atiestatīt iestatījumus",
     "save": "Saglabāt izmaiņas",
     "savedToast": "Iestatījumi saglabāti",
-    "resetToast": "Iestatījumi atiestatīti uz noklusējuma vērtībām"
+    "resetToast": "Iestatījumi atiestatīti uz noklusējuma vērtībām",
+    "copyPath": "Copy path",
+    "copiedToast": "Ceļš nokopēts"
   },
   "about": {
     "title": "Par",
@@ -198,7 +226,10 @@
     "yesterday": "Vakar",
     "mb": "MB",
     "never": "Nav datu",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Atlaist",
+    "scanError": "Nevarēja skenēt draiverus",
+    "scanErrorHint": "Pārbaudiet Windows Update un PowerShell piekļuvi, pēc tam mēģiniet vēlreiz."
   },
   "toasts": {
     "scanZero": "Visi draiveri ir atjaunināti",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Draivers “{name}” atjaunināts",
     "restorePointCreated": "Atjaunošanas punkts izveidots",
-    "error": "Darbība neizdevās"
+    "error": "Darbība neizdevās",
+    "rebootRequired": "Lai pabeigtu draivera atjaunināšanu, ir nepieciešama restartēšana"
   },
   "components": {
     "cancelTooLate": "Instalētājs jau ir palaists. Pašreizējā instalācija tiks pabeigta.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Sastāvdaļas",
+    "subtitle": "Programmēšanas valodas, izpildlaiki un noderīgi rīki",
+    "runtimes": "Izpildlaiki",
+    "languages": "Programmēšanas valodas",
+    "tools": "Rīki",
+    "install": "Instalējiet",
+    "installing": "Notiek instalēšana…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versija",
+    "loading": "Notiek ielāde…",
+    "managed": "Vadītāja vadīts",
+    "openglNote": "Nodrošina jūsu GPU draiveris"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

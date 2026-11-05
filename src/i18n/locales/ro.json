@@ -19,7 +19,10 @@
     "titleOk1": "Computerul tău",
     "titleOk2": "este gata de utilizare!",
     "titleUpd1": "Actualizări disponibile",
-    "titleUpd2": "pentru {n} drivere",
+    "titleUpd2": {
+      "one": "pentru {n} drivere",
+      "other": "pentru {n} drivere"
+    },
     "subOk": "Toate driverele sunt actualizate. Ultima verificare: {when}",
     "subUpdates": "Actualizări găsite: {n}. Ultima verificare: {when}",
     "subNever": "Nu a fost efectuată încă nicio scanare",
@@ -40,7 +43,10 @@
     "showAll": "Arată tot",
     "updateBtn": "Actualizează",
     "updatingBtn": "Se actualizează…",
-    "emptyRec": "Toate driverele sunt actualizate"
+    "emptyRec": "Toate driverele sunt actualizate",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drivere",
@@ -76,7 +82,8 @@
       "chipset": "Dispozitive de sistem",
       "network": "Adaptoare de rețea",
       "input": "Dispozitive de intrare"
-    }
+    },
+    "updateAll": "Actualizați toate"
   },
   "updates": {
     "title": "Actualizări",
@@ -98,7 +105,8 @@
       "few": "{n} actualizări instalate",
       "many": "{n} de actualizări instalate",
       "other": "{n} de actualizări instalate"
-    }
+    },
+    "partialToast": "Nu s-au putut instala actualizările {n}"
   },
   "backups": {
     "title": "Copii de siguranță",
@@ -132,7 +140,25 @@
       "weekly": "Săptămânal",
       "monthly": "Lunar"
     },
-    "newName": "Punct de restaurare manual"
+    "newName": "Punct de restaurare manual",
+    "driverBackups": "Backup-uri pentru drivere",
+    "driverBackupsSub": "Pachete de drivere terță parte exportate",
+    "createBackup": "Creați o copie de rezervă",
+    "creatingBackup": "Se face backup...",
+    "backupEmpty": "Fără backup pentru driver",
+    "backupEmptySub": "O copie de rezervă este creată automat înainte de fiecare actualizare a driverului atunci când este activată în Setări.",
+    "backupPackages": "Pachete: {n}",
+    "restoreBackup": "Restaurați",
+    "deleteBackup": "Ștergeți backupul",
+    "backupCreated": "S-a creat backup pentru driver",
+    "backupRestored": "Pachetele de drivere restaurate",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Setări",
@@ -165,7 +191,9 @@
     "reset": "Resetează setările",
     "save": "Salvează modificările",
     "savedToast": "Setările au fost salvate",
-    "resetToast": "Setările au fost resetate la valorile implicite"
+    "resetToast": "Setările au fost resetate la valorile implicite",
+    "copyPath": "Copy path",
+    "copiedToast": "Calea copiată"
   },
   "about": {
     "title": "Despre",
@@ -198,7 +226,10 @@
     "yesterday": "Ieri",
     "mb": "MB",
     "never": "Nu există date",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Respingeți",
+    "scanError": "Driverele nu au putut fi scanate",
+    "scanErrorHint": "Verificați Windows Update și accesul PowerShell, apoi încercați din nou."
   },
   "toasts": {
     "scanZero": "Toate driverele sunt actualizate",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Driverul „{name}” a fost actualizat",
     "restorePointCreated": "Punctul de restaurare a fost creat",
-    "error": "Operațiunea a eșuat"
+    "error": "Operațiunea a eșuat",
+    "rebootRequired": "Este necesară o repornire pentru a finaliza actualizarea driverului"
   },
   "components": {
     "cancelTooLate": "Programul de instalare a pornit deja. Instalarea curentă se va finaliza.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Componente",
+    "subtitle": "Limbaje de programare, runtime și instrumente utile",
+    "runtimes": "Durate de rulare",
+    "languages": "Limbaje de programare",
+    "tools": "Instrumente",
+    "install": "Instalați",
+    "installing": "Se instalează…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versiune",
+    "loading": "Se încarcă…",
+    "managed": "Gestionat de șofer",
+    "openglNote": "Furnizat de driverul dvs. GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

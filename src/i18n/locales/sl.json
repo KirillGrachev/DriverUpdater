@@ -19,7 +19,10 @@
     "titleOk1": "Vaš računalnik",
     "titleOk2": "je pripravljen!",
     "titleUpd1": "Na voljo so posodobitve",
-    "titleUpd2": "za {n} gonilnikov",
+    "titleUpd2": {
+      "one": "za {n} gonilnikov",
+      "other": "za {n} gonilnikov"
+    },
     "subOk": "Vsi gonilniki so posodobljeni. Zadnje preverjanje: {when}",
     "subUpdates": "Najdene posodobitve: {n}. Zadnje preverjanje: {when}",
     "subNever": "Preverjanje še ni bilo izvedeno",
@@ -40,7 +43,10 @@
     "showAll": "Prikaži vse",
     "updateBtn": "Posodobi",
     "updatingBtn": "Posodabljanje…",
-    "emptyRec": "Vsi gonilniki so posodobljeni"
+    "emptyRec": "Vsi gonilniki so posodobljeni",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Gonilniki",
@@ -76,7 +82,8 @@
       "chipset": "Sistemske naprave",
       "network": "Omrežne kartice",
       "input": "Vhodne naprave"
-    }
+    },
+    "updateAll": "Posodobi vse"
   },
   "updates": {
     "title": "Posodobitve",
@@ -98,7 +105,8 @@
       "two": "{n} posodobitvi nameščeni",
       "few": "{n} posodobitve nameščene",
       "other": "{n} posodobitev nameščenih"
-    }
+    },
+    "partialToast": "Ni bilo mogoče namestiti posodobitev {n}"
   },
   "backups": {
     "title": "Varnostne kopije",
@@ -132,7 +140,25 @@
       "weekly": "Tedensko",
       "monthly": "Mesečno"
     },
-    "newName": "Ročna obnovitvena točka"
+    "newName": "Ročna obnovitvena točka",
+    "driverBackups": "Varnostne kopije gonilnikov",
+    "driverBackupsSub": "Izvoženi paketi gonilnikov tretjih oseb",
+    "createBackup": "Ustvari varnostno kopijo",
+    "creatingBackup": "Varnostno kopiranje ...",
+    "backupEmpty": "Ni varnostnih kopij gonilnikov",
+    "backupEmptySub": "Varnostna kopija se ustvari samodejno pred vsako posodobitvijo gonilnika, ko je omogočena v nastavitvah.",
+    "backupPackages": "Paketi: {n}",
+    "restoreBackup": "Obnovi",
+    "deleteBackup": "Izbriši varnostno kopijo",
+    "backupCreated": "Ustvarjena varnostna kopija gonilnika",
+    "backupRestored": "Paketi gonilnikov obnovljeni",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Nastavitve",
@@ -165,7 +191,9 @@
     "reset": "Ponastavi nastavitve",
     "save": "Shrani spremembe",
     "savedToast": "Nastavitve so shranjene",
-    "resetToast": "Nastavitve so ponastavljene na privzete"
+    "resetToast": "Nastavitve so ponastavljene na privzete",
+    "copyPath": "Copy path",
+    "copiedToast": "Pot je kopirana"
   },
   "about": {
     "title": "O aplikaciji",
@@ -198,7 +226,10 @@
     "yesterday": "Včeraj",
     "mb": "MB",
     "never": "Ni podatkov",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Odpusti",
+    "scanError": "Gonilnikov ni bilo mogoče skenirati",
+    "scanErrorHint": "Preverite Windows Update in dostop do PowerShell, nato poskusite znova."
   },
   "toasts": {
     "scanZero": "Vsi gonilniki so posodobljeni",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Gonilnik »{name}« je posodobljen",
     "restorePointCreated": "Obnovitvena točka je ustvarjena",
-    "error": "Opravilo ni uspelo"
+    "error": "Opravilo ni uspelo",
+    "rebootRequired": "Za dokončanje posodobitve gonilnika je potreben ponovni zagon"
   },
   "components": {
     "cancelTooLate": "Namestitveni program se je že zagnal. Trenutna namestitev bo dokončana.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponente",
+    "subtitle": "Programski jeziki, izvajalni časi in uporabna orodja",
+    "runtimes": "Časi izvajanja",
+    "languages": "Programski jeziki",
+    "tools": "Orodja",
+    "install": "Namestite",
+    "installing": "Namestitev ...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Različica",
+    "loading": "Nalaganje ...",
+    "managed": "Upravlja ga voznik",
+    "openglNote": "Zagotavlja vaš gonilnik GPE"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

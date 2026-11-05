@@ -19,7 +19,10 @@
     "titleOk1": "Tá do ríomhaire",
     "titleOk2": "réidh le húsáid!",
     "titleUpd1": "Nuashonruithe ar fáil",
-    "titleUpd2": "do {n} tiománaí",
+    "titleUpd2": {
+      "one": "do {n} tiománaí",
+      "other": "do {n} tiománaí"
+    },
     "subOk": "Tá gach tiománaí cothrom le dáta. Seiceáil dheireanach: {when}",
     "subUpdates": "Nuashonruithe a fuarthas: {n}. Seiceáil dheireanach: {when}",
     "subNever": "Níor rinneadh aon scanadh fós",
@@ -41,7 +44,10 @@
     "showAll": "Taispeáin gach rud",
     "updateBtn": "Nuashonraigh",
     "updatingBtn": "Ag nuashonrú…",
-    "emptyRec": "Tá gach tiománaí cothrom le dáta"
+    "emptyRec": "Tá gach tiománaí cothrom le dáta",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Tiománaithe",
@@ -77,7 +83,8 @@
       "chipset": "Feistí córais",
       "network": "Oiriúnaitheoirí líonra",
       "input": "Feistí ionchuir"
-    }
+    },
+    "updateAll": "Nuashonraigh go léir"
   },
   "updates": {
     "title": "Nuashonruithe",
@@ -100,7 +107,8 @@
       "few": "Suiteáladh {n} nuashonrú",
       "many": "Suiteáladh {n} nuashonrú",
       "other": "Suiteáladh {n} nuashonruithe"
-    }
+    },
+    "partialToast": "Níorbh fhéidir nuashonruithe {n} a shuiteáil"
   },
   "backups": {
     "title": "Cúltacaí",
@@ -134,7 +142,25 @@
       "weekly": "Seachtainiúil",
       "monthly": "Míosúil"
     },
-    "newName": "Pointe athchóirithe láimhe"
+    "newName": "Pointe athchóirithe láimhe",
+    "driverBackups": "Tiománaithe cúltaca",
+    "driverBackupsSub": "Easpórtáladh pacáistí tiománaí tríú páirtí",
+    "createBackup": "Cruthaigh cúltaca",
+    "creatingBackup": "Ag tacú…",
+    "backupEmpty": "Gan cúltaca tiománaí",
+    "backupEmptySub": "Cruthaítear cúltaca go huathoibríoch roimh gach nuashonrú tiománaí nuair atá sé cumasaithe sna Socruithe.",
+    "backupPackages": "Pacáistí: {n}",
+    "restoreBackup": "Athchóirigh",
+    "deleteBackup": "Scrios cúltaca",
+    "backupCreated": "Cruthaíodh cúltaca tiománaí",
+    "backupRestored": "Athchóirigh pacáistí tiománaí",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Socruithe",
@@ -167,7 +193,9 @@
     "reset": "Athshocraigh socruithe",
     "save": "Sábháil athruithe",
     "savedToast": "Socruithe sábháilte",
-    "resetToast": "Athshocraíodh na socruithe chuig na réamhshocruithe"
+    "resetToast": "Athshocraíodh na socruithe chuig na réamhshocruithe",
+    "copyPath": "Copy path",
+    "copiedToast": "Conair cóipeáilte"
   },
   "about": {
     "title": "Maidir le",
@@ -200,7 +228,10 @@
     "yesterday": "Inné",
     "mb": "MB",
     "never": "Gan sonraí",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Díbhe",
+    "scanError": "Níorbh fhéidir na tiománaithe a scanadh",
+    "scanErrorHint": "Seiceáil Windows Update agus rochtain PowerShell, ansin bain triail eile as."
   },
   "toasts": {
     "scanZero": "Tá gach tiománaí cothrom le dáta",
@@ -213,10 +244,35 @@
     },
     "driverUpdated": "Nuashonraíodh an tiománaí “{name}”",
     "restorePointCreated": "Cruthaíodh pointe athchóirithe",
-    "error": "Theip ar an oibríocht"
+    "error": "Theip ar an oibríocht",
+    "rebootRequired": "Tá gá le atosú chun an nuashonrú tiománaí a chríochnú"
   },
   "components": {
     "cancelTooLate": "Tá an suiteálaí tosaithe cheana. Críochnófar an tsuiteáil reatha.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Comhpháirteanna",
+    "subtitle": "Teangacha ríomhchlárúcháin, amanna rite agus uirlisí úsáideacha",
+    "runtimes": "Amanna rite",
+    "languages": "Teangacha ríomhchlárúcháin",
+    "tools": "Uirlisí",
+    "install": "Suiteáil",
+    "installing": "Suiteáil…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Leagan",
+    "loading": "Á lódáil…",
+    "managed": "Tiománaí faoi stiúir",
+    "openglNote": "Ar fáil ag do tiománaí GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

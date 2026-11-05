@@ -19,7 +19,10 @@
     "titleOk1": "Компьютеріңіз",
     "titleOk2": "пайдалануға дайын!",
     "titleUpd1": "Жаңартулар қолжетімді",
-    "titleUpd2": "{n} драйвер үшін",
+    "titleUpd2": {
+      "one": "{n} драйвер үшін",
+      "other": "{n} драйвер үшін"
+    },
     "subOk": "Барлық драйверлер өзекті. Соңғы тексеру: {when}",
     "subUpdates": "Табылған жаңартулар: {n}. Соңғы тексеру: {when}",
     "subNever": "Сканерлеу әлі орындалмаған",
@@ -40,7 +43,10 @@
     "showAll": "Барлығын көрсету",
     "updateBtn": "Жаңарту",
     "updatingBtn": "Жаңартылуда…",
-    "emptyRec": "Барлық драйверлер өзекті"
+    "emptyRec": "Барлық драйверлер өзекті",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Драйверлер",
@@ -76,7 +82,8 @@
       "chipset": "Жүйелік құрылғылар",
       "network": "Желілік адаптерлер",
       "input": "Енгізу құрылғылары"
-    }
+    },
+    "updateAll": "Барлығын жаңартыңыз"
   },
   "updates": {
     "title": "Жаңартулар",
@@ -98,7 +105,8 @@
       "few": "{n} жаңарту орнатылды",
       "many": "{n} жаңарту орнатылды",
       "other": "{n} жаңарту орнатылды"
-    }
+    },
+    "partialToast": "{n} жаңартуларын орнату мүмкін болмады"
   },
   "backups": {
     "title": "Сақтық көшірмелер",
@@ -132,7 +140,25 @@
       "weekly": "Апта сайын",
       "monthly": "Ай сайын"
     },
-    "newName": "Қолмен жасалған қалпына келтіру нүктесі"
+    "newName": "Қолмен жасалған қалпына келтіру нүктесі",
+    "driverBackups": "Драйвердің сақтық көшірмелері",
+    "driverBackupsSub": "Экспортталған үшінші тарап драйверлерінің бумалары",
+    "createBackup": "Сақтық көшірме жасау",
+    "creatingBackup": "Сақтық көшірме жасалуда…",
+    "backupEmpty": "Драйвердің сақтық көшірмесі жоқ",
+    "backupEmptySub": "Сақтық көшірме «Параметрлер» тармағында қосылған кезде әрбір драйверді жаңарту алдында автоматты түрде жасалады.",
+    "backupPackages": "Пакеттер: {n}",
+    "restoreBackup": "Қалпына келтіру",
+    "deleteBackup": "Сақтық көшірмені жою",
+    "backupCreated": "Драйвердің сақтық көшірмесі жасалды",
+    "backupRestored": "Драйвер бумалары қалпына келтірілді",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Параметрлер",
@@ -165,7 +191,9 @@
     "reset": "Параметрлерді қалпына келтіру",
     "save": "Өзгерістерді сақтау",
     "savedToast": "Параметрлер сақталды",
-    "resetToast": "Параметрлер әдепкі мәндерге қайтарылды"
+    "resetToast": "Параметрлер әдепкі мәндерге қайтарылды",
+    "copyPath": "Copy path",
+    "copiedToast": "Жол көшірілді"
   },
   "about": {
     "title": "Бағдарлама туралы",
@@ -198,7 +226,10 @@
     "yesterday": "Кеше",
     "mb": "МБ",
     "never": "Деректер жоқ",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Бас тарту",
+    "scanError": "Драйверлерді сканерлеу мүмкін болмады",
+    "scanErrorHint": "Windows Update және PowerShell қатынасын тексеріп, әрекетті қайталаңыз."
   },
   "toasts": {
     "scanZero": "Барлық драйверлер өзекті",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "«{name}» драйвері жаңартылды",
     "restorePointCreated": "Қалпына келтіру нүктесі жасалды",
-    "error": "Операция орындалмады"
+    "error": "Операция орындалмады",
+    "rebootRequired": "Драйверді жаңартуды аяқтау үшін қайта іске қосу қажет"
   },
   "components": {
     "cancelTooLate": "Орнатушы қазірдің өзінде іске қосылған. Ағымдағы орнату аяқталады.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Құрамдас бөліктер",
+    "subtitle": "Бағдарламалау тілдері, орындалу уақыты және пайдалы құралдар",
+    "runtimes": "Орындалу уақыттары",
+    "languages": "Бағдарламалау тілдері",
+    "tools": "Құралдар",
+    "install": "Орнату",
+    "installing": "Орнатылуда…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Нұсқа",
+    "loading": "Жүктелуде…",
+    "managed": "Жүргізуші басқаратын",
+    "openglNote": "GPU драйвері қамтамасыз етеді"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

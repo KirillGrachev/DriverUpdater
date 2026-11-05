@@ -19,7 +19,10 @@
     "titleOk1": "Kompüteriniz",
     "titleOk2": "istifadəyə hazırdır!",
     "titleUpd1": "Yeniləmələr mövcuddur",
-    "titleUpd2": "{n} drayver üçün",
+    "titleUpd2": {
+      "one": "{n} drayver üçün",
+      "other": "{n} drayver üçün"
+    },
     "subOk": "Bütün drayverlər aktualdır. Son yoxlama: {when}",
     "subUpdates": "Tapılan yeniləmələr: {n}. Son yoxlama: {when}",
     "subNever": "Hələ heç bir skan aparılmayıb",
@@ -38,7 +41,10 @@
     "showAll": "Hamısını göstər",
     "updateBtn": "Yenilə",
     "updatingBtn": "Yenilənir…",
-    "emptyRec": "Bütün drayverlər aktualdır"
+    "emptyRec": "Bütün drayverlər aktualdır",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drayverlər",
@@ -74,7 +80,8 @@
       "chipset": "Sistem cihazları",
       "network": "Şəbəkə adapterləri",
       "input": "Giriş cihazları"
-    }
+    },
+    "updateAll": "Hamısını yeniləyin"
   },
   "updates": {
     "title": "Yeniləmələr",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} yeniləmə quraşdırıldı",
       "other": "{n} yeniləmə quraşdırıldı"
-    }
+    },
+    "partialToast": "{n} yeniləmələri quraşdırmaq mümkün olmadı"
   },
   "backups": {
     "title": "Ehtiyat nüsxələr",
@@ -128,7 +136,25 @@
       "weekly": "Həftəlik",
       "monthly": "Aylıq"
     },
-    "newName": "Əl ilə yaradılan bərpa nöqtəsi"
+    "newName": "Əl ilə yaradılan bərpa nöqtəsi",
+    "driverBackups": "Sürücü ehtiyat nüsxələri",
+    "driverBackupsSub": "İxrac edilmiş üçüncü tərəf sürücü paketləri",
+    "createBackup": "Yedək yaradın",
+    "creatingBackup": "Yedəklənir...",
+    "backupEmpty": "Sürücü ehtiyat nüsxəsi yoxdur",
+    "backupEmptySub": "Parametrlərdə aktivləşdirildikdə, hər sürücü yeniləməsindən əvvəl avtomatik olaraq ehtiyat nüsxə yaradılır.",
+    "backupPackages": "Paketlər: {n}",
+    "restoreBackup": "Bərpa et",
+    "deleteBackup": "Yedəkləməni silin",
+    "backupCreated": "Sürücü ehtiyat nüsxəsi yaradıldı",
+    "backupRestored": "Sürücü paketləri bərpa edildi",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Tənzimləmələr",
@@ -161,7 +187,9 @@
     "reset": "Tənzimləmələri sıfırla",
     "save": "Dəyişiklikləri yadda saxla",
     "savedToast": "Tənzimləmələr yadda saxlanıldı",
-    "resetToast": "Tənzimləmələr ilkin vəziyyətə qaytarıldı"
+    "resetToast": "Tənzimləmələr ilkin vəziyyətə qaytarıldı",
+    "copyPath": "Copy path",
+    "copiedToast": "Yol kopyalandı"
   },
   "about": {
     "title": "Proqram haqqında",
@@ -194,7 +222,10 @@
     "yesterday": "Dünən",
     "mb": "MB",
     "never": "Məlumat yoxdur",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Rədd et",
+    "scanError": "Sürücüləri skan etmək mümkün olmadı",
+    "scanErrorHint": "Windows Yeniləmə və PowerShell girişini yoxlayın, sonra yenidən cəhd edin."
   },
   "toasts": {
     "scanZero": "Bütün drayverlər aktualdır",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "“{name}” drayveri yeniləndi",
     "restorePointCreated": "Bərpa nöqtəsi yaradıldı",
-    "error": "Əməliyyat uğursuz oldu"
+    "error": "Əməliyyat uğursuz oldu",
+    "rebootRequired": "Sürücü yeniləməsini tamamlamaq üçün yenidən başlatma tələb olunur"
   },
   "components": {
     "cancelTooLate": "Quraşdırıcı artıq işə düşüb. Cari quraşdırma tamamlanacaq.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponentlər",
+    "subtitle": "Proqramlaşdırma dilləri, iş vaxtları və faydalı alətlər",
+    "runtimes": "İcra müddətləri",
+    "languages": "Proqramlaşdırma dilləri",
+    "tools": "Alətlər",
+    "install": "Quraşdırın",
+    "installing": "Quraşdırılır...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versiya",
+    "loading": "Yüklənir...",
+    "managed": "Sürücü tərəfindən idarə olunur",
+    "openglNote": "GPU sürücünüz tərəfindən təmin edilir"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

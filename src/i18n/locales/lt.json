@@ -19,7 +19,10 @@
     "titleOk1": "Jūsų kompiuteris",
     "titleOk2": "paruoštas darbui!",
     "titleUpd1": "Galimi atnaujinimai",
-    "titleUpd2": "{n} tvarkyklėms",
+    "titleUpd2": {
+      "one": "{n} tvarkyklėms",
+      "other": "{n} tvarkyklėms"
+    },
     "subOk": "Visos tvarkyklės yra naujausios. Paskutinė patikra: {when}",
     "subUpdates": "Rasta atnaujinimų: {n}. Paskutinė patikra: {when}",
     "subNever": "Dar nebuvo atliktas nuskaitymas",
@@ -40,7 +43,10 @@
     "showAll": "Rodyti viską",
     "updateBtn": "Atnaujinti",
     "updatingBtn": "Atnaujinama…",
-    "emptyRec": "Visos tvarkyklės yra naujausios"
+    "emptyRec": "Visos tvarkyklės yra naujausios",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Tvarkyklės",
@@ -76,7 +82,8 @@
       "chipset": "Sistemos įrenginiai",
       "network": "Tinklo adapteriai",
       "input": "Įvesties įrenginiai"
-    }
+    },
+    "updateAll": "Atnaujinti viską"
   },
   "updates": {
     "title": "Atnaujinimai",
@@ -98,7 +105,8 @@
       "few": "Įdiegti {n} atnaujinimai",
       "many": "Įdiegta {n} atnaujinimų",
       "other": "Įdiegta {n} atnaujinimo"
-    }
+    },
+    "partialToast": "Nepavyko įdiegti {n} naujinimų"
   },
   "backups": {
     "title": "Atsarginės kopijos",
@@ -132,7 +140,25 @@
       "weekly": "Kas savaitę",
       "monthly": "Kas mėnesį"
     },
-    "newName": "Rankiniu būdu sukurtas atkūrimo taškas"
+    "newName": "Rankiniu būdu sukurtas atkūrimo taškas",
+    "driverBackups": "Tvarkyklės atsarginės kopijos",
+    "driverBackupsSub": "Eksportuoti trečiųjų šalių tvarkyklių paketai",
+    "createBackup": "Sukurti atsarginę kopiją",
+    "creatingBackup": "Kuriama atsarginė kopija…",
+    "backupEmpty": "Nėra vairuotojų atsarginių kopijų",
+    "backupEmptySub": "Atsarginė kopija sukuriama automatiškai prieš kiekvieną tvarkyklės atnaujinimą, kai įgalinta nustatymuose.",
+    "backupPackages": "Paketai: {n}",
+    "restoreBackup": "Atkurti",
+    "deleteBackup": "Ištrinti atsarginę kopiją",
+    "backupCreated": "Sukurta tvarkyklės atsarginė kopija",
+    "backupRestored": "Atkurti tvarkyklių paketai",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Nustatymai",
@@ -165,7 +191,9 @@
     "reset": "Atkurti numatytuosius nustatymus",
     "save": "Išsaugoti pakeitimus",
     "savedToast": "Nustatymai išsaugoti",
-    "resetToast": "Nustatymai atkurti į numatytuosius"
+    "resetToast": "Nustatymai atkurti į numatytuosius",
+    "copyPath": "Copy path",
+    "copiedToast": "Kelias nukopijuotas"
   },
   "about": {
     "title": "Apie",
@@ -198,7 +226,10 @@
     "yesterday": "Vakar",
     "mb": "MB",
     "never": "Nėra duomenų",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Atsisakyti",
+    "scanError": "Nepavyko nuskaityti tvarkyklių",
+    "scanErrorHint": "Patikrinkite „Windows Update“ ir „PowerShell“ prieigą, tada bandykite dar kartą."
   },
   "toasts": {
     "scanZero": "Visos tvarkyklės yra naujausios",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "Tvarkyklė „{name}“ atnaujinta",
     "restorePointCreated": "Atkūrimo taškas sukurtas",
-    "error": "Operacija nepavyko"
+    "error": "Operacija nepavyko",
+    "rebootRequired": "Norint baigti tvarkyklės naujinimą, reikia paleisti iš naujo"
   },
   "components": {
     "cancelTooLate": "Diegimo programa jau paleista. Dabartinis diegimas bus baigtas.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponentai",
+    "subtitle": "Programavimo kalbos, vykdymo laikas ir naudingi įrankiai",
+    "runtimes": "Veikimo laikas",
+    "languages": "Programavimo kalbos",
+    "tools": "Įrankiai",
+    "install": "Įdiegti",
+    "installing": "Diegiama…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versija",
+    "loading": "Įkeliama…",
+    "managed": "Vairuotojo valdoma",
+    "openglNote": "Pateikta jūsų GPU tvarkyklės"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

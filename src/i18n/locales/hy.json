@@ -19,7 +19,10 @@
     "titleOk1": "Ձեր համակարգիչը",
     "titleOk2": "պատրաստ է աշխատանքի",
     "titleUpd1": "Առկա են թարմացումներ",
-    "titleUpd2": "{n} դրայվերի համար",
+    "titleUpd2": {
+      "one": "{n} դրայվերի համար",
+      "other": "{n} դրայվերի համար"
+    },
     "subOk": "Բոլոր դրայվերները թարմ են։ Վերջին ստուգումը՝ {when}",
     "subUpdates": "Գտնվել է թարմացում՝ {n}։ Վերջին ստուգումը՝ {when}",
     "subNever": "Դեռ սկանավորում չի կատարվել",
@@ -40,7 +43,10 @@
     "showAll": "Ցույց տալ բոլորը",
     "updateBtn": "Թարմացնել",
     "updatingBtn": "Թարմացում…",
-    "emptyRec": "Բոլոր դրայվերները թարմ են"
+    "emptyRec": "Բոլոր դրայվերները թարմ են",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Դրայվերներ",
@@ -76,7 +82,8 @@
       "chipset": "Համակարգային սարքեր",
       "network": "Ցանցային ադապտերներ",
       "input": "Մուտքային սարքեր"
-    }
+    },
+    "updateAll": "Թարմացրեք բոլորը"
   },
   "updates": {
     "title": "Թարմացումներ",
@@ -98,7 +105,8 @@
       "few": "Տեղադրվել է {n} թարմացում",
       "many": "Տեղադրվել է {n} թարմացում",
       "other": "Տեղադրվել է {n} թարմացում"
-    }
+    },
+    "partialToast": "Չհաջողվեց տեղադրել {n} թարմացումները"
   },
   "backups": {
     "title": "Պահուստներ",
@@ -132,7 +140,25 @@
       "weekly": "Ամեն շաբաթ",
       "monthly": "Ամեն ամիս"
     },
-    "newName": "Ձեռքով ստեղծված վերականգնման կետ"
+    "newName": "Ձեռքով ստեղծված վերականգնման կետ",
+    "driverBackups": "Վարորդի կրկնօրինակում",
+    "driverBackupsSub": "Արտահանված երրորդ կողմի վարորդական փաթեթներ",
+    "createBackup": "Ստեղծեք կրկնօրինակում",
+    "creatingBackup": "Պահուստավորում…",
+    "backupEmpty": "Վարորդի կրկնօրինակումներ չկան",
+    "backupEmptySub": "Պահուստավորումը ավտոմատ կերպով ստեղծվում է յուրաքանչյուր վարորդի թարմացումից առաջ, երբ այն միացված է Կարգավորումներում:",
+    "backupPackages": "Փաթեթներ՝ {n}",
+    "restoreBackup": "Վերականգնել",
+    "deleteBackup": "Ջնջել կրկնօրինակը",
+    "backupCreated": "Վարորդի կրկնօրինակը ստեղծվել է",
+    "backupRestored": "Վարորդի փաթեթները վերականգնված են",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Կարգավորումներ",
@@ -165,7 +191,9 @@
     "reset": "Վերակայել կարգավորումները",
     "save": "Պահել փոփոխությունները",
     "savedToast": "Կարգավորումները պահվել են",
-    "resetToast": "Կարգավորումները վերակայվել են լռելյայն արժեքներին"
+    "resetToast": "Կարգավորումները վերակայվել են լռելյայն արժեքներին",
+    "copyPath": "Copy path",
+    "copiedToast": "Ուղին պատճենված է"
   },
   "about": {
     "title": "Ծրագրի մասին",
@@ -198,7 +226,10 @@
     "yesterday": "Երեկ",
     "mb": "ՄԲ",
     "never": "Տվյալներ չկան",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Հեռացնել",
+    "scanError": "Չհաջողվեց սկանավորել վարորդներին",
+    "scanErrorHint": "Ստուգեք Windows Update-ի և PowerShell-ի հասանելիությունը, ապա նորից փորձեք:"
   },
   "toasts": {
     "scanZero": "Բոլոր դրայվերները թարմ են",
@@ -210,10 +241,35 @@
     },
     "driverUpdated": "«{name}» դրայվերը թարմացվել է",
     "restorePointCreated": "Վերականգնման կետը ստեղծվել է",
-    "error": "Գործողությունը ձախողվեց"
+    "error": "Գործողությունը ձախողվեց",
+    "rebootRequired": "Վարորդի թարմացումն ավարտելու համար անհրաժեշտ է վերագործարկում"
   },
   "components": {
     "cancelTooLate": "Տեղադրիչն արդեն մեկնարկել է։ Ընթացիկ տեղադրումը կավարտվի։",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Բաղադրիչներ",
+    "subtitle": "Ծրագրավորման լեզուներ, գործարկման ժամանակներ և օգտակար գործիքներ",
+    "runtimes": "Գործողության ժամկետներ",
+    "languages": "Ծրագրավորման լեզուներ",
+    "tools": "Գործիքներ",
+    "install": "Տեղադրեք",
+    "installing": "Տեղադրվում է…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Տարբերակ",
+    "loading": "Բեռնվում է…",
+    "managed": "Վարորդի կողմից կառավարվող",
+    "openglNote": "Տրամադրված է ձեր GPU վարորդի կողմից"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

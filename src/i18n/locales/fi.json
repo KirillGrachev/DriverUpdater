@@ -19,7 +19,10 @@
     "titleOk1": "Tietokoneesi",
     "titleOk2": "on kunnossa!",
     "titleUpd1": "Päivityksiä saatavilla",
-    "titleUpd2": "{n} ajurille",
+    "titleUpd2": {
+      "one": "{n} ajurille",
+      "other": "{n} ajurille"
+    },
     "subOk": "Kaikki ajurit ovat ajan tasalla. Viimeisin tarkistus: {when}",
     "subUpdates": "Löydetyt päivitykset: {n}. Viimeisin tarkistus: {when}",
     "subNever": "Tarkistusta ei ole vielä tehty",
@@ -38,7 +41,10 @@
     "showAll": "Näytä kaikki",
     "updateBtn": "Päivitä",
     "updatingBtn": "Päivitetään…",
-    "emptyRec": "Kaikki ajurit ovat ajan tasalla"
+    "emptyRec": "Kaikki ajurit ovat ajan tasalla",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Ajurit",
@@ -74,7 +80,8 @@
       "chipset": "Järjestelmälaitteet",
       "network": "Verkkosovittimet",
       "input": "Syöttölaitteet"
-    }
+    },
+    "updateAll": "Päivitä kaikki"
   },
   "updates": {
     "title": "Päivitykset",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} päivitys asennettu",
       "other": "{n} päivitystä asennettu"
-    }
+    },
+    "partialToast": "Ei voitu asentaa {n}-päivityksiä"
   },
   "backups": {
     "title": "Varmuuskopiot",
@@ -128,7 +136,25 @@
       "weekly": "Viikoittain",
       "monthly": "Kuukausittain"
     },
-    "newName": "Manuaalinen palautuspiste"
+    "newName": "Manuaalinen palautuspiste",
+    "driverBackups": "Ohjainten varmuuskopiot",
+    "driverBackupsSub": "Viedyt kolmannen osapuolen ohjainpaketit",
+    "createBackup": "Luo varmuuskopio",
+    "creatingBackup": "Varmuuskopioidaan…",
+    "backupEmpty": "Ei ajureiden varmuuskopioita",
+    "backupEmptySub": "Varmuuskopio luodaan automaattisesti ennen jokaista ohjainpäivitystä, kun se on käytössä asetuksissa.",
+    "backupPackages": "Paketit: {n}",
+    "restoreBackup": "Palauta",
+    "deleteBackup": "Poista varmuuskopio",
+    "backupCreated": "Ohjaimen varmuuskopio luotu",
+    "backupRestored": "Ajuripaketit palautettu",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Asetukset",
@@ -161,7 +187,9 @@
     "reset": "Palauta asetukset",
     "save": "Tallenna muutokset",
     "savedToast": "Asetukset tallennettu",
-    "resetToast": "Asetukset palautettu oletusarvoihin"
+    "resetToast": "Asetukset palautettu oletusarvoihin",
+    "copyPath": "Copy path",
+    "copiedToast": "Polku kopioitu"
   },
   "about": {
     "title": "Tietoja",
@@ -194,7 +222,10 @@
     "yesterday": "Eilen",
     "mb": "MB",
     "never": "Ei tietoja",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Hylkää",
+    "scanError": "Ei voitu skannata ohjaimia",
+    "scanErrorHint": "Tarkista Windows Updaten ja PowerShellin käyttöoikeudet ja yritä sitten uudelleen."
   },
   "toasts": {
     "scanZero": "Kaikki ajurit ovat ajan tasalla",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Ajuri “{name}” päivitetty",
     "restorePointCreated": "Palautuspiste luotu",
-    "error": "Toiminto epäonnistui"
+    "error": "Toiminto epäonnistui",
+    "rebootRequired": "Uudelleenkäynnistys vaaditaan ohjaimen päivityksen viimeistelemiseksi"
   },
   "components": {
     "cancelTooLate": "Asennusohjelma on jo käynnistynyt. Nykyinen asennus suoritetaan loppuun.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponentit",
+    "subtitle": "Ohjelmointikielet, suoritusajat ja hyödylliset työkalut",
+    "runtimes": "Suoritusajat",
+    "languages": "Ohjelmointikielet",
+    "tools": "Työkalut",
+    "install": "Asenna",
+    "installing": "Asennetaan…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versio",
+    "loading": "Ladataan…",
+    "managed": "Kuljettajan johtama",
+    "openglNote": "GPU-ohjaimesi toimittama"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

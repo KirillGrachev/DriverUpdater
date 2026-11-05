@@ -19,7 +19,10 @@
     "titleOk1": "Tu equipo",
     "titleOk2": "¡está listo!",
     "titleUpd1": "Actualizaciones disponibles",
-    "titleUpd2": "para {n} controladores",
+    "titleUpd2": {
+      "one": "para {n} controladores",
+      "other": "para {n} controladores"
+    },
     "subOk": "Todos los controladores están actualizados. Última comprobación: {when}",
     "subUpdates": "Actualizaciones encontradas: {n}. Última comprobación: {when}",
     "subNever": "Todavía no se ha realizado ningún análisis",
@@ -39,7 +42,10 @@
     "showAll": "Ver todas",
     "updateBtn": "Actualizar",
     "updatingBtn": "Actualizando…",
-    "emptyRec": "Todos los controladores están actualizados"
+    "emptyRec": "Todos los controladores están actualizados",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Controladores",
@@ -75,7 +81,8 @@
       "chipset": "Dispositivos del sistema",
       "network": "Adaptadores de red",
       "input": "Dispositivos de entrada"
-    }
+    },
+    "updateAll": "Actualizar todo"
   },
   "updates": {
     "title": "Actualizaciones",
@@ -96,7 +103,8 @@
       "one": "{n} actualización instalada",
       "many": "{n} actualizaciones instaladas",
       "other": "{n} actualizaciones instaladas"
-    }
+    },
+    "partialToast": "No se pudieron instalar las actualizaciones {n}"
   },
   "backups": {
     "title": "Copias de seguridad",
@@ -130,7 +138,25 @@
       "weekly": "Semanalmente",
       "monthly": "Mensualmente"
     },
-    "newName": "Punto de restauración manual"
+    "newName": "Punto de restauración manual",
+    "driverBackups": "Copias de seguridad de controladores",
+    "driverBackupsSub": "Paquetes de controladores de terceros exportados",
+    "createBackup": "Crear copia de seguridad",
+    "creatingBackup": "Copia de seguridad…",
+    "backupEmpty": "Sin copias de seguridad de controladores",
+    "backupEmptySub": "Se crea una copia de seguridad automáticamente antes de cada actualización del controlador cuando está habilitado en Configuración.",
+    "backupPackages": "Paquetes: {n}",
+    "restoreBackup": "Restaurar",
+    "deleteBackup": "Eliminar copia de seguridad",
+    "backupCreated": "Copia de seguridad del controlador creada",
+    "backupRestored": "Paquetes de controladores restaurados",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Ajustes",
@@ -163,7 +189,9 @@
     "reset": "Restablecer ajustes",
     "save": "Guardar cambios",
     "savedToast": "Ajustes guardados",
-    "resetToast": "Ajustes restablecidos a los valores predeterminados"
+    "resetToast": "Ajustes restablecidos a los valores predeterminados",
+    "copyPath": "Copy path",
+    "copiedToast": "Ruta copiada"
   },
   "about": {
     "title": "Acerca de",
@@ -196,7 +224,10 @@
     "yesterday": "Ayer",
     "mb": "MB",
     "never": "Sin datos",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Descartar",
+    "scanError": "No se pudieron escanear los controladores",
+    "scanErrorHint": "Verifique el acceso a Windows Update y PowerShell, luego inténtelo nuevamente."
   },
   "toasts": {
     "scanZero": "Todos los controladores están actualizados",
@@ -207,10 +238,35 @@
     },
     "driverUpdated": "Controlador «{name}» actualizado",
     "restorePointCreated": "Punto de restauración creado",
-    "error": "La operación ha fallado"
+    "error": "La operación ha fallado",
+    "rebootRequired": "Es necesario reiniciar para finalizar la actualización del controlador."
   },
   "components": {
     "cancelTooLate": "El instalador ya se ha iniciado. La instalación actual finalizará.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Componentes",
+    "subtitle": "Lenguajes de programación, tiempos de ejecución y herramientas útiles.",
+    "runtimes": "Tiempos de ejecución",
+    "languages": "Lenguajes de programación",
+    "tools": "Herramientas",
+    "install": "Instalar",
+    "installing": "Instalando…",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Versión",
+    "loading": "Cargando…",
+    "managed": "Gestionado por el conductor",
+    "openglNote": "Proporcionado por el controlador de su GPU"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }

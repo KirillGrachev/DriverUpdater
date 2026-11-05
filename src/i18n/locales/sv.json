@@ -19,7 +19,10 @@
     "titleOk1": "Din dator",
     "titleOk2": "är redo att användas!",
     "titleUpd1": "Uppdateringar tillgängliga",
-    "titleUpd2": "för {n} drivrutiner",
+    "titleUpd2": {
+      "one": "för {n} drivrutiner",
+      "other": "för {n} drivrutiner"
+    },
     "subOk": "Alla drivrutiner är uppdaterade. Senaste kontroll: {when}",
     "subUpdates": "Uppdateringar hittade: {n}. Senaste kontroll: {when}",
     "subNever": "Ingen genomsökning har gjorts ännu",
@@ -38,7 +41,10 @@
     "showAll": "Visa alla",
     "updateBtn": "Uppdatera",
     "updatingBtn": "Uppdaterar…",
-    "emptyRec": "Alla drivrutiner är uppdaterade"
+    "emptyRec": "Alla drivrutiner är uppdaterade",
+    "titleNew1": "Ready to scan",
+    "titleNew2": "for driver updates",
+    "titleError": "Driver scan failed"
   },
   "drivers": {
     "title": "Drivrutiner",
@@ -74,7 +80,8 @@
       "chipset": "Systemenheter",
       "network": "Nätverkskort",
       "input": "Inmatningsenheter"
-    }
+    },
+    "updateAll": "Uppdatera alla"
   },
   "updates": {
     "title": "Uppdateringar",
@@ -94,7 +101,8 @@
     "doneToast": {
       "one": "{n} uppdatering installerad",
       "other": "{n} uppdateringar installerade"
-    }
+    },
+    "partialToast": "Kunde inte installera {n}-uppdateringar"
   },
   "backups": {
     "title": "Säkerhetskopior",
@@ -128,7 +136,25 @@
       "weekly": "Veckovis",
       "monthly": "Månadsvis"
     },
-    "newName": "Manuell återställningspunkt"
+    "newName": "Manuell återställningspunkt",
+    "driverBackups": "Säkerhetskopiering av drivrutiner",
+    "driverBackupsSub": "Exporterade drivrutinspaket från tredje part",
+    "createBackup": "Skapa backup",
+    "creatingBackup": "Säkerhetskopierar...",
+    "backupEmpty": "Inga säkerhetskopior av drivrutiner",
+    "backupEmptySub": "En säkerhetskopia skapas automatiskt före varje drivrutinsuppdatering när den är aktiverad i Inställningar.",
+    "backupPackages": "Paket: {n}",
+    "restoreBackup": "Återställ",
+    "deleteBackup": "Ta bort säkerhetskopia",
+    "backupCreated": "Säkerhetskopiering av drivrutiner skapad",
+    "backupRestored": "Drivrutinspaket återställda",
+    "backupDeleted": "Driver backup deleted",
+    "confirmBackupRestoreTitle": "Restore driver packages?",
+    "confirmBackupRestoreText": "The exported packages will be added to the Windows driver store. A restart may be required.",
+    "confirmBackupDeleteTitle": "Delete driver backup?",
+    "confirmBackupDeleteText": "The backup “{name}” will be permanently removed.",
+    "emptyTitle": "No restore points yet",
+    "emptySub": "Create the first point so you can roll back changes."
   },
   "settings": {
     "title": "Inställningar",
@@ -161,7 +187,9 @@
     "reset": "Återställ inställningarna",
     "save": "Spara ändringar",
     "savedToast": "Inställningarna sparades",
-    "resetToast": "Inställningarna återställdes till standard"
+    "resetToast": "Inställningarna återställdes till standard",
+    "copyPath": "Copy path",
+    "copiedToast": "Sökvägen kopierad"
   },
   "about": {
     "title": "Om",
@@ -194,7 +222,10 @@
     "yesterday": "Igår",
     "mb": "MB",
     "never": "Inga data",
-    "versionArrow": "→"
+    "versionArrow": "→",
+    "dismiss": "Avvisa",
+    "scanError": "Kunde inte skanna drivrutiner",
+    "scanErrorHint": "Kontrollera Windows Update och PowerShell-åtkomst och försök sedan igen."
   },
   "toasts": {
     "scanZero": "Alla drivrutiner är uppdaterade",
@@ -204,10 +235,35 @@
     },
     "driverUpdated": "Drivrutinen ”{name}” uppdaterades",
     "restorePointCreated": "Återställningspunkt skapad",
-    "error": "Åtgärden misslyckades"
+    "error": "Åtgärden misslyckades",
+    "rebootRequired": "En omstart krävs för att avsluta drivrutinsuppdateringen"
   },
   "components": {
     "cancelTooLate": "Installationsprogrammet har redan startat. Den pågående installationen slutförs.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "title": "Komponenter",
+    "subtitle": "Programmeringsspråk, körtider och användbara verktyg",
+    "runtimes": "Körtider",
+    "languages": "Programmeringsspråk",
+    "tools": "Verktyg",
+    "install": "Installera",
+    "installing": "Installerar...",
+    "installed": "Installed",
+    "installedToast": "Installed: {name}",
+    "confirmLargeTitle": "Install a large component?",
+    "confirmLargeText": "“{name}” is about {size} MB and can take several minutes. Continue?",
+    "checking": "Checking installed components…",
+    "groupDotnet": ".NET",
+    "groupNative": "Native libraries",
+    "groupStudio": "Visual Studio",
+    "version": "Version",
+    "loading": "Laddar...",
+    "managed": "Förarhanterad",
+    "openglNote": "Tillhandahålls av din GPU-drivrutin"
+  },
+  "boot": {
+    "errorTitle": "The app could not start",
+    "errorSub": "Check the installation and try again. If the problem persists, reinstall the app.",
+    "retry": "Restart"
   }
 }
