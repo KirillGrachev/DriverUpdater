@@ -1,13 +1,11 @@
 {
   "language": "ru",
   "theme": "light",
-  "notifications": true,
   "autoCheck": true,
   "checkInterval": "daily",
   "restorePointBeforeInstall": true,
   "keepBackups": true,
   "backupPath": "D:\\Driver Backups",
-  "telemetry": false,
   "autoRestorePoints": true,
   "restorePointPeriod": "weekly"
 }

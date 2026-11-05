@@ -55,13 +55,11 @@ export type RestorePointPeriod = 'daily' | 'weekly' | 'monthly';
 export interface Settings {
     language: string;
     theme: ThemeMode;
-    notifications: boolean;
     autoCheck: boolean;
     checkInterval: CheckInterval;
     restorePointBeforeInstall: boolean;
     keepBackups: boolean;
     backupPath: string;
-    telemetry: boolean;
     autoRestorePoints: boolean;
     restorePointPeriod: RestorePointPeriod;
 }

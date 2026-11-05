@@ -59,13 +59,11 @@ pub struct RestorePoint {
 pub struct Settings {
     pub language: String,
     pub theme: String,
-    pub notifications: bool,
     pub auto_check: bool,
     pub check_interval: String,
     pub restore_point_before_install: bool,
     pub keep_backups: bool,
     pub backup_path: String,
-    pub telemetry: bool,
     pub auto_restore_points: bool,
     pub restore_point_period: String,
 }
@@ -75,13 +73,11 @@ impl Default for Settings {
         Self {
             language: "en".to_string(),
             theme: "system".to_string(),
-            notifications: false,
             auto_check: false,
             check_interval: "daily".to_string(),
             restore_point_before_install: true,
             keep_backups: true,
             backup_path: String::new(),
-            telemetry: false,
             auto_restore_points: false,
             restore_point_period: "weekly".to_string(),
         }

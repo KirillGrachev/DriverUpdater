@@ -8,14 +8,10 @@
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::backup::{default_backup_provider, DriverBackup, DriverBackupProvider};
 use crate::detection::{
     days_to_civil, is_ignored_device, ComponentDetector, NativeDetector, SystemInfoProvider,
 };
-use crate::models::{
-    CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
-};
-use crate::restore::{default_restore_provider, RestorePointProvider};
+use crate::models::{CheckUpdatesResult, Driver, InitialData, RestorePoint, Settings, Summary};
 use crate::storage::{DriverCache, EncryptedStore, PersistedState, SCHEMA_VERSION};
 use crate::windows_update::{merge_updates, DriverUpdate};
 
@@ -39,8 +35,6 @@ pub struct DriverRepository {
     installed_components: Vec<String>,
     component_detector: Box<dyn ComponentDetector>,
     system_info: Box<dyn SystemInfoProvider>,
-    restore_provider: Box<dyn RestorePointProvider>,
-    backup_provider: Box<dyn DriverBackupProvider>,
 }
 
 const SUPPORTED_LANGUAGES: &[&str] = &[
@@ -131,8 +125,6 @@ impl DriverRepository {
             installed_components: Vec::new(),
             component_detector: Box::<NativeDetector>::default(),
             system_info: Box::<NativeDetector>::default(),
-            restore_provider: default_restore_provider(),
-            backup_provider: default_backup_provider(backup_dir),
         };
 
         match repo.store.load::<PersistedState>() {
@@ -155,10 +147,8 @@ impl DriverRepository {
                         // settings but discard the demo data once.
                         repo.restore_points.clear();
                         repo.installed_components.clear();
-                        repo.settings.notifications = false;
                         repo.settings.auto_check = false;
                         repo.settings.auto_restore_points = false;
-                        repo.settings.telemetry = false;
                         if !had_cache {
                             repo.drivers.clear();
                         }
@@ -329,45 +319,8 @@ impl DriverRepository {
         Ok(installed)
     }
 
-    pub fn restore_points(&self) -> Vec<RestorePoint> {
-        self.restore_points.clone()
-    }
-
-    pub fn reload_restore_points(&mut self) -> Result<(), String> {
-        self.restore_points = self.restore_provider.list()?;
-        Ok(())
-    }
-
-    pub fn create_restore_point(&mut self, name: LocalizedText) -> Result<RestorePoint, String> {
-        let point = self.restore_provider.create(&name)?;
-        self.reload_restore_points()?;
-        Ok(point)
-    }
-
-    pub fn delete_restore_point(&mut self, id: &str) -> Result<(), String> {
-        self.restore_provider.delete(id)?;
-        self.reload_restore_points()?;
-        Ok(())
-    }
-
-    pub fn restore_from_point(&mut self, id: &str) -> Result<(), String> {
-        self.restore_provider.restore(id)
-    }
-
-    pub fn list_driver_backups(&self) -> Result<Vec<DriverBackup>, String> {
-        self.backup_provider.list()
-    }
-
-    pub fn create_driver_backup(&self) -> Result<DriverBackup, String> {
-        self.backup_provider.create()
-    }
-
-    pub fn restore_driver_backup(&self, id: &str) -> Result<(), String> {
-        self.backup_provider.restore(id)
-    }
-
-    pub fn delete_driver_backup(&self, id: &str) -> Result<(), String> {
-        self.backup_provider.delete(id)
+    pub fn set_restore_points(&mut self, points: Vec<RestorePoint>) {
+        self.restore_points = points;
     }
 
     pub fn save_settings(&mut self, mut settings: Settings) -> Result<Settings, String> {

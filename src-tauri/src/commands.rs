@@ -3,7 +3,7 @@
 //! <p>Commands are thin async wrappers around the repository; validation and
 //! IPC input checks stay at this boundary.</p>
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::{Arc, Mutex};
 
@@ -17,6 +17,7 @@ use crate::models::{
 };
 use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
+use crate::restore::default_restore_provider;
 use crate::windows_update::default_update_provider;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
@@ -77,8 +78,14 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
         })
         .await;
     }
-    run_repository_handle(repository, |repository| {
-        let _ = repository.reload_restore_points();
+    let restore_points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+        .await
+        .ok()
+        .and_then(Result::ok);
+    run_repository_handle(repository, move |repository| {
+        if let Some(points) = restore_points {
+            repository.set_restore_points(points);
+        }
         Ok(repository.snapshot())
     })
     .await
@@ -149,9 +156,13 @@ pub async fn install_updates(
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<RestorePoint>, String> {
-    run_repository(state, |repository| {
-        repository.reload_restore_points()?;
-        Ok(repository.restore_points())
+    let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+        .await
+        .map_err(|error| error.to_string())??;
+    run_repository_handle(Arc::clone(&state.0), move |repository| {
+        let result = points.clone();
+        repository.set_restore_points(points);
+        Ok(result)
     })
     .await
 }
@@ -161,8 +172,16 @@ pub async fn create_restore_point(
     state: State<'_, AppRepository>,
     name: LocalizedText,
 ) -> Result<RestorePoint, String> {
-    run_repository(state, move |repository| {
-        repository.create_restore_point(name)
+    let point =
+        tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
+            .await
+            .map_err(|error| error.to_string())??;
+    let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+        .await
+        .map_err(|error| error.to_string())??;
+    run_repository_handle(Arc::clone(&state.0), move |repository| {
+        repository.set_restore_points(points);
+        Ok(point)
     })
     .await
 }
@@ -172,15 +191,25 @@ pub async fn delete_restore_point(
     state: State<'_, AppRepository>,
     id: String,
 ) -> Result<(), String> {
-    run_repository(state, move |repository| {
-        repository.delete_restore_point(&id)
+    tauri::async_runtime::spawn_blocking(move || default_restore_provider().delete(&id))
+        .await
+        .map_err(|error| error.to_string())??;
+    let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+        .await
+        .map_err(|error| error.to_string())??;
+    run_repository_handle(Arc::clone(&state.0), move |repository| {
+        repository.set_restore_points(points);
+        Ok(())
     })
     .await
 }
 
 #[tauri::command]
 pub async fn restore_from_point(state: State<'_, AppRepository>, id: String) -> Result<(), String> {
-    run_repository(state, move |repository| repository.restore_from_point(&id)).await
+    let _ = state;
+    tauri::async_runtime::spawn_blocking(move || default_restore_provider().restore(&id))
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
@@ -219,12 +248,16 @@ fn validate_settings(settings: &Settings) -> Result<(), String> {
     Ok(())
 }
 
+async fn backup_root(state: &State<'_, AppRepository>) -> Result<PathBuf, String> {
+    run_repository_handle(Arc::clone(&state.0), |repository| {
+        Ok(repository.backup_dir().to_path_buf())
+    })
+    .await
+}
+
 #[tauri::command]
 pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), String> {
-    let folder = {
-        let repository = state.0.lock().map_err(|error| error.to_string())?;
-        repository.backup_dir().to_path_buf()
-    };
+    let folder = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || open_folder(&folder))
         .await
         .map_err(|error| error.to_string())?
@@ -343,14 +376,20 @@ pub async fn save_installed_components(
 pub async fn list_driver_backups(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<crate::backup::DriverBackup>, String> {
-    run_repository(state, |repository| repository.list_driver_backups()).await
+    let root = backup_root(&state).await?;
+    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).list())
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
 pub async fn create_driver_backup(
     state: State<'_, AppRepository>,
 ) -> Result<crate::backup::DriverBackup, String> {
-    run_repository(state, |repository| repository.create_driver_backup()).await
+    let root = backup_root(&state).await?;
+    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).create())
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
@@ -358,10 +397,10 @@ pub async fn restore_driver_backup(
     state: State<'_, AppRepository>,
     id: String,
 ) -> Result<(), String> {
-    run_repository(state, move |repository| {
-        repository.restore_driver_backup(&id)
-    })
-    .await
+    let root = backup_root(&state).await?;
+    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).restore(&id))
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
@@ -369,10 +408,10 @@ pub async fn delete_driver_backup(
     state: State<'_, AppRepository>,
     id: String,
 ) -> Result<(), String> {
-    run_repository(state, move |repository| {
-        repository.delete_driver_backup(&id)
-    })
-    .await
+    let root = backup_root(&state).await?;
+    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).delete(&id))
+        .await
+        .map_err(|error| error.to_string())?
 }
 
 #[tauri::command]
