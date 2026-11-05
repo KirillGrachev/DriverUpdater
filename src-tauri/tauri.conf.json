@@ -68,6 +68,8 @@
         "dialogImagePath": "installer/wix-dialog.bmp",
         "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8"
       }
-    }
+    },
+    "publisher": "Kirill Grachev",
+    "copyright": "Copyright © 2026 Kirill Grachev"
   }
 }
