@@ -20,7 +20,7 @@ import type {
 const STORAGE_KEY = 'driver-updater.mock.v1';
 
 /** Browser preview has no install directory; show the path the desktop app derives. */
-export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\com.github.kirillgrachev.driverupdater\\Backups';
+export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\Driver Updater\\Backups';
 
 interface MockState {
     drivers: Driver[];

@@ -74,36 +74,44 @@ fn migrate_legacy_appdata(target: &Path) {
 const APP_IDENTIFIER: &str = "com.github.kirillgrachev.driverupdater";
 
 fn migrate_legacy_backups(local_app_data: &Path) -> PathBuf {
-    let legacy = local_app_data.join("DriverUpdater").join("Backups");
-    let current = local_app_data.join(APP_IDENTIFIER).join("Backups");
-    if current.exists() {
-        let only_desktop_ini = std::fs::read_dir(&current)
+    let target = local_app_data.join("Driver Updater").join("Backups");
+    let sources = [
+        local_app_data.join(APP_IDENTIFIER).join("Backups"),
+        local_app_data.join("DriverUpdater").join("Backups"),
+    ];
+    let has_content = |path: &Path| {
+        std::fs::read_dir(path)
             .map(|entries| {
-                entries.flatten().all(|entry| {
-                    entry
+                entries.flatten().any(|entry| {
+                    !entry
                         .file_name()
                         .to_string_lossy()
                         .eq_ignore_ascii_case("desktop.ini")
                 })
             })
-            .unwrap_or(false);
-        if !only_desktop_ini || !legacy.exists() {
-            return current;
+            .unwrap_or(false)
+    };
+    if target.exists() {
+        if has_content(&target) || sources.iter().all(|source| !source.exists()) {
+            return target;
         }
-        let _ = std::fs::remove_dir_all(&current);
+        let _ = std::fs::remove_dir_all(&target);
     }
-    if !legacy.exists() {
-        return current;
+    for source in sources {
+        if !source.exists() {
+            continue;
+        }
+        if let Some(parent) = target.parent() {
+            let _ = std::fs::create_dir_all(parent);
+        }
+        if std::fs::rename(&source, &target).is_err() {
+            log::warn!("could not move the legacy backup folder");
+            return source;
+        }
+        rewrite_backup_paths(&target, &source, &target);
+        return target;
     }
-    if let Some(parent) = current.parent() {
-        let _ = std::fs::create_dir_all(parent);
-    }
-    if std::fs::rename(&legacy, &current).is_err() {
-        log::warn!("could not move the legacy backup folder");
-        return legacy;
-    }
-    rewrite_backup_paths(&current, &legacy, &current);
-    current
+    target
 }
 
 fn rewrite_backup_paths(root: &Path, old_root: &Path, new_root: &Path) {

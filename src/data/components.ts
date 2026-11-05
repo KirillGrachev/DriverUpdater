@@ -111,16 +111,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         sizeMb: 22,
     },
     {
-        id: 'opengl',
-        subgroup: 'native',
-        name: 'OpenGL',
-        vendor: 'GPU driver',
-        group: 'runtime',
-        versions: [],
-        defaultVersion: '',
-        noteKey: 'components.openglNote',
-    },
-    {
         id: 'visual-studio-community',
         subgroup: 'studio',
         wingetId: 'Microsoft.VisualStudio.2022.Community',
