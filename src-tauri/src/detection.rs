@@ -9,7 +9,6 @@ use std::collections::HashSet;
 #[cfg(target_os = "windows")]
 use std::time::Duration;
 
-#[cfg(target_os = "windows")]
 use crate::models::{Driver, InstalledComponent, SystemInfo};
 #[cfg(target_os = "windows")]
 use sha2::{Digest, Sha256};
