@@ -226,10 +226,6 @@ impl DriverRepository {
         }
     }
 
-    pub fn needs_scan(&self) -> bool {
-        self.needs_scan
-    }
-
     pub fn apply_initial_scan(&mut self, drivers: Option<Vec<Driver>>) -> Result<(), String> {
         let Some(drivers) = drivers.filter(|drivers| !drivers.is_empty()) else {
             let error = "Windows driver scan returned no devices".to_string();

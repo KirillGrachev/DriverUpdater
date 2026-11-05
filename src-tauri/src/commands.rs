@@ -113,17 +113,6 @@ async fn detect_drivers() -> Option<Vec<Driver>> {
 #[tauri::command]
 pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<InitialData, String> {
     let repository = Arc::clone(&state.0);
-    let needs_scan = run_repository_handle(Arc::clone(&repository), |repository| {
-        Ok(repository.needs_scan())
-    })
-    .await?;
-    if needs_scan {
-        let drivers = detect_drivers().await;
-        let _ = run_repository_handle(Arc::clone(&repository), move |repository| {
-            repository.apply_initial_scan(drivers)
-        })
-        .await;
-    }
     run_repository_handle(repository, |repository| Ok(repository.snapshot())).await
 }
 
