@@ -224,7 +224,7 @@ fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
 }
 
 #[cfg(not(target_os = "windows"))]
-fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
+fn install_netfx3(_cancel: Option<&AtomicBool>) -> Result<(), String> {
     Err(".NET Framework 3.5 is available only on Windows".to_string())
 }
 
