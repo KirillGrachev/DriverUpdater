@@ -208,5 +208,8 @@
     "driverUpdated": "Driver “{name}” atualizado",
     "restorePointCreated": "Ponto de restauração criado",
     "error": "Falha na operação"
+  },
+  "components": {
+    "cancelTooLate": "O instalador já foi iniciado. A instalação atual será concluída."
   }
 }

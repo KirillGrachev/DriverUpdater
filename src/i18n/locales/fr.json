@@ -208,5 +208,8 @@
     "driverUpdated": "Pilote « {name} » mis à jour",
     "restorePointCreated": "Point de restauration créé",
     "error": "Échec de l'opération"
+  },
+  "components": {
+    "cancelTooLate": "Le programme d’installation a déjà démarré. L’installation en cours va se terminer."
   }
 }

@@ -208,5 +208,8 @@
     "driverUpdated": "Driver “{name}” aggiornato",
     "restorePointCreated": "Punto di ripristino creato",
     "error": "Operazione non riuscita"
+  },
+  "components": {
+    "cancelTooLate": "Il programma di installazione è già avviato. L’installazione corrente verrà completata."
   }
 }

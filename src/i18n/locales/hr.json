@@ -211,5 +211,8 @@
     "driverUpdated": "Upravljački program „{name}” je ažuriran",
     "restorePointCreated": "Točka vraćanja je stvorena",
     "error": "Radnja nije uspjela"
+  },
+  "components": {
+    "cancelTooLate": "Instalacijski program je već pokrenut. Trenutna instalacija će se dovršiti."
   }
 }

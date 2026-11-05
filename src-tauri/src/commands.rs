@@ -595,7 +595,7 @@ pub async fn install_package(
     busy: State<'_, BusyState>,
     package_id: String,
     version: String,
-) -> Result<(), CommandError> {
+) -> Result<crate::packages::PackageInstallResult, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let cancel = Arc::new(AtomicBool::new(false));
     let job_key = package_id.clone();

@@ -205,5 +205,8 @@
     "driverUpdated": "Drivrutinen ”{name}” uppdaterades",
     "restorePointCreated": "Återställningspunkt skapad",
     "error": "Åtgärden misslyckades"
+  },
+  "components": {
+    "cancelTooLate": "Installationsprogrammet har redan startat. Den pågående installationen slutförs."
   }
 }

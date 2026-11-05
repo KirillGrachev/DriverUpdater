@@ -18,6 +18,7 @@ pub struct ProcessOutput {
     pub code: Option<i32>,
     pub stdout: String,
     pub stderr: String,
+    pub cancel_ignored: bool,
 }
 
 /// Runs a command with a timeout, returning its combined text output.
@@ -102,6 +103,7 @@ fn run_inner(
         code: status.code(),
         stdout,
         stderr,
+        cancel_ignored,
     })
 }
 

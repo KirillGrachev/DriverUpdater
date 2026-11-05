@@ -43,6 +43,10 @@ export interface InstallFailure {
     message: string;
 }
 
+export interface PackageInstallResult {
+    cancelIgnored: boolean;
+}
+
 export interface InstallReport {
     succeeded: Driver[];
     failed: InstallFailure[];

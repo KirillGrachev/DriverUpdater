@@ -205,5 +205,8 @@
     "driverUpdated": "“{name}” sürüjisi täzelendi",
     "restorePointCreated": "Dikeltme nokady döredildi",
     "error": "Amal başa barmady"
+  },
+  "components": {
+    "cancelTooLate": "Gurnama programu eýýäm başlady. Häzirki gurnama tamamlanar."
   }
 }

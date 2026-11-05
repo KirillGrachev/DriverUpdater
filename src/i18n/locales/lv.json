@@ -211,5 +211,8 @@
     "driverUpdated": "Draivers “{name}” atjaunināts",
     "restorePointCreated": "Atjaunošanas punkts izveidots",
     "error": "Darbība neizdevās"
+  },
+  "components": {
+    "cancelTooLate": "Instalētājs jau ir palaists. Pašreizējā instalācija tiks pabeigta."
   }
 }

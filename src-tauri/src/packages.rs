@@ -8,7 +8,16 @@ use std::process::Command;
 use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
+use serde::Serialize;
+
 use crate::process;
+
+/// Result of a package installation.
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct PackageInstallResult {
+    pub cancel_ignored: bool,
+}
 
 /// winget packages exposed by the components page.
 pub const ALLOWED_PACKAGES: &[&str] = &[
@@ -81,7 +90,7 @@ impl WingetPackageManager {
         package_id: &str,
         version: &str,
         cancel: &AtomicBool,
-    ) -> Result<(), String> {
+    ) -> Result<PackageInstallResult, String> {
         self.install_inner(package_id, version, Some(cancel))
     }
 
@@ -90,7 +99,7 @@ impl WingetPackageManager {
         package_id: &str,
         version: &str,
         cancel: Option<&AtomicBool>,
-    ) -> Result<(), String> {
+    ) -> Result<PackageInstallResult, String> {
         validate_package_id(package_id)?;
         validate_version(version)?;
 
@@ -123,7 +132,9 @@ impl WingetPackageManager {
                 }
             })?;
         if winget_success(&output) {
-            return Ok(());
+            return Ok(PackageInstallResult {
+                cancel_ignored: output.cancel_ignored,
+            });
         }
         Err(command_error(&output))
     }
@@ -246,7 +257,7 @@ fn command_error(output: &process::ProcessOutput) -> String {
 }
 
 #[cfg(target_os = "windows")]
-fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
+fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<PackageInstallResult, String> {
     let mut command = Command::new(process::system_executable("dism.exe"));
     command.args([
         "/Online",
@@ -263,7 +274,9 @@ fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
         }
     })?;
     if output.success || output.code == Some(3010) {
-        return Ok(());
+        return Ok(PackageInstallResult {
+            cancel_ignored: output.cancel_ignored,
+        });
     }
     if output.code == Some(740) {
         return Err("administrator rights are required to enable .NET Framework 3.5".to_string());
@@ -272,7 +285,7 @@ fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
 }
 
 #[cfg(not(target_os = "windows"))]
-fn install_netfx3(_cancel: Option<&AtomicBool>) -> Result<(), String> {
+fn install_netfx3(_cancel: Option<&AtomicBool>) -> Result<PackageInstallResult, String> {
     Err(".NET Framework 3.5 is available only on Windows".to_string())
 }
 

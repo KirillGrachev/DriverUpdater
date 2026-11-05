@@ -107,7 +107,8 @@
     "version": "Version",
     "loading": "Loading…",
     "managed": "Driver-managed",
-    "openglNote": "Provided by your GPU driver"
+    "openglNote": "Provided by your GPU driver",
+    "cancelTooLate": "The installer has already started. The current installation will finish."
   },
   "updates": {
     "title": "Updates",

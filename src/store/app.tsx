@@ -7,6 +7,7 @@ import type {
     DriverBackup,
     InitialData,
     InstalledComponent,
+    PackageInstallResult,
     Settings,
     SystemInfo,
     ThemeMode,
@@ -66,7 +67,7 @@ interface AppContextValue extends AppState {
     getInstalledComponents: () => Promise<string[]>;
     saveInstalledComponents: (ids: string[]) => Promise<void>;
     listPackageVersions: (packageId: string) => Promise<string[]>;
-    installPackage: (packageId: string, version: string) => Promise<void>;
+    installPackage: (packageId: string, version: string) => Promise<PackageInstallResult>;
     cancelPackageInstall: (packageId: string) => Promise<boolean>;
     listDriverBackups: () => Promise<DriverBackup[]>;
     createDriverBackup: () => Promise<DriverBackup>;
@@ -681,8 +682,9 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 : { ...prev, packageInstalling: [...prev.packageInstalling, packageId] },
         );
         try {
-            await backend.installPackage(packageId, version);
+            const result = await backend.installPackage(packageId, version);
             detectedComponentsRef.current = null;
+            return result;
         } finally {
             setState((prev) => ({
                 ...prev,

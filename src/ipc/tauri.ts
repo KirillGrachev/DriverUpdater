@@ -7,6 +7,7 @@ import type {
     InitialData,
     InstalledComponent,
     InstallReport,
+    PackageInstallResult,
     RestorePoint,
     Settings,
     SystemInfo,
@@ -74,8 +75,8 @@ export class TauriBackend implements Backend {
         return invoke<string[]>('list_package_versions', { packageId });
     }
 
-    installPackage(packageId: string, version: string): Promise<void> {
-        return invoke<void>('install_package', { packageId, version });
+    installPackage(packageId: string, version: string): Promise<PackageInstallResult> {
+        return invoke<PackageInstallResult>('install_package', { packageId, version });
     }
 
     cancelPackageInstall(packageId: string): Promise<boolean> {

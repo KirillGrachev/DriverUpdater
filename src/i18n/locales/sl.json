@@ -211,5 +211,8 @@
     "driverUpdated": "Gonilnik »{name}« je posodobljen",
     "restorePointCreated": "Obnovitvena točka je ustvarjena",
     "error": "Opravilo ni uspelo"
+  },
+  "components": {
+    "cancelTooLate": "Namestitveni program se je že zagnal. Trenutna namestitev bo dokončana."
   }
 }

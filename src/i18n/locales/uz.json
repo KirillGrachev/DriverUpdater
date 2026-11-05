@@ -205,5 +205,8 @@
     "driverUpdated": "“{name}” drayveri yangilandi",
     "restorePointCreated": "Tiklash nuqtasi yaratildi",
     "error": "Amalni bajarib boʻlmadi"
+  },
+  "components": {
+    "cancelTooLate": "O'rnatuvchi allaqachon ishga tushgan. Joriy o'rnatish yakunlanadi."
   }
 }

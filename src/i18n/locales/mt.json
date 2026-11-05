@@ -214,5 +214,8 @@
     "driverUpdated": "Id-drajver “{name}” ġie aġġornat",
     "restorePointCreated": "Punt ta' rkupru maħluq",
     "error": "L-operazzjoni falliet"
+  },
+  "components": {
+    "cancelTooLate": "Il-programm tal-installazzjoni diġà beda. L-installazzjoni attwali se titlesta."
   }
 }

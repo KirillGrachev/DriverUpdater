@@ -211,5 +211,8 @@
     "driverUpdated": "Tvarkyklė „{name}“ atnaujinta",
     "restorePointCreated": "Atkūrimo taškas sukurtas",
     "error": "Operacija nepavyko"
+  },
+  "components": {
+    "cancelTooLate": "Diegimo programa jau paleista. Dabartinis diegimas bus baigtas."
   }
 }

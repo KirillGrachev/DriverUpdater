@@ -211,5 +211,8 @@
     "driverUpdated": "Ovládač „{name}“ bol aktualizovaný",
     "restorePointCreated": "Bod obnovenia bol vytvorený",
     "error": "Operácia zlyhala"
+  },
+  "components": {
+    "cancelTooLate": "Inštalátor už beží. Aktuálna inštalácia sa dokončí."
   }
 }

@@ -211,5 +211,8 @@
     "driverUpdated": "Ovladač „{name}“ aktualizován",
     "restorePointCreated": "Bod obnovení vytvořen",
     "error": "Operace se nezdařila"
+  },
+  "components": {
+    "cancelTooLate": "Instalátor již běží. Aktuální instalace bude dokončena."
   }
 }

@@ -211,5 +211,8 @@
     "driverUpdated": "Zaktualizowano sterownik „{name}”",
     "restorePointCreated": "Utworzono punkt przywracania",
     "error": "Operacja nie powiodła się"
+  },
+  "components": {
+    "cancelTooLate": "Instalator został już uruchomiony. Bieżąca instalacja zostanie dokończona."
   }
 }

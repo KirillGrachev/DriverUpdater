@@ -205,5 +205,8 @@
     "driverUpdated": "Stuurprogramma “{name}” bijgewerkt",
     "restorePointCreated": "Herstelpunt gemaakt",
     "error": "Bewerking mislukt"
+  },
+  "components": {
+    "cancelTooLate": "Het installatieprogramma is al gestart. De huidige installatie wordt voltooid."
   }
 }

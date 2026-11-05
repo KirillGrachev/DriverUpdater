@@ -205,5 +205,8 @@
     "driverUpdated": "“{name}” drayveri yeniləndi",
     "restorePointCreated": "Bərpa nöqtəsi yaradıldı",
     "error": "Əməliyyat uğursuz oldu"
+  },
+  "components": {
+    "cancelTooLate": "Quraşdırıcı artıq işə düşüb. Cari quraşdırma tamamlanacaq."
   }
 }

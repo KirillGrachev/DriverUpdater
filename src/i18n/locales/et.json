@@ -205,5 +205,8 @@
     "driverUpdated": "Draiver „{name}“ värskendatud",
     "restorePointCreated": "Taastamispunkt loodud",
     "error": "Toiming ebaõnnestus"
+  },
+  "components": {
+    "cancelTooLate": "Paigaldaja on juba käivitatud. Praegune paigaldus viiakse lõpule."
   }
 }

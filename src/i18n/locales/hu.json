@@ -205,5 +205,8 @@
     "driverUpdated": "„{name}” illesztőprogram frissítve",
     "restorePointCreated": "Visszaállítási pont létrehozva",
     "error": "A művelet nem sikerült"
+  },
+  "components": {
+    "cancelTooLate": "A telepítő már elindult. A jelenlegi telepítés befejeződik."
   }
 }

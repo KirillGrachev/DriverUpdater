@@ -106,7 +106,7 @@ export function ComponentsPage() {
         if (!item.wingetId || packageInstalling.includes(item.wingetId)) return;
         const version = selected[item.id] || item.defaultVersion;
         try {
-            await installPackage(item.wingetId, version);
+            const result = await installPackage(item.wingetId, version);
             const next = new Set(installed);
             next.add(item.id);
             setInstalled(next);
@@ -116,7 +116,12 @@ export function ComponentsPage() {
             if (refreshed.length > 0) {
                 setDetected(Object.fromEntries(refreshed.map((component) => [component.id, component])));
             }
-            pushToast(t('components.installedToast', { name: item.name }), 'success');
+            pushToast(
+                t(result.cancelIgnored ? 'components.cancelTooLate' : 'components.installedToast', {
+                    name: item.name,
+                }),
+                result.cancelIgnored ? 'info' : 'success',
+            );
         } catch (error) {
             const failure = commandErrorInfo(error);
             if (failure.code === 'packageCancelled' || failure.message === PACKAGE_CANCELLED_ERROR) {

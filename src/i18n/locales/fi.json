@@ -205,5 +205,8 @@
     "driverUpdated": "Ajuri “{name}” päivitetty",
     "restorePointCreated": "Palautuspiste luotu",
     "error": "Toiminto epäonnistui"
+  },
+  "components": {
+    "cancelTooLate": "Asennusohjelma on jo käynnistynyt. Nykyinen asennus suoritetaan loppuun."
   }
 }

@@ -10,6 +10,7 @@ import type {
     InitialData,
     InstalledComponent,
     InstallReport,
+    PackageInstallResult,
     RestorePoint,
     Settings,
     Summary,
@@ -19,7 +20,7 @@ import type {
 const STORAGE_KEY = 'driver-updater.mock.v1';
 
 /** Browser preview has no install directory; show the path the desktop app derives. */
-export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\DriverUpdater\\Backups';
+export const MOCK_BACKUP_PATH = '%LOCALAPPDATA%\\com.github.kirillgrachev.driverupdater\\Backups';
 
 interface MockState {
     drivers: Driver[];
@@ -234,8 +235,9 @@ export class MockBackend implements Backend {
         return COMPONENT_CATALOG.find((item) => item.wingetId === packageId)?.versions ?? [];
     }
 
-    async installPackage(): Promise<void> {
+    async installPackage(): Promise<PackageInstallResult> {
         await sleep(700);
+        return { cancelIgnored: false };
     }
 
     async cancelPackageInstall(): Promise<boolean> {

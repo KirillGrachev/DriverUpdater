@@ -205,5 +205,8 @@
     "driverUpdated": "Driveren “{name}” er opdateret",
     "restorePointCreated": "Gendannelsespunkt oprettet",
     "error": "Handlingen mislykkedes"
+  },
+  "components": {
+    "cancelTooLate": "Installationsprogrammet er allerede startet. Den aktuelle installation fuldføres."
   }
 }
