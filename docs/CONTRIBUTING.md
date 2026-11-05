@@ -37,20 +37,20 @@ It uses `MockBackend` and the shared fixtures, so Windows APIs are not required.
 
 ## Project layout
 
-| Path | Responsibility |
-|---|---|
-| `src/pages` | One component per screen |
-| `src/components` | Titlebar, bottom dock, UI kit, icons, overlays |
-| `src/store/app.tsx` | Routing, IPC state, settings queue, theme, toasts |
-| `src/ipc` | `Backend` contract and the Tauri/mock implementations |
-| `src/i18n` | Reference dictionaries and lazy locale bundles |
-| `src/styles` | Design tokens and page/component CSS |
-| `src-tauri/src/commands.rs` | Typed IPC boundary and input validation |
-| `src-tauri/src/repository.rs` | Application service and in-memory state |
-| `src-tauri/src/detection.rs` | Detector traits and native Windows adapters |
-| `src-tauri/src/storage.rs` | Encrypted state and cache persistence |
-| `src-tauri/src/security.rs` | DPAPI sealing for files at rest |
-| `shared/fixtures` | Fixtures shared by Rust and TypeScript tests |
+| Path                          | Responsibility                                        |
+| ----------------------------- | ----------------------------------------------------- |
+| `src/pages`                   | One component per screen                              |
+| `src/components`              | Titlebar, bottom dock, UI kit, icons, overlays        |
+| `src/store/app.tsx`           | Routing, IPC state, settings queue, theme, toasts     |
+| `src/ipc`                     | `Backend` contract and the Tauri/mock implementations |
+| `src/i18n`                    | Reference dictionaries and lazy locale bundles        |
+| `src/styles`                  | Design tokens and page/component CSS                  |
+| `src-tauri/src/commands.rs`   | Typed IPC boundary and input validation               |
+| `src-tauri/src/repository.rs` | Application service and in-memory state               |
+| `src-tauri/src/detection.rs`  | Detector traits and native Windows adapters           |
+| `src-tauri/src/storage.rs`    | Encrypted state and cache persistence                 |
+| `src-tauri/src/security.rs`   | DPAPI sealing for files at rest                       |
+| `shared/fixtures`             | Fixtures shared by Rust and TypeScript tests          |
 
 Keep the boundary intact: React must not call PowerShell directly, and the Rust
 commands must not know about React components.
@@ -61,6 +61,7 @@ Run these before opening a pull request:
 
 ```powershell
 npm run typecheck
+npm run check:locales
 npm test
 npm run build
 

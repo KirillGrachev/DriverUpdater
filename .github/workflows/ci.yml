@@ -27,6 +27,8 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm test
+      - name: Locale coverage
+        run: npm run check:locales
       - name: Version consistency
         run: node scripts/check-version.mjs
       - name: Build
