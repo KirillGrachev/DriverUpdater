@@ -171,7 +171,8 @@ export function ComponentsPage() {
                 return;
             }
             console.error('component install failed', error);
-            pushToast(t('toasts.error'), 'error');
+            const detail = failure.message.trim();
+            pushToast(detail ? `${t('toasts.error')}: ${detail}` : t('toasts.error'), 'error');
         }
     };
 
