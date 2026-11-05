@@ -73,7 +73,19 @@ export function Button({
     );
     if (href) {
         return (
-            <a className={classes} href={href} target="_blank" rel="noreferrer noopener" title={title}>
+            <a
+                className={classes}
+                href={href}
+                target="_blank"
+                rel="noreferrer noopener"
+                title={title}
+                onClick={(event) => {
+                    if (onClick) {
+                        event.preventDefault();
+                        onClick();
+                    }
+                }}
+            >
                 {content}
             </a>
         );

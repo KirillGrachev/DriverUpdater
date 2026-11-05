@@ -3,6 +3,7 @@ import aboutMascot from '../assets/branding/about-mascot.png';
 import { IconBug, IconGithub, IconLink } from '../components/icons';
 import { Button } from '../components/ui';
 import { useApp } from '../store/app';
+import { openExternal } from '../utils/external';
 
 const REPO_URL = 'https://github.com/KirillGrachev/DriverUpdater';
 
@@ -31,7 +32,13 @@ export function AboutPage() {
                         {t('about.tagline2')}
                     </p>
                     <div className="about-links">
-                        <Button variant="outline" size="sm" icon={<IconGithub size={17} />} href={REPO_URL}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            icon={<IconGithub size={17} />}
+                            href={REPO_URL}
+                            onClick={() => void openExternal(REPO_URL)}
+                        >
                             {t('about.github')}
                         </Button>
                         <Button
@@ -39,10 +46,17 @@ export function AboutPage() {
                             size="sm"
                             icon={<IconLink size={16} />}
                             href={`${REPO_URL}/blob/main/README.md`}
+                            onClick={() => void openExternal(`${REPO_URL}/blob/main/README.md`)}
                         >
                             {t('about.docs')}
                         </Button>
-                        <Button variant="outline" size="sm" icon={<IconBug size={16} />} href={`${REPO_URL}/issues`}>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            icon={<IconBug size={16} />}
+                            href={`${REPO_URL}/issues`}
+                            onClick={() => void openExternal(`${REPO_URL}/issues`)}
+                        >
                             {t('about.report')}
                         </Button>
                     </div>
@@ -69,6 +83,10 @@ export function AboutPage() {
                                     href={`${REPO_URL}/blob/main/LICENSE`}
                                     target="_blank"
                                     rel="noreferrer noopener"
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        void openExternal(`${REPO_URL}/blob/main/LICENSE`);
+                                    }}
                                 >
                                     MIT License (Open Source)
                                 </a>
@@ -82,6 +100,10 @@ export function AboutPage() {
                                     href="https://github.com/KirillGrachev"
                                     target="_blank"
                                     rel="noreferrer noopener"
+                                    onClick={(event) => {
+                                        event.preventDefault();
+                                        void openExternal('https://github.com/KirillGrachev');
+                                    }}
                                 >
                                     Kirill Grachev
                                 </a>
@@ -122,7 +144,12 @@ export function AboutPage() {
                         {t('about.thanksSub2')}
                     </p>
                 </div>
-                <Button variant="secondary" icon={<IconGithub size={17} />} href={`${REPO_URL}/issues/new`}>
+                <Button
+                    variant="secondary"
+                    icon={<IconGithub size={17} />}
+                    href={`${REPO_URL}/issues/new`}
+                    onClick={() => void openExternal(`${REPO_URL}/issues/new`)}
+                >
                     {t('about.review')}
                 </Button>
             </section>
