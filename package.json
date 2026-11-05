@@ -44,5 +44,10 @@
     },
     "allowScripts": {
         "esbuild@0.25.12": true
+    },
+    "overrides": {
+        "@typescript-eslint/typescript-estree": {
+            "minimatch": "^11.0.1"
+        }
     }
 }
