@@ -2,7 +2,7 @@
   "$schema": "https://schema.tauri.app/config/2",
   "productName": "Driver Updater",
   "version": "1.0.0",
-  "identifier": "dev.driverupdater.desktop",
+  "identifier": "com.github.kirillgrachev.driverupdater",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://127.0.0.1:5173",
@@ -57,11 +57,16 @@
         "headerImage": "installer/header.bmp",
         "sidebarImage": "installer/sidebar.bmp",
         "uninstallerHeaderImage": "installer/header.bmp",
-        "languages": ["English", "Russian", "Ukrainian"]
+        "languages": [
+          "English",
+          "Russian",
+          "Ukrainian"
+        ]
       },
       "wix": {
         "bannerPath": "installer/wix-banner.bmp",
-        "dialogImagePath": "installer/wix-dialog.bmp"
+        "dialogImagePath": "installer/wix-dialog.bmp",
+        "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8"
       }
     }
   }

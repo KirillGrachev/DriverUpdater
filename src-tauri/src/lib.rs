@@ -11,6 +11,8 @@ mod security;
 mod storage;
 mod windows_update;
 
+use std::path::Path;
+
 use commands::AppRepository;
 use repository::DriverRepository;
 use tauri::{Emitter, Manager};
@@ -51,6 +53,24 @@ fn apply_backup_folder_icon(dir: &std::path::Path) {
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
+fn migrate_legacy_appdata(target: &Path) {
+    let Some(appdata) = std::env::var_os("APPDATA") else {
+        return;
+    };
+    let legacy = std::path::PathBuf::from(appdata).join("dev.driverupdater.desktop");
+    if !legacy.is_dir() || legacy == target {
+        return;
+    }
+    let _ = std::fs::create_dir_all(target);
+    for name in ["state.json", "mock-state.json", "installed-drivers.json"] {
+        let source = legacy.join(name);
+        let destination = target.join(name);
+        if source.is_file() && !destination.exists() {
+            let _ = std::fs::copy(source, destination);
+        }
+    }
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(
@@ -91,6 +111,7 @@ pub fn run() {
             log::info!("Driver Updater {} starting", env!("CARGO_PKG_VERSION"));
             let state_dir = app.path().app_data_dir().ok();
             if let Some(directory) = &state_dir {
+                migrate_legacy_appdata(directory);
                 let _ = std::fs::create_dir_all(directory);
             }
             let backup_dir = std::env::var_os("LOCALAPPDATA")

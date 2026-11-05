@@ -17,6 +17,8 @@ use std::ffi::c_void;
 pub const MAGIC: &[u8; 8] = b"DRVUPD1\0";
 
 #[cfg(target_os = "windows")]
+// Keep this value stable across app-identifier renames so existing DPAPI
+// state remains readable after the migration.
 const ENTROPY: &[u8] = b"dev.driverupdater.desktop";
 
 /// Returns whether a persisted payload is already sealed.
