@@ -14,6 +14,8 @@ bundled into the Windows installer and an end user never needs them.
   the complete installer lifecycle.
 - `generate_icons.py` regenerates the application icon set from the supplied
   branding asset.
+- `release-notes.mjs` groups conventional commits between two tags into the
+  release body.
 - `check-version.mjs` verifies that the package, Cargo and Tauri versions match.
 - `check-locales.mjs` rejects new missing translation keys against
   `shared/locales-baseline.json`.
