@@ -9,7 +9,7 @@ use std::process::Command;
 use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
-use tauri::State;
+use tauri::{AppHandle, Emitter, State};
 
 use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
@@ -26,6 +26,14 @@ pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 /// Package installs that the UI can cancel by package id.
 #[derive(Default)]
 pub struct PackageJobs(pub Mutex<HashMap<String, Arc<AtomicBool>>>);
+
+#[derive(Clone, serde::Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InstallProgress {
+    id: String,
+    current: usize,
+    total: usize,
+}
 
 /// Tracks long-running operations that must not be interrupted by closing the window.
 #[derive(Default)]
@@ -130,16 +138,40 @@ pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdat
     .await
 }
 
-async fn install_one(
-    repository: Arc<Mutex<DriverRepository>>,
+struct InstallRequest {
     id: String,
     create_backup: bool,
     restore_point_name: Option<String>,
     create_restore: bool,
     allow_missing_restore: bool,
+    current: usize,
+    total: usize,
+}
+
+async fn install_one(
+    repository: Arc<Mutex<DriverRepository>>,
     busy: Arc<AtomicUsize>,
+    app: AppHandle,
+    request: InstallRequest,
 ) -> Result<Driver, String> {
+    let InstallRequest {
+        id,
+        create_backup,
+        restore_point_name,
+        create_restore,
+        allow_missing_restore,
+        current,
+        total,
+    } = request;
     let _busy = BusyGuard::acquire(&busy);
+    let _ = app.emit(
+        "install-progress",
+        InstallProgress {
+            id: id.clone(),
+            current,
+            total,
+        },
+    );
     log::info!("preparing driver install for {id}");
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
@@ -208,15 +240,21 @@ pub async fn install_driver(
     restore_point_name: String,
     allow_missing_restore: bool,
     busy: State<'_, BusyState>,
+    app: AppHandle,
 ) -> Result<Driver, String> {
     install_one(
         Arc::clone(&state.0),
-        id,
-        true,
-        Some(restore_point_name),
-        true,
-        allow_missing_restore,
         Arc::clone(&busy.0),
+        app,
+        InstallRequest {
+            id,
+            create_backup: true,
+            restore_point_name: Some(restore_point_name),
+            create_restore: true,
+            allow_missing_restore,
+            current: 1,
+            total: 1,
+        },
     )
     .await
 }
@@ -228,6 +266,7 @@ pub async fn install_updates(
     restore_point_name: String,
     allow_missing_restore: bool,
     busy: State<'_, BusyState>,
+    app: AppHandle,
 ) -> Result<InstallReport, String> {
     let _busy = BusyGuard::acquire(&busy.0);
     let repository = Arc::clone(&state.0);
@@ -261,15 +300,21 @@ pub async fn install_updates(
             .map_err(|error| format!("driver backup was not created: {error}"))?;
     }
     let mut report = InstallReport::default();
-    for id in ids {
+    let total = ids.len();
+    for (index, id) in ids.into_iter().enumerate() {
         match install_one(
             Arc::clone(&repository),
-            id.clone(),
-            false,
-            None,
-            false,
-            true,
             Arc::clone(&busy.0),
+            app.clone(),
+            InstallRequest {
+                id: id.clone(),
+                create_backup: false,
+                restore_point_name: None,
+                create_restore: false,
+                allow_missing_restore: true,
+                current: index + 1,
+                total,
+            },
         )
         .await
         {

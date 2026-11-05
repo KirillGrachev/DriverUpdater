@@ -38,6 +38,7 @@ interface AppState {
     scanning: boolean;
     installingIds: string[];
     packageInstalling: string[];
+    installProgress: { id: string; current: number; total: number } | null;
     busyRestorePoints: string[];
     busyDeletePoints: string[];
     toasts: Toast[];
@@ -97,6 +98,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         scanning: false,
         installingIds: [],
         packageInstalling: [],
+        installProgress: null,
         busyRestorePoints: [],
         busyDeletePoints: [],
         toasts: [],
@@ -188,6 +190,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
             cancelled = true;
         };
     }, [patch]);
+
+    useEffect(() => {
+        if (!('__TAURI_INTERNALS__' in window)) return undefined;
+        let unlisten: (() => void) | undefined;
+        let cancelled = false;
+        void import('@tauri-apps/api/event')
+            .then(({ listen }) =>
+                listen<{ id: string; current: number; total: number }>('install-progress', (event) => {
+                    setState((prev) => ({ ...prev, installProgress: event.payload }));
+                }),
+            )
+            .then((stop) => {
+                if (cancelled) stop();
+                else unlisten = stop;
+            })
+            .catch(() => {
+                // Progress is optional; the busy state still prevents closing.
+            });
+        return () => {
+            cancelled = true;
+            unlisten?.();
+        };
+    }, []);
 
     const requestedLocale = state.data?.settings.language;
     const locale = requestedLocale && isSupportedLocale(requestedLocale) ? requestedLocale : 'ru';
@@ -331,6 +356,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     setState((prev) => ({
                         ...prev,
                         installingIds: prev.installingIds.filter((x) => x !== id),
+                        installProgress: prev.installProgress?.id === id ? null : prev.installProgress,
                     }));
                 }
             };
@@ -392,6 +418,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     setState((prev) => ({
                         ...prev,
                         installingIds: prev.installingIds.filter((x) => !ids.includes(x)),
+                        installProgress: null,
                     }));
                 }
             };

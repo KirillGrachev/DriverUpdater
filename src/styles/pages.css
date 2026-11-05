@@ -357,6 +357,19 @@
 
 /** Drivers. */
 
+.install-progress {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 34px;
+    margin-bottom: 12px;
+    border-radius: 10px;
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+    font-size: 13px;
+    font-weight: 600;
+}
+
 .drivers-toolbar {
     display: flex;
     align-items: center;

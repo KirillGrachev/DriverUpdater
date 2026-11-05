@@ -112,7 +112,8 @@ function DriverRow({ driver }: { driver: Driver }) {
 }
 
 export function DriversPage() {
-    const { t, locale, data, scanning, scan, createRestorePoint, installingIds, installUpdates } = useApp();
+    const { t, locale, data, scanning, scan, createRestorePoint, installingIds, installProgress, installUpdates } =
+        useApp();
     const [query, setQuery] = useState('');
     const [category, setCategory] = useState<'all' | DriverCategory>('all');
     const [view, setView] = useState<'list' | 'categories'>('list');
@@ -202,6 +203,12 @@ export function DriversPage() {
                     </button>
                 </div>
             </section>
+
+            {installProgress ? (
+                <div className="install-progress" role="status" aria-live="polite">
+                    {t('components.installing')} {installProgress.current} / {installProgress.total}
+                </div>
+            ) : null}
 
             <section className="drivers-toolbar">
                 <Select
