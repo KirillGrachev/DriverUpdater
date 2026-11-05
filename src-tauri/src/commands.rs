@@ -83,17 +83,7 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
         })
         .await;
     }
-    let restore_points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
-        .await
-        .ok()
-        .and_then(Result::ok);
-    run_repository_handle(repository, move |repository| {
-        if let Some(points) = restore_points {
-            repository.set_restore_points(points);
-        }
-        Ok(repository.snapshot())
-    })
-    .await
+    run_repository_handle(repository, |repository| Ok(repository.snapshot())).await
 }
 
 #[tauri::command]

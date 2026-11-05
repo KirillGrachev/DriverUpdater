@@ -52,6 +52,7 @@ interface AppContextValue extends AppState {
     installDriver: (id: string) => Promise<void>;
     installUpdates: (ids: string[]) => Promise<void>;
     createRestorePoint: (options?: { silentSuccess?: boolean; name?: string }) => Promise<boolean>;
+    refreshRestorePoints: () => Promise<void>;
     requestDeleteRestorePoint: (id: string, name: string) => void;
     requestRestorePoint: (id: string, name: string) => void;
     saveSettings: (settings: Settings) => Promise<void>;
@@ -389,6 +390,21 @@ export function AppProvider({ children }: { children: ReactNode }) {
         [pushToast, locale],
     );
 
+    const refreshRestorePoints = useCallback(async () => {
+        const backend = backendRef.current;
+        const current = dataRef.current;
+        if (!backend || !current) return;
+        try {
+            const restorePoints = await backend.listRestorePoints();
+            const latest = dataRef.current ?? current;
+            const next = { ...latest, restorePoints };
+            dataRef.current = next;
+            setState((prev) => (prev.data ? { ...prev, data: next } : prev));
+        } catch {
+            // The Backups page keeps its cached list and shows the action error.
+        }
+    }, []);
+
     const requestDeleteRestorePoint = useCallback(
         (id: string, name: string) => {
             openModal({
@@ -715,6 +731,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             installDriver,
             installUpdates,
             createRestorePoint,
+            refreshRestorePoints,
             requestDeleteRestorePoint,
             requestRestorePoint,
             saveSettings,
@@ -746,6 +763,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             installDriver,
             installUpdates,
             createRestorePoint,
+            refreshRestorePoints,
             requestDeleteRestorePoint,
             requestRestorePoint,
             saveSettings,

@@ -53,6 +53,7 @@ export function BackupsPage() {
         busyRestorePoints,
         busyDeletePoints,
         createRestorePoint,
+        refreshRestorePoints,
         requestDeleteRestorePoint,
         requestRestorePoint,
         saveSettings,
@@ -65,6 +66,7 @@ export function BackupsPage() {
         pushToast,
     } = useApp();
     const [creating, setCreating] = useState(false);
+    const [pointsLoading, setPointsLoading] = useState(true);
     const [backups, setBackups] = useState<DriverBackup[]>(() => backupsCache ?? []);
     const [backupsLoading, setBackupsLoading] = useState(backupsCache === null);
     const [creatingBackup, setCreatingBackup] = useState(false);
@@ -72,6 +74,9 @@ export function BackupsPage() {
 
     useEffect(() => {
         let cancelled = false;
+        void refreshRestorePoints().finally(() => {
+            if (!cancelled) setPointsLoading(false);
+        });
         void listDriverBackups()
             .then((items) => {
                 backupsCache = items;
@@ -83,7 +88,7 @@ export function BackupsPage() {
         return () => {
             cancelled = true;
         };
-    }, [listDriverBackups]);
+    }, [listDriverBackups, refreshRestorePoints]);
 
     if (!data) return null;
 
@@ -196,7 +201,9 @@ export function BackupsPage() {
                     </Button>
                 </div>
                 <AnimatedHeight>
-                    {data.restorePoints.length === 0 ? (
+                    {pointsLoading && data.restorePoints.length === 0 ? (
+                        <BackupsSkeleton />
+                    ) : data.restorePoints.length === 0 ? (
                         <div className="backups-empty">
                             <div className="backups-empty-title">{t('backups.emptyTitle')}</div>
                             <div className="backups-empty-sub">{t('backups.emptySub')}</div>
