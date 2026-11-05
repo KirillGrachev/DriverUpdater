@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react';
+import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
 import { LoadingScreen } from './components/LoadingScreen';
@@ -19,10 +19,23 @@ import { useApp } from './store/app';
 
 function RouteFallback() {
     const { beginLoading, endLoading } = useApp();
-    useEffect(() => {
+    useLayoutEffect(() => {
         beginLoading();
         return endLoading;
     }, [beginLoading, endLoading]);
+    return null;
+}
+
+function RouteTransition() {
+    const { route, beginLoading, endLoading } = useApp();
+    useLayoutEffect(() => {
+        beginLoading();
+        const timer = window.setTimeout(endLoading, 180);
+        return () => {
+            window.clearTimeout(timer);
+            endLoading();
+        };
+    }, [beginLoading, endLoading, route]);
     return null;
 }
 
@@ -47,7 +60,8 @@ function CurrentPage() {
 }
 
 export function App() {
-    const { booting, bootError, loadingCount, route, t, data, pushToast } = useApp();
+    const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
+    const scanningWithoutData = scanning && !data?.summary.lastCheck;
 
     useEffect(() => {
         if (!('__TAURI_INTERNALS__' in window)) return undefined;
@@ -111,10 +125,11 @@ export function App() {
 
     return (
         <div className="app-window">
+            <RouteTransition />
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
-                    <LoadingScreen visible={loadingCount > 0} />
+                    <LoadingScreen visible={loadingCount > 0 || scanningWithoutData} />
                     {data?.scanError ? (
                         <div className="notice-bar notice-error scan-error" role="alert">
                             <div>

@@ -57,7 +57,7 @@ export function BackupsPage() {
     const [creatingBackup, setCreatingBackup] = useState(false);
     const [busyBackup, setBusyBackup] = useState<string | null>(null);
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         let cancelled = false;
         let finished = false;
         beginLoading();

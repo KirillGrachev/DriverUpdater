@@ -1,4 +1,4 @@
-import { useEffect, useState, Fragment } from 'react';
+import { Fragment, useLayoutEffect, useState } from 'react';
 import { IconCheck, IconDownload, IconPackage } from '../components/icons';
 import { Button, Select } from '../components/ui';
 import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup, type ComponentSubgroup } from '../data/components';
@@ -51,7 +51,7 @@ export function ComponentsPage() {
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         let cancelled = false;
         let finished = false;
         beginLoading();
