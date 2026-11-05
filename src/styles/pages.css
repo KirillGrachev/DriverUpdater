@@ -378,6 +378,8 @@
 
 .drivers-card {
     overflow: hidden;
+    border: 0;
+    box-shadow: none;
 }
 
 /** Non-interactive containers must never show a browser focus ring. */
