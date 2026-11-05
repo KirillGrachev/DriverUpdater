@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Driver Updater Setup</title>
+        <link rel="stylesheet" href="styles.css" />
+    </head>
+    <body>
+        <div class="setup-window">
+            <header class="titlebar" data-tauri-drag-region>
+                <div class="titlebar-brand" data-tauri-drag-region>
+                    <img src="assets/logo.png" alt="" />
+                    <span>Driver Updater</span>
+                </div>
+                <div class="window-controls">
+                    <button type="button" aria-label="Minimize" data-action="minimize">&#xE921;</button>
+                    <button type="button" aria-label="Maximize" data-action="maximize">&#xE922;</button>
+                    <button type="button" aria-label="Close" data-action="close">&#xE8BB;</button>
+                </div>
+            </header>
+
+            <main class="wizard">
+                <section class="screen is-active" data-screen="welcome">
+                    <div class="welcome-layout">
+                        <div class="welcome-copy">
+                            <div class="brand-mark"><img src="assets/logo.png" alt="" /></div>
+                            <h1>Welcome to<br />Driver Updater</h1>
+                            <p>Keep your drivers up to date for better performance and stability.</p>
+                            <button type="button" class="btn btn-primary btn-wide" data-next="language">
+                                Get started <span aria-hidden="true">&rarr;</span>
+                            </button>
+                            <button type="button" class="btn btn-secondary btn-wide" data-action="close">Exit</button>
+                        </div>
+                        <div class="welcome-art" aria-hidden="true">
+                            <div class="art-orbit"></div>
+                            <svg viewBox="0 0 360 280" role="presentation">
+                                <rect
+                                    x="70"
+                                    y="55"
+                                    width="210"
+                                    height="136"
+                                    rx="13"
+                                    fill="#edf3ff"
+                                    stroke="#c9dcff"
+                                    stroke-width="4"
+                                />
+                                <rect x="86" y="71" width="178" height="104" rx="7" fill="#dce9ff" />
+                                <rect x="120" y="93" width="52" height="49" rx="6" fill="#4b88ef" />
+                                <rect x="181" y="93" width="52" height="23" rx="5" fill="#4b88ef" />
+                                <rect x="181" y="121" width="52" height="23" rx="5" fill="#4b88ef" />
+                                <path d="M40 197h274l18 33H22z" fill="#c8dbff" />
+                                <path d="M22 230h292" stroke="#9fc0fa" stroke-width="4" />
+                                <circle cx="270" cy="172" r="47" fill="#2f6fed" />
+                                <path
+                                    d="m250 173 14 14 28-31"
+                                    fill="none"
+                                    stroke="#fff"
+                                    stroke-width="9"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                />
+                            </svg>
+                        </div>
+                    </div>
+                    <footer class="screen-footer"><div class="dots" data-dots="0"></div></footer>
+                </section>
+
+                <section class="screen" data-screen="language">
+                    <div class="screen-heading">
+                        <h1>Choose your language</h1>
+                        <p>Select the language you want to use for the installation.</p>
+                    </div>
+                    <label class="search-field">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <circle cx="11" cy="11" r="6" />
+                            <path d="m16 16 4 4" />
+                        </svg>
+                        <input
+                            id="language-search"
+                            type="search"
+                            placeholder="Search languages..."
+                            autocomplete="off"
+                        />
+                    </label>
+                    <div class="language-list" id="language-list"></div>
+                    <footer class="screen-footer">
+                        <div class="dots" data-dots="1"></div>
+                        <div class="footer-actions">
+                            <button type="button" class="btn btn-secondary" data-back="welcome">Back</button>
+                            <button type="button" class="btn btn-primary" data-next="theme">
+                                Next <span aria-hidden="true">&rarr;</span>
+                            </button>
+                        </div>
+                    </footer>
+                </section>
+
+                <section class="screen" data-screen="theme">
+                    <div class="screen-heading">
+                        <h1>Choose your appearance</h1>
+                        <p>Select a theme for the application.</p>
+                    </div>
+                    <div class="theme-grid" id="theme-grid">
+                        <button type="button" class="theme-card" data-theme="light">
+                            <span class="theme-preview theme-light"><i></i><i></i><i></i></span>
+                            <span class="theme-name">Light</span>
+                        </button>
+                        <button type="button" class="theme-card" data-theme="dark">
+                            <span class="theme-preview theme-dark"><i></i><i></i><i></i></span>
+                            <span class="theme-name">Dark</span>
+                        </button>
+                        <button type="button" class="theme-card" data-theme="system">
+                            <span class="theme-preview theme-system"><i></i><i></i><i></i></span>
+                            <span class="theme-name">System</span>
+                        </button>
+                    </div>
+                    <footer class="screen-footer">
+                        <div class="dots" data-dots="1"></div>
+                        <div class="footer-actions">
+                            <button type="button" class="btn btn-secondary" data-back="language">Back</button>
+                            <button type="button" class="btn btn-primary" data-next="location">
+                                Next <span aria-hidden="true">&rarr;</span>
+                            </button>
+                        </div>
+                    </footer>
+                </section>
+
+                <section class="screen" data-screen="location">
+                    <div class="screen-heading">
+                        <h1>Choose installation location</h1>
+                        <p>Select the folder where you want to install Driver Updater.</p>
+                    </div>
+                    <div class="path-control">
+                        <span class="path-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24">
+                                <path d="M3 6h7l2 2h9v11H3z" />
+                                <path d="M3 6v13" />
+                            </svg>
+                        </span>
+                        <input
+                            id="install-path"
+                            type="text"
+                            value="C:\Program Files\Driver Updater"
+                            spellcheck="false"
+                        />
+                        <button type="button" class="btn btn-secondary" id="browse">Browse...</button>
+                    </div>
+                    <div class="space-info">
+                        <span>
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <rect x="4" y="4" width="16" height="16" rx="3" />
+                                <path d="M8 9h8M8 13h5" />
+                            </svg>
+                            Required space: <strong>120 MB</strong> &nbsp;&bull;&nbsp; Available:
+                            <strong>45.2 GB</strong>
+                        </span>
+                    </div>
+                    <label class="check-row">
+                        <input id="desktop-shortcut" type="checkbox" checked />
+                        <span class="check-box"></span>
+                        <span>Create a desktop shortcut</span>
+                    </label>
+                    <p class="install-error" id="location-error" role="alert"></p>
+                    <footer class="screen-footer">
+                        <div class="dots" data-dots="1"></div>
+                        <div class="footer-actions">
+                            <button type="button" class="btn btn-secondary" data-back="theme">Back</button>
+                            <button type="button" class="btn btn-primary" id="install">Install</button>
+                        </div>
+                    </footer>
+                </section>
+
+                <section class="screen" data-screen="installing">
+                    <div class="install-layout">
+                        <div class="screen-heading">
+                            <h1>Installing Driver Updater...</h1>
+                            <p>This may take a few minutes. Please don't close the window.</p>
+                        </div>
+                        <div class="progress-row">
+                            <div class="progress-track"><span id="progress-bar"></span></div>
+                            <span id="progress-value">0%</span>
+                        </div>
+                        <div class="install-stage">
+                            <span class="stage-spinner" aria-hidden="true"></span>
+                            <span id="install-stage">Preparing installation files...</span>
+                        </div>
+                        <p class="install-error" id="install-error" role="alert"></p>
+                    </div>
+                    <footer class="screen-footer"><div class="dots" data-dots="1"></div></footer>
+                </section>
+
+                <section class="screen" data-screen="complete">
+                    <div class="complete-layout">
+                        <div class="complete-check" aria-hidden="true">
+                            <svg viewBox="0 0 24 24"><path d="m6 12 4 4 8-9" /></svg>
+                        </div>
+                        <h1>Installation complete</h1>
+                        <p class="complete-copy">Driver Updater has been successfully installed and is ready to use.</p>
+                        <label class="check-row launch-row">
+                            <input id="launch-app" type="checkbox" checked />
+                            <span class="check-box"></span>
+                            <span>Launch Driver Updater</span>
+                        </label>
+                        <button type="button" class="btn btn-primary finish-button" id="finish">Finish</button>
+                    </div>
+                    <footer class="screen-footer"><div class="dots" data-dots="1"></div></footer>
+                </section>
+            </main>
+        </div>
+        <script src="app.js"></script>
+    </body>
+</html>

@@ -23,6 +23,37 @@ pub struct InstallPlan {
     pub backup_dir: PathBuf,
 }
 
+/// Applies the choices made in the unified setup wizard once.
+///
+/// The setup writes a small JSON file next to the app data so the first app
+/// launch uses the selected language and theme even before the user opens
+/// Settings.
+fn apply_installer_preferences(repo: &mut DriverRepository) {
+    let Some(local) = std::env::var_os("LOCALAPPDATA").map(PathBuf::from) else {
+        return;
+    };
+    let path = local.join("Driver Updater").join("installer.json");
+    let Ok(raw) = std::fs::read_to_string(&path) else {
+        return;
+    };
+    if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
+        if let Some(language) = value.get("language").and_then(|item| item.as_str()) {
+            if (2..=8).contains(&language.len())
+                && language.chars().all(|c| c.is_ascii_alphabetic())
+            {
+                repo.settings.language = language.to_string();
+            }
+        }
+        if let Some(theme) = value.get("theme").and_then(|item| item.as_str()) {
+            if matches!(theme, "light" | "dark" | "system") {
+                repo.settings.theme = theme.to_string();
+            }
+        }
+    }
+    let _ = std::fs::remove_file(path);
+    let _ = repo.persist();
+}
+
 pub struct DriverRepository {
     drivers: Vec<Driver>,
     restore_points: Vec<RestorePoint>,
@@ -163,6 +194,7 @@ impl DriverRepository {
             repo.last_check = None;
             clear_update_state(&mut repo.drivers);
         }
+        apply_installer_preferences(&mut repo);
         repo.devices_total = repo.drivers.len() as u32;
         repo
     }
