@@ -12,7 +12,7 @@ mod windows_update;
 
 use commands::AppRepository;
 use repository::DriverRepository;
-use tauri::Manager;
+use tauri::{Emitter, Manager};
 
 /// Gives the backups folder the app icon in Explorer instead of the generic
 /// folder glyph. Windows reads this from {@code desktop.ini} and expects the
@@ -73,6 +73,19 @@ pub fn run() {
                 .build(),
         )
         .plugin(tauri_plugin_window_state::Builder::default().build())
+        .on_window_event(|window, event| {
+            if let tauri::WindowEvent::CloseRequested { api, .. } = event {
+                let busy = window
+                    .app_handle()
+                    .state::<commands::BusyState>()
+                    .0
+                    .load(std::sync::atomic::Ordering::SeqCst);
+                if busy > 0 {
+                    api.prevent_close();
+                    let _ = window.emit("close-blocked", ());
+                }
+            }
+        })
         .setup(|app| {
             log::info!("Driver Updater {} starting", env!("CARGO_PKG_VERSION"));
             let state_dir = app.path().app_data_dir().ok();
@@ -108,6 +121,7 @@ pub fn run() {
                 repo,
             ))));
             app.manage(commands::PackageJobs::default());
+            app.manage(commands::BusyState::default());
 
             // Keep the taskbar/window icon in sync with the bundled app icon.
             if let Some(window) = app.get_webview_window("main") {

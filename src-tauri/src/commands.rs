@@ -6,7 +6,7 @@
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex};
 
 use tauri::State;
@@ -26,6 +26,25 @@ pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 /// Package installs that the UI can cancel by package id.
 #[derive(Default)]
 pub struct PackageJobs(pub Mutex<HashMap<String, Arc<AtomicBool>>>);
+
+/// Tracks long-running operations that must not be interrupted by closing the window.
+#[derive(Default)]
+pub struct BusyState(pub Arc<AtomicUsize>);
+
+struct BusyGuard(Arc<AtomicUsize>);
+
+impl BusyGuard {
+    fn acquire(state: &Arc<AtomicUsize>) -> Self {
+        state.fetch_add(1, Ordering::SeqCst);
+        Self(Arc::clone(state))
+    }
+}
+
+impl Drop for BusyGuard {
+    fn drop(&mut self) {
+        self.0.fetch_sub(1, Ordering::SeqCst);
+    }
+}
 
 /**
  * Runs a repository operation on the blocking pool.
@@ -118,7 +137,9 @@ async fn install_one(
     restore_point_name: Option<String>,
     create_restore: bool,
     allow_missing_restore: bool,
+    busy: Arc<AtomicUsize>,
 ) -> Result<Driver, String> {
+    let _busy = BusyGuard::acquire(&busy);
     log::info!("preparing driver install for {id}");
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
@@ -186,6 +207,7 @@ pub async fn install_driver(
     id: String,
     restore_point_name: String,
     allow_missing_restore: bool,
+    busy: State<'_, BusyState>,
 ) -> Result<Driver, String> {
     install_one(
         Arc::clone(&state.0),
@@ -194,6 +216,7 @@ pub async fn install_driver(
         Some(restore_point_name),
         true,
         allow_missing_restore,
+        Arc::clone(&busy.0),
     )
     .await
 }
@@ -204,7 +227,9 @@ pub async fn install_updates(
     ids: Vec<String>,
     restore_point_name: String,
     allow_missing_restore: bool,
+    busy: State<'_, BusyState>,
 ) -> Result<InstallReport, String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let repository = Arc::clone(&state.0);
     let (restore_before_install, keep_backups, backup_dir) =
         run_repository_handle(Arc::clone(&repository), |repository| {
@@ -244,6 +269,7 @@ pub async fn install_updates(
             None,
             false,
             true,
+            Arc::clone(&busy.0),
         )
         .await
         {
@@ -272,8 +298,10 @@ pub async fn list_restore_points(
 #[tauri::command]
 pub async fn create_restore_point(
     state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
     name: String,
 ) -> Result<RestorePoint, String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     if name.trim().is_empty() || name.chars().count() > 200 {
         return Err("invalid restore point name".to_string());
     }
@@ -294,8 +322,10 @@ pub async fn create_restore_point(
 #[tauri::command]
 pub async fn delete_restore_point(
     state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
     id: String,
 ) -> Result<(), String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     tauri::async_runtime::spawn_blocking(move || default_restore_provider().delete(&id))
         .await
         .map_err(|error| error.to_string())??;
@@ -310,7 +340,12 @@ pub async fn delete_restore_point(
 }
 
 #[tauri::command]
-pub async fn restore_from_point(state: State<'_, AppRepository>, id: String) -> Result<(), String> {
+pub async fn restore_from_point(
+    state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
+    id: String,
+) -> Result<(), String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let _ = state;
     tauri::async_runtime::spawn_blocking(move || default_restore_provider().restore(&id))
         .await
@@ -433,7 +468,9 @@ pub async fn list_driver_backups(
 #[tauri::command]
 pub async fn create_driver_backup(
     state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
 ) -> Result<crate::backup::DriverBackup, String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).create())
         .await
@@ -443,8 +480,10 @@ pub async fn create_driver_backup(
 #[tauri::command]
 pub async fn restore_driver_backup(
     state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
     id: String,
 ) -> Result<(), String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).restore(&id))
         .await
@@ -454,8 +493,10 @@ pub async fn restore_driver_backup(
 #[tauri::command]
 pub async fn delete_driver_backup(
     state: State<'_, AppRepository>,
+    busy: State<'_, BusyState>,
     id: String,
 ) -> Result<(), String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
     tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).delete(&id))
         .await
@@ -502,9 +543,11 @@ pub async fn list_package_versions(package_id: String) -> Result<Vec<String>, St
 #[tauri::command]
 pub async fn install_package(
     state: State<'_, PackageJobs>,
+    busy: State<'_, BusyState>,
     package_id: String,
     version: String,
 ) -> Result<(), String> {
+    let _busy = BusyGuard::acquire(&busy.0);
     let cancel = Arc::new(AtomicBool::new(false));
     let job_key = package_id.clone();
     {

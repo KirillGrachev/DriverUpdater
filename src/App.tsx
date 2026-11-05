@@ -37,7 +37,30 @@ function CurrentPage() {
 }
 
 export function App() {
-    const { booting, bootError, route, t, data } = useApp();
+    const { booting, bootError, route, t, data, pushToast } = useApp();
+
+    useEffect(() => {
+        if (!('__TAURI_INTERNALS__' in window)) return undefined;
+        let unlisten: (() => void) | undefined;
+        let cancelled = false;
+        void import('@tauri-apps/api/event')
+            .then(({ listen }) =>
+                listen('close-blocked', () => {
+                    pushToast(t('components.installing'), 'info');
+                }),
+            )
+            .then((stop) => {
+                if (cancelled) stop();
+                else unlisten = stop;
+            })
+            .catch(() => {
+                // The close guard still works without the toast listener.
+            });
+        return () => {
+            cancelled = true;
+            unlisten?.();
+        };
+    }, [pushToast, t]);
 
     useEffect(() => {
         /**
