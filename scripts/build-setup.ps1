@@ -5,6 +5,7 @@ param(
 )
 
 $ErrorActionPreference = 'Stop'
+$PSNativeCommandUseErrorActionPreference = $false
 $root = Split-Path -Parent $PSScriptRoot
 if (-not $Version) {
     $Version = (Get-Content (Join-Path $root 'package.json') | ConvertFrom-Json).version
@@ -18,20 +19,42 @@ $arch = switch ($Target) {
 if (-not $BundleRoot) {
     $BundleRoot = Join-Path $root "src-tauri/target/$Target/release/bundle"
 }
-$nsis = @(Get-ChildItem $BundleRoot -Filter '*-setup.exe' -File -Recurse -ErrorAction SilentlyContinue |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1)
-$msi = @(Get-ChildItem $BundleRoot -Filter '*.msi' -File -Recurse -ErrorAction SilentlyContinue |
-    Sort-Object LastWriteTime -Descending |
-    Select-Object -First 1)
+$nsisCandidates = @(Get-ChildItem $BundleRoot -Filter '*-setup.exe' -File -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending)
+$msiCandidates = @(Get-ChildItem $BundleRoot -Filter '*.msi' -File -Recurse -ErrorAction SilentlyContinue |
+    Sort-Object LastWriteTime -Descending)
+$cleanVersion = $Version.TrimStart('v')
+$nsis = @($nsisCandidates | Where-Object { $_.Name -like "*$cleanVersion*" } | Select-Object -First 1)
+$msi = @($msiCandidates | Where-Object { $_.Name -like "*$cleanVersion*" } | Select-Object -First 1)
+if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
+    $nsis = @($nsisCandidates | Select-Object -First 1)
+    if ($nsis.Count -eq 0) {
+        $msi = @($msiCandidates | Select-Object -First 1)
+    }
+}
 if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
     throw "No MSI or NSIS payload found under $BundleRoot"
 }
 
 $setupProject = Join-Path $root 'installer/src-tauri'
-cargo build --release --manifest-path (Join-Path $setupProject 'Cargo.toml') --target $Target
-if ($LASTEXITCODE -ne 0) {
-    throw "The setup wizard build failed"
+$buildId = [guid]::NewGuid().ToString('N')
+$stdoutLog = Join-Path $env:TEMP "driver-updater-setup-$buildId.out.log"
+$stderrLog = Join-Path $env:TEMP "driver-updater-setup-$buildId.err.log"
+try {
+    $process = Start-Process cargo -ArgumentList @(
+        'build',
+        '--release',
+        '--manifest-path',
+        (Join-Path $setupProject 'Cargo.toml'),
+        '--target',
+        $Target
+    ) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $stdoutLog -RedirectStandardError $stderrLog
+    if ($process.ExitCode -ne 0) {
+        Get-Content $stdoutLog, $stderrLog -Tail 80 -ErrorAction SilentlyContinue
+        throw "The setup wizard build failed with exit code $($process.ExitCode)"
+    }
+} finally {
+    Remove-Item -LiteralPath $stdoutLog, $stderrLog -Force -ErrorAction SilentlyContinue
 }
 $setupExe = Join-Path $setupProject "target/$Target/release/driver-updater-setup.exe"
 if (-not (Test-Path $setupExe)) {
