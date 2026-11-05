@@ -188,8 +188,31 @@ export function Select<T extends string>({
     const [activeIndex, setActiveIndex] = useState(0);
     const [dropUp, setDropUp] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
+    const triggerRef = useRef<HTMLButtonElement>(null);
+    const sizerRef = useRef<HTMLSpanElement>(null);
     const listId = useId();
     const current = options.find((o) => o.value === value);
+    const labelsKey = options.map((option) => option.label).join('\u0000');
+
+    useLayoutEffect(() => {
+        const root = rootRef.current;
+        const trigger = triggerRef.current;
+        const sizer = sizerRef.current;
+        if (!root || !trigger || !sizer) return;
+        let widest = 0;
+        for (const child of Array.from(sizer.children)) {
+            widest = Math.max(widest, child.getBoundingClientRect().width);
+        }
+        if (widest === 0) return;
+        const style = getComputedStyle(trigger);
+        const chrome =
+            parseFloat(style.paddingLeft) +
+            parseFloat(style.paddingRight) +
+            parseFloat(style.borderLeftWidth) +
+            parseFloat(style.borderRightWidth);
+        const iconWidth = icon || current?.icon ? 26 : 0;
+        root.style.width = `${Math.ceil(widest + chrome + iconWidth + 12)}px`;
+    }, [current?.icon, icon, labelsKey]);
 
     const updateDirection = () => {
         const root = rootRef.current;
@@ -276,7 +299,13 @@ export function Select<T extends string>({
 
     return (
         <div ref={rootRef} className={`select ${open ? 'open' : ''} ${className}`.trim()}>
+            <span className="select-sizer" aria-hidden="true" ref={sizerRef}>
+                {options.map((option) => (
+                    <span key={option.value}>{option.label}</span>
+                ))}
+            </span>
             <button
+                ref={triggerRef}
                 type="button"
                 className="select-trigger"
                 role="combobox"
