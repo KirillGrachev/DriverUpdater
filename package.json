@@ -1,7 +1,7 @@
 {
     "name": "driver-updater",
     "private": true,
-    "version": "1.0.2",
+    "version": "1.0.3",
     "description": "Driver Updater is a free open-source driver manager for Windows (Tauri + React)",
     "author": "Kirill Grachev (https://github.com/KirillGrachev)",
     "license": "MIT",
