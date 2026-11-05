@@ -9,6 +9,7 @@ use std::fs;
 #[cfg(target_os = "windows")]
 use std::path::{Path, PathBuf};
 #[cfg(target_os = "windows")]
+use std::sync::atomic::{AtomicU64, Ordering};
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[cfg(target_os = "windows")]
@@ -95,7 +96,9 @@ impl DriverBackupProvider for WindowsDriverBackups {
             .duration_since(UNIX_EPOCH)
             .map(|value| value.as_secs())
             .unwrap_or(0);
-        let id = format!("backup-{stamp}");
+        static BACKUP_COUNTER: AtomicU64 = AtomicU64::new(0);
+        let sequence = BACKUP_COUNTER.fetch_add(1, Ordering::Relaxed);
+        let id = format!("backup-{stamp}-{sequence}");
         let directory = self.backup_path(&id)?;
         fs::create_dir_all(&directory).map_err(|error| error.to_string())?;
 

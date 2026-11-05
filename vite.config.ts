@@ -6,12 +6,14 @@ import packageJson from './package.json';
 // Tauri expects a fixed dev-server port on the loopback interface.
 const TAURI_DEV_HOST = '127.0.0.1';
 const TAURI_DEV_PORT = 5173;
+const sourceDateEpoch = process.env.SOURCE_DATE_EPOCH;
+const buildDate = sourceDateEpoch ? new Date(Number(sourceDateEpoch) * 1000) : new Date();
 
 export default defineConfig({
     plugins: [react()],
     define: {
         __APP_VERSION__: JSON.stringify(packageJson.version),
-        __BUILD_DATE__: JSON.stringify(new Date().toISOString()),
+        __BUILD_DATE__: JSON.stringify(buildDate.toISOString()),
     },
     clearScreen: false,
     server: {
