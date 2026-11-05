@@ -38,7 +38,7 @@ interface AppState {
     scanning: boolean;
     installingIds: string[];
     packageInstalling: string[];
-    installProgress: { id: string; current: number; total: number } | null;
+    installProgress: { id: string; current: number; total: number; stage: string } | null;
     busyRestorePoints: string[];
     busyDeletePoints: string[];
     toasts: Toast[];
@@ -197,7 +197,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         let cancelled = false;
         void import('@tauri-apps/api/event')
             .then(({ listen }) =>
-                listen<{ id: string; current: number; total: number }>('install-progress', (event) => {
+                listen<{ id: string; current: number; total: number; stage: string }>('install-progress', (event) => {
                     setState((prev) => ({ ...prev, installProgress: event.payload }));
                 }),
             )

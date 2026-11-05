@@ -206,7 +206,12 @@ export function DriversPage() {
 
             {installProgress ? (
                 <div className="install-progress" role="status" aria-live="polite">
-                    {t('components.installing')} {installProgress.current} / {installProgress.total}
+                    {installProgress.stage === 'restore'
+                        ? t('backups.pointsTitle')
+                        : installProgress.stage === 'backup'
+                          ? t('backups.driverBackups')
+                          : t('components.installing')}
+                    {installProgress.total > 0 ? ` ${installProgress.current} / ${installProgress.total}` : ''}
                 </div>
             ) : null}
 

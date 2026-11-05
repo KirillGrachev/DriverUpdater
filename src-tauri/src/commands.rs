@@ -33,6 +33,19 @@ struct InstallProgress {
     id: String,
     current: usize,
     total: usize,
+    stage: String,
+}
+
+fn emit_install_progress(app: &AppHandle, id: &str, current: usize, total: usize, stage: &str) {
+    let _ = app.emit(
+        "install-progress",
+        InstallProgress {
+            id: id.to_string(),
+            current,
+            total,
+            stage: stage.to_string(),
+        },
+    );
 }
 
 /// Tracks long-running operations that must not be interrupted by closing the window.
@@ -164,14 +177,6 @@ async fn install_one(
         total,
     } = request;
     let _busy = BusyGuard::acquire(&busy);
-    let _ = app.emit(
-        "install-progress",
-        InstallProgress {
-            id: id.clone(),
-            current,
-            total,
-        },
-    );
     log::info!("preparing driver install for {id}");
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
@@ -180,6 +185,7 @@ async fn install_one(
     .await?;
 
     if create_restore && plan.restore_before_install {
+        emit_install_progress(&app, &id, current, total, "restore");
         let name = restore_point_name
             .filter(|name| !name.trim().is_empty() && name.chars().count() <= 200)
             .ok_or_else(|| "E_RESTORE_POINT: a restore point name is required".to_string())?;
@@ -208,6 +214,7 @@ async fn install_one(
     }
 
     if create_backup && plan.keep_backups {
+        emit_install_progress(&app, &id, current, total, "backup");
         let backup_dir = plan.backup_dir.clone();
         tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
             .await
@@ -215,6 +222,7 @@ async fn install_one(
             .map_err(|error| format!("driver backup was not created: {error}"))?;
     }
 
+    emit_install_progress(&app, &id, current, total, "install");
     let update_id = plan.update_id.clone();
     log::info!("installing Windows Update package {update_id}");
     let logged_update_id = update_id.clone();
@@ -277,6 +285,7 @@ pub async fn install_updates(
         })
         .await?;
     if restore_before_install {
+        emit_install_progress(&app, "", 0, 0, "restore");
         if restore_point_name.trim().is_empty() || restore_point_name.chars().count() > 200 {
             return Err("E_RESTORE_POINT: a restore point name is required".to_string());
         }
@@ -294,6 +303,7 @@ pub async fn install_updates(
         }
     }
     if keep_backups {
+        emit_install_progress(&app, "", 0, 0, "backup");
         tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
             .await
             .map_err(|error| error.to_string())?
