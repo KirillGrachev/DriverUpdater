@@ -229,7 +229,9 @@ mod tests {
             update_id: None,
             reboot_required: false,
         };
-        cache.save(&[driver.clone()]).expect("save cache");
+        cache
+            .save(std::slice::from_ref(&driver))
+            .expect("save cache");
         assert_eq!(
             cache.load().expect("load cache").map(|items| items.len()),
             Some(1)
