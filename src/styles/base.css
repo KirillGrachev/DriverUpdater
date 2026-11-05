@@ -170,8 +170,8 @@ a {
     flex-direction: column;
     height: 100%;
     background: var(--c-surface);
-    border: 1px solid var(--c-border);
-    border-radius: 12px;
+    border: 0;
+    border-radius: 0;
     overflow: hidden;
 }
 
