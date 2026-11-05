@@ -4,6 +4,7 @@
 //! writes more than the pipe buffer therefore cannot block forever while the
 //! timeout is being waited on.</p>
 
+#[cfg(target_os = "windows")]
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
 use std::time::Duration;
@@ -15,7 +16,6 @@ const MAX_CAPTURED_OUTPUT: usize = 4 * 1024 * 1024;
 /// Captured result of a finished child process.
 pub struct ProcessOutput {
     pub success: bool,
-    #[allow(dead_code)]
     pub code: Option<i32>,
     pub stdout: String,
     pub stderr: String,
@@ -91,15 +91,18 @@ fn read_pipe(pipe: Option<impl std::io::Read>) -> String {
 }
 
 /// Returns an absolute executable path under `%SystemRoot%`.
+#[cfg(target_os = "windows")]
 pub fn system_executable(name: &str) -> PathBuf {
     windows_directory().join("System32").join(name)
 }
 
 /// Returns an executable stored directly under `%SystemRoot%`, such as explorer.exe.
+#[cfg(target_os = "windows")]
 pub fn windows_executable(name: &str) -> PathBuf {
     windows_directory().join(name)
 }
 
+#[cfg(target_os = "windows")]
 fn windows_directory() -> PathBuf {
     std::env::var_os("SystemRoot")
         .map(PathBuf::from)
@@ -132,8 +135,3 @@ fn kill_process_tree(pid: u32) {
 
 #[cfg(not(target_os = "windows"))]
 fn kill_process_tree(_pid: u32) {}
-
-#[cfg(not(target_os = "windows"))]
-pub fn run_powershell(_script: &str, _timeout: Duration) -> Result<ProcessOutput, String> {
-    Err("PowerShell is available only on Windows".to_string())
-}

@@ -4,11 +4,14 @@
 //! Windows System Restore WMI provider and `srclient.dll`. These operations
 //! require an elevated process; the caller surfaces the resulting error.</p>
 
+#[cfg(target_os = "windows")]
 use std::time::Duration;
 
+#[cfg(target_os = "windows")]
 use serde::Deserialize;
 
 use crate::models::{LocalizedText, RestorePoint};
+#[cfg(target_os = "windows")]
 use crate::process;
 
 /// System Restore operations exposed to the repository.
@@ -20,9 +23,11 @@ pub trait RestorePointProvider: Send + Sync {
 }
 
 /// Native Windows implementation.
+#[cfg(target_os = "windows")]
 #[derive(Default)]
 pub struct WindowsRestorePoints;
 
+#[cfg(target_os = "windows")]
 impl RestorePointProvider for WindowsRestorePoints {
     fn list(&self) -> Result<Vec<RestorePoint>, String> {
         let script = r#"
@@ -144,12 +149,50 @@ if ($result -ne 0) {{ throw "SRRemoveRestorePoint failed with $result" }}
     }
 }
 
+/// Non-Windows placeholder.
+#[cfg(not(target_os = "windows"))]
+#[derive(Default)]
+pub struct UnsupportedRestorePoints;
+
+#[cfg(not(target_os = "windows"))]
+impl RestorePointProvider for UnsupportedRestorePoints {
+    fn list(&self) -> Result<Vec<RestorePoint>, String> {
+        Err("System Restore is available only on Windows".to_string())
+    }
+
+    fn create(&self, _name: &LocalizedText) -> Result<RestorePoint, String> {
+        Err("System Restore is available only on Windows".to_string())
+    }
+
+    fn restore(&self, _id: &str) -> Result<(), String> {
+        Err("System Restore is available only on Windows".to_string())
+    }
+
+    fn delete(&self, _id: &str) -> Result<(), String> {
+        Err("System Restore is available only on Windows".to_string())
+    }
+}
+
+/// Returns the provider for the current target.
+pub fn default_restore_provider() -> Box<dyn RestorePointProvider> {
+    #[cfg(target_os = "windows")]
+    {
+        Box::<WindowsRestorePoints>::default()
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Box::<UnsupportedRestorePoints>::default()
+    }
+}
+
+#[cfg(target_os = "windows")]
 #[derive(Debug, Deserialize)]
 struct Envelope {
     #[serde(default)]
     points: Vec<Point>,
 }
 
+#[cfg(target_os = "windows")]
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct Point {
@@ -162,6 +205,7 @@ struct Point {
     restore_point_type: i32,
 }
 
+#[cfg(target_os = "windows")]
 fn kind_for(restore_point_type: i32) -> &'static str {
     match restore_point_type {
         10 => "auto",
@@ -170,6 +214,7 @@ fn kind_for(restore_point_type: i32) -> &'static str {
     }
 }
 
+#[cfg(target_os = "windows")]
 fn sequence_number(id: &str) -> Result<i64, String> {
     let value = id
         .strip_prefix("rp-")
@@ -179,10 +224,12 @@ fn sequence_number(id: &str) -> Result<i64, String> {
         .map_err(|_| "invalid restore point id".to_string())
 }
 
+#[cfg(target_os = "windows")]
 fn escape_ps(value: &str) -> String {
     value.replace('\'', "''").replace(['\r', '\n'], " ")
 }
 
+#[cfg(target_os = "windows")]
 fn command_error(output: &process::ProcessOutput) -> String {
     let details = if !output.stderr.trim().is_empty() {
         output.stderr.trim()

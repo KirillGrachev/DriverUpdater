@@ -9,7 +9,7 @@ use std::sync::{Arc, Mutex};
 
 use tauri::State;
 
-use crate::backup::{DriverBackupProvider, WindowsDriverBackups};
+use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
@@ -17,7 +17,7 @@ use crate::models::{
 };
 use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
-use crate::windows_update::{DriverUpdateProvider, WindowsUpdateProvider};
+use crate::windows_update::default_update_provider;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
 
@@ -88,7 +88,7 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
     let repository = Arc::clone(&state.0);
     let drivers = detect_drivers().await;
-    let updates = tauri::async_runtime::spawn_blocking(|| WindowsUpdateProvider.find_updates())
+    let updates = tauri::async_runtime::spawn_blocking(|| default_update_provider().find_updates())
         .await
         .map_err(|error| error.to_string())?;
     run_repository_handle(repository, move |repository| {
@@ -109,17 +109,15 @@ async fn install_one(
 
     if plan.keep_backups {
         let backup_dir = plan.backup_dir.clone();
-        tauri::async_runtime::spawn_blocking(move || {
-            WindowsDriverBackups::new(backup_dir).create()
-        })
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(|error| format!("driver backup was not created: {error}"))?;
+        tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("driver backup was not created: {error}"))?;
     }
 
     let update_id = plan.update_id.clone();
     let outcome = tauri::async_runtime::spawn_blocking(move || {
-        WindowsUpdateProvider.install_update(&update_id)
+        default_update_provider().install_update(&update_id)
     })
     .await
     .map_err(|error| error.to_string())??;
@@ -232,21 +230,31 @@ pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), S
         .map_err(|error| error.to_string())?
 }
 
+#[cfg(target_os = "windows")]
 fn open_folder(path: &Path) -> Result<(), String> {
-    let mut command = if cfg!(target_os = "windows") {
-        let mut cmd = Command::new(crate::process::windows_executable("explorer.exe"));
-        cmd.arg(path);
-        cmd
-    } else if cfg!(target_os = "macos") {
-        let mut cmd = Command::new("open");
-        cmd.arg(path);
-        cmd
-    } else {
-        let mut cmd = Command::new("xdg-open");
-        cmd.arg(path);
-        cmd
-    };
-    command.spawn().map(|_| ()).map_err(|e| e.to_string())
+    Command::new(crate::process::windows_executable("explorer.exe"))
+        .arg(path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(target_os = "macos")]
+fn open_folder(path: &Path) -> Result<(), String> {
+    Command::new("open")
+        .arg(path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|error| error.to_string())
+}
+
+#[cfg(all(not(target_os = "windows"), not(target_os = "macos")))]
+fn open_folder(path: &Path) -> Result<(), String> {
+    Command::new("xdg-open")
+        .arg(path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|error| error.to_string())
 }
 
 #[tauri::command]

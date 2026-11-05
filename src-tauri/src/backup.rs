@@ -4,13 +4,16 @@
 //! directory. Restoring adds the exported INF files back to the driver store.
 //! Export and restore require administrator rights.</p>
 
+#[cfg(target_os = "windows")]
 use std::fs;
+#[cfg(target_os = "windows")]
 use std::path::{Path, PathBuf};
+#[cfg(target_os = "windows")]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
-use serde::{Deserialize, Serialize};
-
+#[cfg(target_os = "windows")]
 use crate::process;
+use serde::{Deserialize, Serialize};
 
 /// Metadata for one exported driver package set.
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -31,10 +34,12 @@ pub trait DriverBackupProvider: Send + Sync {
 }
 
 /// Native `pnputil` implementation rooted at the application backup folder.
+#[cfg(target_os = "windows")]
 pub struct WindowsDriverBackups {
     root: PathBuf,
 }
 
+#[cfg(target_os = "windows")]
 impl WindowsDriverBackups {
     pub fn new(root: PathBuf) -> Self {
         Self { root }
@@ -65,6 +70,7 @@ impl WindowsDriverBackups {
     }
 }
 
+#[cfg(target_os = "windows")]
 impl DriverBackupProvider for WindowsDriverBackups {
     fn list(&self) -> Result<Vec<DriverBackup>, String> {
         if !self.root.exists() {
@@ -144,6 +150,44 @@ impl DriverBackupProvider for WindowsDriverBackups {
     }
 }
 
+/// Non-Windows placeholder.
+#[cfg(not(target_os = "windows"))]
+#[derive(Default)]
+pub struct UnsupportedDriverBackups;
+
+#[cfg(not(target_os = "windows"))]
+impl DriverBackupProvider for UnsupportedDriverBackups {
+    fn list(&self) -> Result<Vec<DriverBackup>, String> {
+        Err("driver backups are available only on Windows".to_string())
+    }
+
+    fn create(&self) -> Result<DriverBackup, String> {
+        Err("driver backups are available only on Windows".to_string())
+    }
+
+    fn restore(&self, _id: &str) -> Result<(), String> {
+        Err("driver backups are available only on Windows".to_string())
+    }
+
+    fn delete(&self, _id: &str) -> Result<(), String> {
+        Err("driver backups are available only on Windows".to_string())
+    }
+}
+
+/// Returns the provider rooted at the application backup directory.
+pub fn default_backup_provider(root: std::path::PathBuf) -> Box<dyn DriverBackupProvider> {
+    #[cfg(target_os = "windows")]
+    {
+        Box::new(WindowsDriverBackups::new(root))
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        let _ = root;
+        Box::<UnsupportedDriverBackups>::default()
+    }
+}
+
+#[cfg(target_os = "windows")]
 fn collect_inf_files(directory: &Path, files: &mut Vec<PathBuf>) -> Result<(), String> {
     for entry in fs::read_dir(directory).map_err(|error| error.to_string())? {
         let entry = entry.map_err(|error| error.to_string())?;
@@ -160,6 +204,7 @@ fn collect_inf_files(directory: &Path, files: &mut Vec<PathBuf>) -> Result<(), S
     Ok(())
 }
 
+#[cfg(target_os = "windows")]
 fn directory_stats(directory: &Path) -> Result<(u64, u32), String> {
     let mut bytes = 0_u64;
     let mut packages = 0_u32;
@@ -185,6 +230,7 @@ fn directory_stats(directory: &Path) -> Result<(u64, u32), String> {
     Ok((bytes / (1024 * 1024), packages))
 }
 
+#[cfg(target_os = "windows")]
 fn now_iso() -> String {
     let seconds = SystemTime::now()
         .duration_since(UNIX_EPOCH)
@@ -201,6 +247,7 @@ fn now_iso() -> String {
     )
 }
 
+#[cfg(target_os = "windows")]
 fn command_error(output: &process::ProcessOutput) -> String {
     let details = if !output.stderr.trim().is_empty() {
         output.stderr.trim()

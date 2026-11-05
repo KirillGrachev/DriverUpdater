@@ -8,14 +8,14 @@
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::backup::{DriverBackup, DriverBackupProvider, WindowsDriverBackups};
+use crate::backup::{default_backup_provider, DriverBackup, DriverBackupProvider};
 use crate::detection::{
     days_to_civil, is_ignored_device, ComponentDetector, NativeDetector, SystemInfoProvider,
 };
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
 };
-use crate::restore::{RestorePointProvider, WindowsRestorePoints};
+use crate::restore::{default_restore_provider, RestorePointProvider};
 use crate::storage::{DriverCache, EncryptedStore, PersistedState, SCHEMA_VERSION};
 use crate::windows_update::{merge_updates, DriverUpdate};
 
@@ -131,8 +131,8 @@ impl DriverRepository {
             installed_components: Vec::new(),
             component_detector: Box::<NativeDetector>::default(),
             system_info: Box::<NativeDetector>::default(),
-            restore_provider: Box::<WindowsRestorePoints>::default(),
-            backup_provider: Box::new(WindowsDriverBackups::new(backup_dir)),
+            restore_provider: default_restore_provider(),
+            backup_provider: default_backup_provider(backup_dir),
         };
 
         match repo.store.load::<PersistedState>() {

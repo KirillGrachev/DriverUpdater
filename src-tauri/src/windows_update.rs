@@ -5,11 +5,13 @@
 //! installed through the Windows Update Agent. A future vendor database can
 //! implement the same [`DriverUpdateProvider`] trait.</p>
 
+#[cfg(target_os = "windows")]
 use std::time::Duration;
 
 use serde::Deserialize;
 
 use crate::models::Driver;
+#[cfg(target_os = "windows")]
 use crate::process;
 
 /// A driver update returned by Windows Update.
@@ -22,9 +24,6 @@ pub struct DriverUpdate {
     pub hardware_ids: Vec<String>,
     #[serde(default)]
     pub driver_model: String,
-    #[serde(default)]
-    #[allow(dead_code)]
-    pub driver_manufacturer: String,
     #[serde(default)]
     pub driver_date: String,
     #[serde(default)]
@@ -48,9 +47,11 @@ pub trait DriverUpdateProvider: Send + Sync {
 }
 
 /// Windows Update Agent implementation.
+#[cfg(target_os = "windows")]
 #[derive(Default)]
 pub struct WindowsUpdateProvider;
 
+#[cfg(target_os = "windows")]
 impl DriverUpdateProvider for WindowsUpdateProvider {
     fn find_updates(&self) -> Result<Vec<DriverUpdate>, String> {
         let script = r#"
@@ -131,6 +132,35 @@ $install = $installer.Install()
                 outcome.result_code, outcome.h_result
             ))
         }
+    }
+}
+
+/// Non-Windows placeholder so the application can still build and run in a
+/// browser preview without compiling Windows Update code.
+#[cfg(not(target_os = "windows"))]
+#[derive(Default)]
+pub struct UnsupportedUpdateProvider;
+
+#[cfg(not(target_os = "windows"))]
+impl DriverUpdateProvider for UnsupportedUpdateProvider {
+    fn find_updates(&self) -> Result<Vec<DriverUpdate>, String> {
+        Err("Windows Update is available only on Windows".to_string())
+    }
+
+    fn install_update(&self, _update_id: &str) -> Result<InstallOutcome, String> {
+        Err("Windows Update is available only on Windows".to_string())
+    }
+}
+
+/// Returns the provider for the current target.
+pub fn default_update_provider() -> Box<dyn DriverUpdateProvider> {
+    #[cfg(target_os = "windows")]
+    {
+        Box::<WindowsUpdateProvider>::default()
+    }
+    #[cfg(not(target_os = "windows"))]
+    {
+        Box::<UnsupportedUpdateProvider>::default()
     }
 }
 
@@ -319,7 +349,6 @@ mod tests {
             title: "Voice Clarity (2.0.0)".to_string(),
             hardware_ids: vec!["swc\\ven_msft&audio".to_string()],
             driver_model: String::new(),
-            driver_manufacturer: String::new(),
             driver_date: "2026-10-16T00:00:00Z".to_string(),
             max_download_size: 10 * 1024 * 1024,
         }];

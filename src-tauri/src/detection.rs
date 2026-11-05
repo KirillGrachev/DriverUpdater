@@ -63,7 +63,7 @@ pub(crate) fn days_to_civil(z: u64) -> (i64, u32, u32) {
     (if m <= 2 { y + 1 } else { y }, m, d)
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+#[cfg(target_os = "windows")]
 fn normalize_driver_date(raw: &str) -> String {
     let raw = raw.trim();
     if raw.is_empty() {
@@ -239,7 +239,6 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
     None
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
 /// Driver Booster-style filter for devices that cannot receive a useful driver update.
 pub(crate) fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> bool {
     const IGNORED: &[&str] = &[
@@ -259,7 +258,7 @@ pub(crate) fn is_ignored_device(device_id: &str, hardware_ids: &[String]) -> boo
 }
 
 /* Component mapping starts here. */
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+#[cfg(target_os = "windows")]
 fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     let name = display_name.to_lowercase();
     let parts: Vec<u32> = version
@@ -342,7 +341,7 @@ fn component_id_for(display_name: &str, version: &str) -> Option<&'static str> {
     }
 }
 
-#[cfg_attr(not(target_os = "windows"), allow(dead_code))]
+#[cfg(target_os = "windows")]
 fn extract_version(text: &str) -> Option<String> {
     let mut best = None;
     let mut current = String::new();
@@ -437,11 +436,10 @@ pub fn detect_system_info() -> SystemInfo {
         "x86_64" => "x64".to_string(),
         other => other.to_string(),
     };
-    let platform = if cfg!(target_os = "windows") {
-        "Win32".to_string()
-    } else {
-        std::env::consts::OS.to_string()
-    };
+    #[cfg(target_os = "windows")]
+    let platform = "Win32".to_string();
+    #[cfg(not(target_os = "windows"))]
+    let platform = std::env::consts::OS.to_string();
     SystemInfo {
         os,
         arch,
@@ -505,7 +503,7 @@ fn detect_os() -> String {
     std::env::consts::OS.to_string()
 }
 
-#[cfg(test)]
+#[cfg(all(test, target_os = "windows"))]
 mod tests {
     use super::*;
 
