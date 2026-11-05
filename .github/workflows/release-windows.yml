@@ -95,6 +95,12 @@ jobs:
         if: matrix.arch == 'x64'
         shell: pwsh
         run: ./scripts/smoke-msi.ps1 -BundleDir "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
+      - name: Smoke test the NSIS payload
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        env:
+          CI: 'true'
+        run: ./scripts/smoke-nsis.ps1 -BundleDir "src-tauri/target/${{ matrix.target }}/release/bundle/nsis"
       - name: Package portable and symbols
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
