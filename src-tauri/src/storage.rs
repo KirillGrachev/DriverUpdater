@@ -181,4 +181,30 @@ mod tests {
         assert_eq!(loaded, expected);
         let _ = fs::remove_dir_all(directory);
     }
+
+    #[test]
+    fn reads_legacy_state_without_version_or_drivers() {
+        let state: PersistedState = serde_json::from_value(json!({
+            "settings": { "language": "de" },
+            "restore_points": [],
+            "installed_components": ["vcredist-x64"]
+        }))
+        .expect("legacy state");
+        assert_eq!(state.version, 0);
+        assert_eq!(state.settings.language, "de");
+        assert_eq!(state.installed_components, vec!["vcredist-x64"]);
+    }
+
+    #[test]
+    fn migrates_legacy_localized_restore_point_name() {
+        let point: RestorePoint = serde_json::from_value(json!({
+            "id": "rp-1",
+            "name": { "ru": "Точка", "en": "Restore point" },
+            "kind": "manual",
+            "createdAt": "2026-01-01T00:00:00Z",
+            "sizeMb": 1
+        }))
+        .expect("legacy restore point");
+        assert_eq!(point.name, "Restore point");
+    }
 }
