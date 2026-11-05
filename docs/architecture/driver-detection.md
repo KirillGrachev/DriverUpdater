@@ -254,7 +254,8 @@ Known limitations are tracked explicitly:
 - driver inventory is native SetupAPI with a CIM fallback;
 - restore-point creation and deletion use `srclient`, while listing and restore
   still go through WMI;
-- Windows Update and DISM still go through their current providers;
+- Windows Update discovery uses native COM, while installation and DISM still go
+  through their current providers;
 - 33 locales still fall back to English for some older keys, guarded by a
   baseline check so the gap cannot grow silently;
 - release signing is optional until a certificate is configured.
