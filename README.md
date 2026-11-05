@@ -396,7 +396,10 @@ Formatting is enforced with Prettier (4 spaces, 120 columns) and `cargo fmt`:
 npm run format:check
 ```
 
-CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, clippy with warnings as errors, `cargo fmt`, `cargo check` and Rust unit tests on Linux and Windows.
+CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, production npm audit,
+clippy with warnings as errors, `cargo fmt`, `cargo check`, Rust unit tests on Linux and Windows, and
+the RustSec advisory audit. The release workflow also smoke tests the MSI and NSIS payloads and
+publishes a CycloneDX SBOM.
 
 ---
 
