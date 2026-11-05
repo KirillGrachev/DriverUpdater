@@ -60,7 +60,35 @@ export function ComponentsPage() {
             finished = true;
             endLoading();
         };
-        void Promise.all([detectInstalledComponents(), getInstalledComponents()])
+        const prefetchVersions = async () => {
+            const items = COMPONENT_CATALOG.filter((item) => item.wingetId);
+            const loaded: Record<string, string[]> = {};
+            let cursor = 0;
+            const worker = async () => {
+                while (cursor < items.length) {
+                    const item = items[cursor++];
+                    const cached = remoteVersionCache.get(item.id);
+                    if (cached) {
+                        loaded[item.id] = cached;
+                        continue;
+                    }
+                    try {
+                        const remote = await listPackageVersions(item.wingetId ?? '');
+                        if (remote.length > 0) {
+                            remoteVersionCache.set(item.id, remote);
+                            loaded[item.id] = remote;
+                        }
+                    } catch {
+                        // Fall back to the documented catalogue versions.
+                    }
+                }
+            };
+            await Promise.all(Array.from({ length: Math.min(4, items.length) }, () => worker()));
+            if (!cancelled) {
+                setVersions((prev) => ({ ...prev, ...loaded }));
+            }
+        };
+        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()])
             .then(([detectedComponents, persistedIds]) => {
                 if (cancelled) return;
                 const next = new Set<string>();
@@ -87,7 +115,14 @@ export function ComponentsPage() {
             cancelled = true;
             finish();
         };
-    }, [beginLoading, endLoading, detectInstalledComponents, getInstalledComponents, saveInstalledComponents]);
+    }, [
+        beginLoading,
+        endLoading,
+        detectInstalledComponents,
+        getInstalledComponents,
+        listPackageVersions,
+        saveInstalledComponents,
+    ]);
 
     const loadVersions = (item: AppComponent) => {
         if (!item.wingetId) return;

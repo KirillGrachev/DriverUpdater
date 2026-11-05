@@ -186,21 +186,27 @@ export function Select<T extends string>({
 }) {
     const [open, setOpen] = useState(false);
     const [activeIndex, setActiveIndex] = useState(0);
+    const [dropUp, setDropUp] = useState(false);
     const rootRef = useRef<HTMLDivElement>(null);
     const listId = useId();
     const current = options.find((o) => o.value === value);
 
+    const updateDirection = () => {
+        const root = rootRef.current;
+        const scroller = root?.closest('.app-main') as HTMLElement | null;
+        const rect = root?.getBoundingClientRect();
+        if (!scroller || !rect) return;
+        const viewport = scroller.getBoundingClientRect();
+        const menuHeight = Math.min(400, options.length * 36 + 8);
+        const below = viewport.bottom - rect.bottom;
+        const above = rect.top - viewport.top;
+        setDropUp(below < menuHeight + 10 && above > below);
+    };
+
     const toggle = () => {
         if (!open) {
             onOpen?.();
-            const root = rootRef.current;
-            const scroller = root?.closest('.app-main') as HTMLElement | null;
-            const rect = root?.getBoundingClientRect();
-            const menuHeight = Math.min(400, options.length * 36 + 8);
-            if (scroller && rect) {
-                const room = scroller.getBoundingClientRect().bottom - rect.bottom;
-                if (room < menuHeight + 10) scroller.scrollTop += menuHeight + 10 - room;
-            }
+            updateDirection();
         }
         setOpen((prev) => !prev);
         setActiveIndex(
@@ -227,6 +233,8 @@ export function Select<T extends string>({
         if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault();
             if (!open) {
+                onOpen?.();
+                updateDirection();
                 setOpen(true);
                 return;
             }
@@ -286,7 +294,7 @@ export function Select<T extends string>({
                 <IconChevronDown size={16} className="select-chevron" />
             </button>
             {open ? (
-                <ul className="select-menu" role="listbox" aria-label={ariaLabel} id={listId}>
+                <ul className={`select-menu ${dropUp ? 'up' : ''}`} role="listbox" aria-label={ariaLabel} id={listId}>
                     {options.map((option, index) => (
                         <li
                             key={option.value}
