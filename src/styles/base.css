@@ -275,6 +275,14 @@ a {
 
 /** Application layout. */
 
+.app-content {
+    min-height: 100%;
+}
+
+.app-content.is-loading {
+    visibility: hidden;
+}
+
 .loading-screen {
     position: absolute;
     inset: 0;

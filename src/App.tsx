@@ -62,6 +62,7 @@ function CurrentPage() {
 export function App() {
     const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
     const scanningWithoutData = scanning && !data?.summary.lastCheck;
+    const loading = loadingCount > 0 || scanningWithoutData;
 
     useEffect(() => {
         if (!('__TAURI_INTERNALS__' in window)) return undefined;
@@ -129,24 +130,26 @@ export function App() {
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
-                    <LoadingScreen visible={loadingCount > 0 || scanningWithoutData} />
-                    {data?.scanError ? (
-                        <div className="notice-bar notice-error scan-error" role="alert">
-                            <div>
-                                <div className="notice-title">{t('common.scanError')}</div>
-                                <div className="notice-sub">{t('common.scanErrorHint')}</div>
+                    <LoadingScreen visible={loading} />
+                    <div className={`app-content ${loading ? 'is-loading' : ''}`}>
+                        {data?.scanError ? (
+                            <div className="notice-bar notice-error scan-error" role="alert">
+                                <div>
+                                    <div className="notice-title">{t('common.scanError')}</div>
+                                    <div className="notice-sub">{t('common.scanErrorHint')}</div>
+                                </div>
                             </div>
-                        </div>
-                    ) : null}
-                    <ErrorBoundary
-                        title={t('boot.errorTitle')}
-                        message={t('boot.errorSub')}
-                        reloadLabel={t('boot.retry')}
-                    >
-                        <Suspense fallback={<RouteFallback />}>
-                            <CurrentPage key={route} />
-                        </Suspense>
-                    </ErrorBoundary>
+                        ) : null}
+                        <ErrorBoundary
+                            title={t('boot.errorTitle')}
+                            message={t('boot.errorSub')}
+                            reloadLabel={t('boot.retry')}
+                        >
+                            <Suspense fallback={<RouteFallback />}>
+                                <CurrentPage key={route} />
+                            </Suspense>
+                        </ErrorBoundary>
+                    </div>
                 </main>
             </div>
             <BottomDock />
