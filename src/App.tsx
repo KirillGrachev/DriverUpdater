@@ -8,34 +8,28 @@ import { ModalHost, ToastHost } from './components/overlays';
 import { Button } from './components/ui';
 import { HomePage } from './pages/HomePage';
 
-const AboutPage = lazy(() => import('./pages/AboutPage').then((module) => ({ default: module.AboutPage })));
-const BackupsPage = lazy(() => import('./pages/BackupsPage').then((module) => ({ default: module.BackupsPage })));
-const ComponentsPage = lazy(() =>
-    import('./pages/ComponentsPage').then((module) => ({ default: module.ComponentsPage })),
-);
-const DriversPage = lazy(() => import('./pages/DriversPage').then((module) => ({ default: module.DriversPage })));
-const SettingsPage = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
+const loadAboutPage = () => import('./pages/AboutPage').then((module) => ({ default: module.AboutPage }));
+const loadBackupsPage = () => import('./pages/BackupsPage').then((module) => ({ default: module.BackupsPage }));
+const loadComponentsPage = () =>
+    import('./pages/ComponentsPage').then((module) => ({ default: module.ComponentsPage }));
+const loadDriversPage = () => import('./pages/DriversPage').then((module) => ({ default: module.DriversPage }));
+const loadSettingsPage = () => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage }));
+
+const AboutPage = lazy(loadAboutPage);
+const BackupsPage = lazy(loadBackupsPage);
+const ComponentsPage = lazy(loadComponentsPage);
+const DriversPage = lazy(loadDriversPage);
+const SettingsPage = lazy(loadSettingsPage);
+
+const PAGE_LOADERS = [loadAboutPage, loadBackupsPage, loadComponentsPage, loadDriversPage, loadSettingsPage];
+
 import { useApp } from './store/app';
 
-function RouteFallback() {
-    const { beginLoading, endLoading } = useApp();
+function RouteScrollReset() {
+    const { route } = useApp();
     useLayoutEffect(() => {
-        beginLoading();
-        return endLoading;
-    }, [beginLoading, endLoading]);
-    return null;
-}
-
-function RouteTransition() {
-    const { route, beginLoading, endLoading } = useApp();
-    useLayoutEffect(() => {
-        beginLoading();
-        const timer = window.setTimeout(endLoading, 180);
-        return () => {
-            window.clearTimeout(timer);
-            endLoading();
-        };
-    }, [beginLoading, endLoading, route]);
+        document.querySelector('.app-main')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    }, [route]);
     return null;
 }
 
@@ -63,6 +57,14 @@ export function App() {
     const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
     const pageScanning = scanning && (route === 'home' || route === 'drivers');
     const loading = loadingCount > 0 || pageScanning;
+
+    useEffect(() => {
+        for (const load of PAGE_LOADERS) {
+            void load().catch(() => {
+                // The lazy route still reports the real error when opened.
+            });
+        }
+    }, []);
 
     useEffect(() => {
         if (!('__TAURI_INTERNALS__' in window)) return undefined;
@@ -126,7 +128,7 @@ export function App() {
 
     return (
         <div className={`app-window ${loading ? 'is-loading' : ''}`}>
-            <RouteTransition />
+            <RouteScrollReset />
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
@@ -144,7 +146,7 @@ export function App() {
                             message={t('boot.errorSub')}
                             reloadLabel={t('boot.retry')}
                         >
-                            <Suspense fallback={<RouteFallback />}>
+                            <Suspense fallback={null}>
                                 <CurrentPage key={route} />
                             </Suspense>
                         </ErrorBoundary>
