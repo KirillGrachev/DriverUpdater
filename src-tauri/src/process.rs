@@ -26,7 +26,7 @@ pub struct ProcessOutput {
 /// @param timeout maximum wall-clock time for the child process
 /// @returns captured output, or an error for spawn/timeout/non-UTF8 output
 pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, String> {
-    run_inner(&mut command, timeout, None)
+    run_inner(&mut command, timeout, None, false)
 }
 
 /// Runs a command and checks a cancellation flag while it is running.
@@ -34,14 +34,21 @@ pub fn run_cancellable(
     mut command: Command,
     timeout: Duration,
     cancel: &AtomicBool,
+    protect_installer_transaction: bool,
 ) -> Result<ProcessOutput, String> {
-    run_inner(&mut command, timeout, Some(cancel))
+    run_inner(
+        &mut command,
+        timeout,
+        Some(cancel),
+        protect_installer_transaction,
+    )
 }
 
 fn run_inner(
     command: &mut Command,
     timeout: Duration,
     cancel: Option<&AtomicBool>,
+    protect_installer_transaction: bool,
 ) -> Result<ProcessOutput, String> {
     #[cfg(target_os = "windows")]
     {
@@ -66,7 +73,7 @@ fn run_inner(
     let mut cancel_ignored = false;
     let status = loop {
         if !cancel_ignored && cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
-            if installer_transaction_active() {
+            if protect_installer_transaction && installer_transaction_active() {
                 // Once msiexec or DISM owns the transaction, terminating the
                 // winget parent would report a cancellation while the package
                 // is still being applied. Let the transaction finish instead.
@@ -220,7 +227,7 @@ mod tests {
             signal.store(true, Ordering::SeqCst);
         });
 
-        match run_cancellable(command, Duration::from_secs(10), &cancel) {
+        match run_cancellable(command, Duration::from_secs(10), &cancel, false) {
             Err(error) => assert!(error.contains("cancelled")),
             Ok(_) => panic!("the child should have been cancelled"),
         }

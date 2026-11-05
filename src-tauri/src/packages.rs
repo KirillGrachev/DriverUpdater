@@ -135,7 +135,7 @@ fn run_command(
     cancel: Option<&AtomicBool>,
 ) -> Result<process::ProcessOutput, String> {
     match cancel {
-        Some(flag) => process::run_cancellable(command, timeout, flag),
+        Some(flag) => process::run_cancellable(command, timeout, flag, true),
         None => process::run(command, timeout),
     }
 }
