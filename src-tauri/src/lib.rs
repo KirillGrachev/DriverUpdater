@@ -11,7 +11,7 @@ mod security;
 mod storage;
 mod windows_update;
 
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use commands::AppRepository;
 use repository::DriverRepository;
@@ -71,6 +71,73 @@ fn migrate_legacy_appdata(target: &Path) {
     }
 }
 
+const APP_IDENTIFIER: &str = "com.github.kirillgrachev.driverupdater";
+
+fn migrate_legacy_backups(local_app_data: &Path) -> PathBuf {
+    let legacy = local_app_data.join("DriverUpdater").join("Backups");
+    let current = local_app_data.join(APP_IDENTIFIER).join("Backups");
+    if current.exists() {
+        let only_desktop_ini = std::fs::read_dir(&current)
+            .map(|entries| {
+                entries.flatten().all(|entry| {
+                    entry
+                        .file_name()
+                        .to_string_lossy()
+                        .eq_ignore_ascii_case("desktop.ini")
+                })
+            })
+            .unwrap_or(false);
+        if !only_desktop_ini || !legacy.exists() {
+            return current;
+        }
+        let _ = std::fs::remove_dir_all(&current);
+    }
+    if !legacy.exists() {
+        return current;
+    }
+    if let Some(parent) = current.parent() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+    if std::fs::rename(&legacy, &current).is_err() {
+        log::warn!("could not move the legacy backup folder");
+        return legacy;
+    }
+    rewrite_backup_paths(&current, &legacy, &current);
+    current
+}
+
+fn rewrite_backup_paths(root: &Path, old_root: &Path, new_root: &Path) {
+    let Ok(entries) = std::fs::read_dir(root) else {
+        return;
+    };
+    for entry in entries.flatten() {
+        let metadata = entry.path().join("backup.json");
+        let Ok(raw) = std::fs::read_to_string(&metadata) else {
+            continue;
+        };
+        let Ok(mut value) = serde_json::from_str::<serde_json::Value>(&raw) else {
+            continue;
+        };
+        let Some(path) = value
+            .get("path")
+            .and_then(serde_json::Value::as_str)
+            .map(str::to_owned)
+        else {
+            continue;
+        };
+        let replacement = path.replace(
+            &old_root.to_string_lossy().into_owned(),
+            &new_root.to_string_lossy().into_owned(),
+        );
+        if replacement != path {
+            value["path"] = serde_json::Value::String(replacement);
+            if let Ok(updated) = serde_json::to_string_pretty(&value) {
+                let _ = std::fs::write(&metadata, updated);
+            }
+        }
+    }
+}
+
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(
@@ -116,7 +183,7 @@ pub fn run() {
             }
             let backup_dir = std::env::var_os("LOCALAPPDATA")
                 .map(std::path::PathBuf::from)
-                .map(|base| base.join("DriverUpdater").join("Backups"))
+                .map(|base| migrate_legacy_backups(&base))
                 .or_else(|| {
                     state_dir
                         .as_ref()
