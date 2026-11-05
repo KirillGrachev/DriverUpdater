@@ -1,10 +1,11 @@
 import { lazy, Suspense, useEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
+import { LoadingScreen } from './components/LoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
-import { Button, Spinner } from './components/ui';
+import { Button } from './components/ui';
 import { HomePage } from './pages/HomePage';
 
 const AboutPage = lazy(() => import('./pages/AboutPage').then((module) => ({ default: module.AboutPage })));
@@ -15,6 +16,15 @@ const ComponentsPage = lazy(() =>
 const DriversPage = lazy(() => import('./pages/DriversPage').then((module) => ({ default: module.DriversPage })));
 const SettingsPage = lazy(() => import('./pages/SettingsPage').then((module) => ({ default: module.SettingsPage })));
 import { useApp } from './store/app';
+
+function RouteFallback() {
+    const { beginLoading, endLoading } = useApp();
+    useEffect(() => {
+        beginLoading();
+        return endLoading;
+    }, [beginLoading, endLoading]);
+    return null;
+}
 
 function CurrentPage() {
     const { route } = useApp();
@@ -37,7 +47,7 @@ function CurrentPage() {
 }
 
 export function App() {
-    const { booting, bootError, route, t, data, pushToast } = useApp();
+    const { booting, bootError, loadingCount, route, t, data, pushToast } = useApp();
 
     useEffect(() => {
         if (!('__TAURI_INTERNALS__' in window)) return undefined;
@@ -76,9 +86,7 @@ export function App() {
     if (booting) {
         return (
             <div className="app-window boot-window">
-                <div className="boot-splash">
-                    <Spinner size={34} />
-                </div>
+                <LoadingScreen visible />
             </div>
         );
     }
@@ -106,6 +114,7 @@ export function App() {
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
+                    <LoadingScreen visible={loadingCount > 0} />
                     {data?.scanError ? (
                         <div className="notice-bar notice-error scan-error" role="alert">
                             <div>
@@ -119,13 +128,7 @@ export function App() {
                         message={t('boot.errorSub')}
                         reloadLabel={t('boot.retry')}
                     >
-                        <Suspense
-                            fallback={
-                                <div className="page-loading">
-                                    <Spinner size={26} />
-                                </div>
-                            }
-                        >
+                        <Suspense fallback={<RouteFallback />}>
                             <CurrentPage key={route} />
                         </Suspense>
                     </ErrorBoundary>

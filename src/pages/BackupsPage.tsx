@@ -49,37 +49,37 @@ export function BackupsPage() {
         openModal,
         closeModal,
         pushToast,
+        beginLoading,
+        endLoading,
     } = useApp();
     const [creating, setCreating] = useState(false);
-    const [loading, setLoading] = useState(true);
     const [backups, setBackups] = useState<DriverBackup[]>(() => backupsCache ?? []);
     const [creatingBackup, setCreatingBackup] = useState(false);
     const [busyBackup, setBusyBackup] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
+        let finished = false;
+        beginLoading();
+        const finish = () => {
+            if (finished) return;
+            finished = true;
+            endLoading();
+        };
         void Promise.allSettled([
             refreshRestorePoints(),
             listDriverBackups().then((items) => {
                 backupsCache = items;
                 if (!cancelled) setBackups(items);
             }),
-        ]).then(() => {
-            if (!cancelled) setLoading(false);
-        });
+        ]).then(finish);
         return () => {
             cancelled = true;
+            finish();
         };
-    }, [listDriverBackups, refreshRestorePoints]);
+    }, [beginLoading, endLoading, listDriverBackups, refreshRestorePoints]);
 
     if (!data) return null;
-    if (loading) {
-        return (
-            <div className="page-loading">
-                <Spinner size={26} />
-            </div>
-        );
-    }
 
     const settings = data.settings;
 

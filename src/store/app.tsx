@@ -37,6 +37,7 @@ interface AppState {
     systemInfo: SystemInfo | null;
     booting: boolean;
     bootError: string | null;
+    loadingCount: number;
     scanning: boolean;
     installingIds: string[];
     packageInstalling: string[];
@@ -51,6 +52,8 @@ interface AppContextValue extends AppState {
     t: (key: string, params?: TranslateParams & { count?: number }) => string;
     locale: string;
     navigate: (route: Route) => void;
+    beginLoading: () => void;
+    endLoading: () => void;
     scan: () => Promise<void>;
     installDriver: (id: string, options?: { allowMissingRestore?: boolean }) => Promise<void>;
     installUpdates: (ids: string[], options?: { allowMissingRestore?: boolean }) => Promise<void>;
@@ -97,6 +100,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
         systemInfo: null,
         booting: true,
         bootError: null,
+        loadingCount: 0,
         scanning: false,
         installingIds: [],
         packageInstalling: [],
@@ -811,12 +815,22 @@ export function AppProvider({ children }: { children: ReactNode }) {
         return () => window.clearInterval(timer);
     }, [state.data?.settings, state.data?.restorePoints, createRestorePoint]);
 
+    const beginLoading = useCallback(() => {
+        setState((prev) => ({ ...prev, loadingCount: prev.loadingCount + 1 }));
+    }, []);
+
+    const endLoading = useCallback(() => {
+        setState((prev) => ({ ...prev, loadingCount: Math.max(0, prev.loadingCount - 1) }));
+    }, []);
+
     const value = useMemo<AppContextValue>(
         () => ({
             ...state,
             t,
             locale,
             navigate,
+            beginLoading,
+            endLoading,
             scan,
             installDriver,
             installUpdates,
@@ -849,6 +863,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             t,
             locale,
             navigate,
+            beginLoading,
+            endLoading,
             scan,
             installDriver,
             installUpdates,

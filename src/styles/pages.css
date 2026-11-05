@@ -37,16 +37,6 @@
     overflow: hidden;
 }
 
-.components-checking {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    padding: 28px;
-    color: var(--c-text-2);
-    font-size: 13px;
-}
-
 .components-head {
     display: flex;
     align-items: center;
