@@ -141,24 +141,24 @@ failure instead of pretending the package was installed.
 
 <table align="center">
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/drivers-light.png" alt="Driver list with search, category filter, update badges and per-driver actions" width="100%">
       <br>
       <sub>Drivers: search, category filter, list/categories views and expandable details.</sub>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/backups-light.png" alt="Restore points list with create, restore and delete actions" width="100%">
       <br>
       <sub>Backups: restore points, sizes and automatic creation settings.</sub>
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/settings-dark.png" alt="Settings screen in dark theme" width="100%">
       <br>
       <sub>Settings: theme, language, automatic checks, restore points and backup path.</sub>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/home-dark.png" alt="Home screen in dark theme" width="100%">
       <br>
       <sub>The same home screen in dark theme. Theme is persisted and restored on launch.</sub>
@@ -205,12 +205,12 @@ MSI, portable ZIP and symbol ZIP variants are published for each architecture.
 
 <table align="center">
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/installer-nsis.png" alt="Branded NSIS setup wizard with Driver Updater sidebar" width="100%">
       <br>
       <sub>NSIS installer: branded sidebar, header and app icon.</sub>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/installer-msi.png" alt="Branded MSI setup wizard with Driver Updater banner" width="100%">
       <br>
       <sub>MSI installer: branded WiX banner and welcome dialog.</sub>
