@@ -196,6 +196,57 @@ mod tests {
     }
 
     #[test]
+    fn driver_cache_version_mismatch_invalidates_the_cache() {
+        let directory = std::env::temp_dir().join(format!(
+            "driver-updater-cache-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let state_path = directory.join("state.json");
+        let cache = DriverCache::new(Some(&state_path));
+        let driver = Driver {
+            id: "pnp-1".to_string(),
+            name: "Voice Clarity".to_string(),
+            vendor: "Microsoft".to_string(),
+            category: "audio".to_string(),
+            icon: crate::models::DriverIcon {
+                kind: "audio".to_string(),
+                color: "#000".to_string(),
+            },
+            current: "1.0.0".to_string(),
+            available: None,
+            status: "current".to_string(),
+            size_mb: 0,
+            recommended: false,
+            device: "Voice Clarity".to_string(),
+            released: String::new(),
+            device_id: "SWD\\DEVICE".to_string(),
+            hardware_ids: vec!["SWC\\VEN_MSFT&AUDIO".to_string()],
+            inf_name: String::new(),
+            update_id: None,
+            reboot_required: false,
+        };
+        cache.save(&[driver.clone()]).expect("save cache");
+        assert_eq!(
+            cache.load().expect("load cache").map(|items| items.len()),
+            Some(1)
+        );
+
+        cache
+            .store
+            .save(&CachedDrivers {
+                cache_version: 1,
+                drivers: vec![driver],
+            })
+            .expect("save old cache");
+        assert!(cache.load().expect("load old cache").is_none());
+        let _ = fs::remove_dir_all(directory);
+    }
+
+    #[test]
     fn migrates_legacy_localized_restore_point_name() {
         let point: RestorePoint = serde_json::from_value(json!({
             "id": "rp-1",
