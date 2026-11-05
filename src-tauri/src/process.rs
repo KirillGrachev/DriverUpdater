@@ -16,6 +16,7 @@ const MAX_CAPTURED_OUTPUT: usize = 4 * 1024 * 1024;
 /// Captured result of a finished child process.
 pub struct ProcessOutput {
     pub success: bool,
+    #[cfg(target_os = "windows")]
     pub code: Option<i32>,
     pub stdout: String,
     pub stderr: String,
@@ -65,6 +66,7 @@ pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, Str
     let stderr = stderr_reader.join().map_err(|_| "stderr reader failed")?;
     Ok(ProcessOutput {
         success: status.success(),
+        #[cfg(target_os = "windows")]
         code: status.code(),
         stdout,
         stderr,

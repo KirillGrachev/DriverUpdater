@@ -164,12 +164,14 @@ pub fn default_update_provider() -> Box<dyn DriverUpdateProvider> {
     }
 }
 
+#[cfg(target_os = "windows")]
 #[derive(Debug, Deserialize)]
 struct UpdateEnvelope {
     #[serde(default)]
     updates: Vec<DriverUpdate>,
 }
 
+#[cfg(target_os = "windows")]
 pub fn valid_update_id(value: &str) -> bool {
     let length = value.len();
     length == 36
