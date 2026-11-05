@@ -66,7 +66,15 @@ impl DriverUpdateProvider for WindowsUpdateProvider {
     }
 
     fn install_update(&self, update_id: &str) -> Result<InstallOutcome, String> {
-        install_update_powershell(update_id)
+        match install_update_native(update_id) {
+            Ok(outcome) => Ok(outcome),
+            Err(error) => {
+                log::warn!(
+                    "native Windows Update install failed, falling back to PowerShell: {error}"
+                );
+                install_update_powershell(update_id)
+            }
+        }
     }
 }
 
@@ -195,6 +203,94 @@ fn decimal_to_u64(value: windows::Win32::Foundation::DECIMAL) -> u64 {
     let raw = unsafe { value.Anonymous2.Lo64 };
     let divisor = 10u64.saturating_pow(scale as u32);
     raw.checked_div(divisor).unwrap_or(raw)
+}
+
+#[cfg(target_os = "windows")]
+fn install_update_native(update_id: &str) -> Result<InstallOutcome, String> {
+    use windows::core::{IUnknown, BSTR};
+    use windows::Win32::Foundation::E_FAIL;
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER,
+        COINIT_MULTITHREADED,
+    };
+    use windows::Win32::System::UpdateAgent::{
+        orcSucceeded, orcSucceededWithErrors, IUpdate, IUpdateCollection, IUpdateSession,
+        UpdateCollection, UpdateSession,
+    };
+
+    if !valid_update_id(update_id) {
+        return Err("invalid Windows Update identity".to_string());
+    }
+    struct ComGuard(bool);
+    impl Drop for ComGuard {
+        fn drop(&mut self) {
+            if self.0 {
+                unsafe {
+                    CoUninitialize();
+                }
+            }
+        }
+    }
+    let initialized = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) }
+        .ok()
+        .is_ok();
+    let _guard = ComGuard(initialized);
+    let result = (|| -> windows::core::Result<InstallOutcome> {
+        let session: IUpdateSession =
+            unsafe { CoCreateInstance(&UpdateSession, None::<&IUnknown>, CLSCTX_INPROC_SERVER) }?;
+        let searcher = unsafe { session.CreateUpdateSearcher() }?;
+        let found = unsafe { searcher.Search(&BSTR::from("IsInstalled=0 AND Type='Driver'")) }?;
+        let updates = unsafe { found.Updates()? };
+        let count = unsafe { updates.Count()? };
+        let mut target: Option<IUpdate> = None;
+        for index in 0..count {
+            let update = unsafe { updates.get_Item(index)? };
+            let id = unsafe { update.Identity()?.UpdateID()?.to_string() };
+            if id.eq_ignore_ascii_case(update_id) {
+                target = Some(update);
+                break;
+            }
+        }
+        let target = target.ok_or_else(|| {
+            windows::core::Error::new(E_FAIL, "this driver update is no longer available")
+        })?;
+        let download: IUpdateCollection = unsafe {
+            CoCreateInstance(&UpdateCollection, None::<&IUnknown>, CLSCTX_INPROC_SERVER)
+        }?;
+        unsafe { download.Add(&target)? };
+        let downloader = unsafe { session.CreateUpdateDownloader() }?;
+        unsafe { downloader.SetUpdates(&download)? };
+        let download_result = unsafe { downloader.Download() }?;
+        let download_code = unsafe { download_result.ResultCode() }?.0;
+        if download_code != orcSucceeded.0 && download_code != orcSucceededWithErrors.0 {
+            return Err(windows::core::Error::new(
+                E_FAIL,
+                format!("download failed with code {download_code}"),
+            ));
+        }
+        let install: IUpdateCollection = unsafe {
+            CoCreateInstance(&UpdateCollection, None::<&IUnknown>, CLSCTX_INPROC_SERVER)
+        }?;
+        unsafe { install.Add(&target)? };
+        let installer = unsafe { session.CreateUpdateInstaller() }?;
+        unsafe { installer.SetUpdates(&install)? };
+        let installed = unsafe { installer.Install() }?;
+        let result_code = unsafe { installed.ResultCode() }?.0 as u32;
+        let reboot_required = unsafe { installed.RebootRequired() }?.as_bool();
+        let h_result = unsafe { installed.HResult() }? as i64;
+        if result_code != 2 && result_code != 3 {
+            return Err(windows::core::Error::new(
+                E_FAIL,
+                format!("Windows Update returned result code {result_code}"),
+            ));
+        }
+        Ok(InstallOutcome {
+            result_code,
+            reboot_required,
+            h_result,
+        })
+    })();
+    result.map_err(|error| error.to_string())
 }
 
 #[cfg(target_os = "windows")]
