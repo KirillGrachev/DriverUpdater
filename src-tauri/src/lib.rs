@@ -125,10 +125,9 @@ fn rewrite_backup_paths(root: &Path, old_root: &Path, new_root: &Path) {
         else {
             continue;
         };
-        let replacement = path.replace(
-            &old_root.to_string_lossy().into_owned(),
-            &new_root.to_string_lossy().into_owned(),
-        );
+        let old_text = old_root.to_string_lossy();
+        let new_text = new_root.to_string_lossy();
+        let replacement = path.replace(old_text.as_ref(), new_text.as_ref());
         if replacement != path {
             value["path"] = serde_json::Value::String(replacement);
             if let Ok(updated) = serde_json::to_string_pretty(&value) {
