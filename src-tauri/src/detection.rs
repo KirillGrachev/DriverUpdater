@@ -380,6 +380,9 @@ pub fn detect_driver_version(device_id: &str) -> Option<String> {
     if device_id.is_empty() {
         return None;
     }
+    if let Some(version) = registry_driver_version(device_id) {
+        return Some(version);
+    }
     let escaped = device_id.replace('\'', "''");
     let script = format!(
         r#"$ErrorActionPreference='Stop'
@@ -395,6 +398,57 @@ if ($item) {{ $item.DriverVersion }}"#
             .chars()
             .all(|c| c.is_ascii_alphanumeric() || ".-_+".contains(c)))
     .then(|| version.to_string())
+}
+
+#[cfg(target_os = "windows")]
+fn registry_driver_version(device_id: &str) -> Option<String> {
+    use winreg::enums::{HKEY_LOCAL_MACHINE, KEY_READ};
+    use winreg::RegKey;
+
+    let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+    let enum_key = hklm
+        .open_subkey_with_flags(
+            format!("SYSTEM\\CurrentControlSet\\Enum\\{device_id}"),
+            KEY_READ,
+        )
+        .ok()?;
+    if let Some(version) = version_from_device_key(&hklm, &enum_key) {
+        return Some(version);
+    }
+    for instance in enum_key.enum_keys().flatten() {
+        let Some(device) = enum_key.open_subkey_with_flags(&instance, KEY_READ).ok() else {
+            continue;
+        };
+        if let Some(version) = version_from_device_key(&hklm, &device) {
+            return Some(version);
+        }
+    }
+    None
+}
+
+#[cfg(target_os = "windows")]
+fn version_from_device_key(hklm: &winreg::RegKey, device: &winreg::RegKey) -> Option<String> {
+    use winreg::enums::KEY_READ;
+
+    let driver: String = device.get_value("Driver").ok()?;
+    let class_key = hklm
+        .open_subkey_with_flags(
+            format!("SYSTEM\\CurrentControlSet\\Control\\Class\\{driver}"),
+            KEY_READ,
+        )
+        .ok()?;
+    let version: String = class_key.get_value("DriverVersion").ok()?;
+    let version = version.trim();
+    if !version.is_empty()
+        && version.chars().next().is_some_and(|c| c.is_ascii_digit())
+        && version
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || ".-_+".contains(c))
+    {
+        Some(version.to_string())
+    } else {
+        None
+    }
 }
 
 #[cfg(not(target_os = "windows"))]
