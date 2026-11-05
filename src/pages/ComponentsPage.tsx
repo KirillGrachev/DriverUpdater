@@ -127,6 +127,20 @@ export function ComponentsPage() {
         }
     };
 
+    const requestCancelInstall = (item: AppComponent) => {
+        openModal({
+            title: t('backups.banner'),
+            text: t('backups.bannerSub'),
+            confirmLabel: t('backups.confirmCancel'),
+            cancelLabel: t('backups.confirmOk'),
+            tone: 'danger',
+            onConfirm: async () => {
+                closeModal();
+                await cancelPackageInstall(item.wingetId ?? '');
+            },
+        });
+    };
+
     const requestInstall = (item: AppComponent) => {
         if ((item.sizeMb ?? 0) >= 1000) {
             openModal({
@@ -250,9 +264,7 @@ export function ComponentsPage() {
                                                         <Button
                                                             variant="secondary"
                                                             size="sm"
-                                                            onClick={() => {
-                                                                void cancelPackageInstall(item.wingetId ?? '');
-                                                            }}
+                                                            onClick={() => requestCancelInstall(item)}
                                                         >
                                                             {t('backups.confirmCancel')}
                                                         </Button>

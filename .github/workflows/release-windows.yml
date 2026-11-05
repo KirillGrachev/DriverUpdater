@@ -100,15 +100,36 @@ jobs:
           path: artifacts/windows-${{ matrix.arch }}
           if-no-files-found: error
 
+  sbom:
+    name: Software bill of materials
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+        with:
+          node-version: 22
+          cache: npm
+      - name: Install dependencies
+        run: npm ci
+      - name: Generate CycloneDX SBOM
+        run: |
+          mkdir -p artifacts/sbom
+          npm sbom --sbom-format cyclonedx > artifacts/sbom/npm.cdx.json
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        with:
+          name: sbom
+          path: artifacts/sbom
+          if-no-files-found: error
+
   publish:
     name: Publish release
-    needs: build-windows
+    needs: [build-windows, sbom]
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
-          pattern: windows-*
+          pattern: '*'
           path: artifacts
       - uses: softprops/action-gh-release@5113cdc90fd4d541c801c55356214017bf5ae34b # v3
         with:
