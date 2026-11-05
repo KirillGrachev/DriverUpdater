@@ -63,13 +63,20 @@ fn run_inner(
 
     let pid = child.id();
     let started = Instant::now();
+    let mut cancel_ignored = false;
     let status = loop {
-        if cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
-            // Do not kill the whole tree here: winget may already have handed
-            // the transaction to msiexec or DISM. Killing only the CLI keeps a
-            // Windows Installer transaction from being torn in half.
-            stop_child(&mut child, pid, false);
-            return Err("process cancelled".to_string());
+        if !cancel_ignored && cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
+            if installer_transaction_active() {
+                // Once msiexec or DISM owns the transaction, terminating the
+                // winget parent would report a cancellation while the package
+                // is still being applied. Let the transaction finish instead.
+                cancel_ignored = true;
+                log::warn!("cancellation ignored because an installer transaction is active");
+            } else {
+                // Download-only or preflight phase: stopping the CLI is safe.
+                stop_child(&mut child, pid, false);
+                return Err("process cancelled".to_string());
+            }
         }
         match child.try_wait().map_err(|error| error.to_string())? {
             Some(status) => break status,
@@ -89,6 +96,28 @@ fn run_inner(
         stdout,
         stderr,
     })
+}
+
+#[cfg(target_os = "windows")]
+fn installer_transaction_active() -> bool {
+    ["msiexec.exe", "dism.exe"].iter().any(|name| {
+        let output = Command::new(system_executable("tasklist.exe"))
+            .args(["/FI", &format!("IMAGENAME eq {name}"), "/NH"])
+            .output();
+        output
+            .ok()
+            .map(|output| {
+                String::from_utf8_lossy(&output.stdout)
+                    .to_ascii_lowercase()
+                    .contains(name)
+            })
+            .unwrap_or(false)
+    })
+}
+
+#[cfg(not(target_os = "windows"))]
+fn installer_transaction_active() -> bool {
+    false
 }
 
 fn stop_child(child: &mut std::process::Child, pid: u32, kill_tree: bool) {
