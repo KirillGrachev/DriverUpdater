@@ -135,6 +135,7 @@ export function SettingsPage() {
                 </Row>
                 <Row icon={<IconSettingsClock size={21} />} label={t('settings.interval')}>
                     <Select<CheckInterval>
+                        className="interval-select"
                         value={settings.checkInterval}
                         onChange={(next) => update('checkInterval', next)}
                         options={[

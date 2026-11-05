@@ -217,6 +217,7 @@ export function DriversPage() {
 
             <section className="drivers-toolbar">
                 <Select
+                    className="category-select"
                     value={category}
                     onChange={setCategory}
                     options={categoryOptions}

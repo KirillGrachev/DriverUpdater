@@ -105,6 +105,15 @@
     color: var(--c-text-2);
 }
 
+.interval-select,
+.period-select {
+    width: 168px;
+}
+
+.category-select {
+    width: 190px;
+}
+
 .component-version-select {
     width: 130px;
     height: 32px;

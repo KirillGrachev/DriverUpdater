@@ -328,6 +328,7 @@ export function BackupsPage() {
                     <div className="auto-right">
                         <div className="auto-period-label">{t('backups.periodLabel')}</div>
                         <Select<RestorePointPeriod>
+                            className="period-select"
                             icon={<IconCalendar size={18} />}
                             value={settings.restorePointPeriod}
                             onChange={(next) => void saveSettings({ ...settings, restorePointPeriod: next })}
