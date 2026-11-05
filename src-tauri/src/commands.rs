@@ -87,6 +87,17 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
 }
 
 #[tauri::command]
+pub async fn scan_inventory(state: State<'_, AppRepository>) -> Result<InitialData, String> {
+    let repository = Arc::clone(&state.0);
+    let drivers = detect_drivers().await;
+    run_repository_handle(repository, move |repository| {
+        repository.apply_initial_scan(drivers)?;
+        Ok(repository.snapshot())
+    })
+    .await
+}
+
+#[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
     let repository = Arc::clone(&state.0);
     let drivers_task = tauri::async_runtime::spawn_blocking(|| NativeDetector.detect());

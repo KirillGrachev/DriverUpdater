@@ -111,6 +111,7 @@ export interface InitialData {
     summary: Summary;
     systemInfo: SystemInfo;
     scanError?: string | null;
+    needsScan: boolean;
 }
 
 export interface CheckUpdatesResult {

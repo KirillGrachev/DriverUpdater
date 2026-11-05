@@ -126,7 +126,13 @@ export class MockBackend implements Backend {
             settings: clone(this.state.settings),
             summary: this.summary(),
             systemInfo: detectSystemInfo(),
+            needsScan: false,
         };
+    }
+
+    async scanInventory(): Promise<InitialData> {
+        await sleep(300);
+        return this.getInitialData();
     }
 
     async checkUpdates(): Promise<CheckUpdatesResult> {

@@ -145,6 +145,8 @@ pub struct InitialData {
     pub system_info: SystemInfo,
     #[serde(default)]
     pub scan_error: Option<String>,
+    #[serde(default)]
+    pub needs_scan: bool,
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

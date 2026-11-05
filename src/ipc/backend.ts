@@ -23,6 +23,7 @@ import type {
  */
 export interface Backend {
     getInitialData(): Promise<InitialData>;
+    scanInventory(): Promise<InitialData>;
     checkUpdates(): Promise<CheckUpdatesResult>;
     installDriver(id: string, restorePointName: string, allowMissingRestore?: boolean): Promise<Driver>;
     installUpdates(ids: string[], restorePointName: string, allowMissingRestore?: boolean): Promise<InstallReport>;

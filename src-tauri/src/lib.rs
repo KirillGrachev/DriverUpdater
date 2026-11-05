@@ -122,6 +122,7 @@ pub fn run() {
         })
         .invoke_handler(tauri::generate_handler![
             commands::get_initial_data,
+            commands::scan_inventory,
             commands::check_updates,
             commands::install_driver,
             commands::install_updates,

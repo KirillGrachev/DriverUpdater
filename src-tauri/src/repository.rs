@@ -222,6 +222,7 @@ impl DriverRepository {
             summary: self.summary(),
             system_info: self.system_info.info(),
             scan_error: self.scan_error.clone(),
+            needs_scan: self.needs_scan,
         }
     }
 

@@ -19,6 +19,10 @@ export class TauriBackend implements Backend {
         return invoke<InitialData>('get_initial_data');
     }
 
+    scanInventory(): Promise<InitialData> {
+        return invoke<InitialData>('scan_inventory');
+    }
+
     checkUpdates(): Promise<CheckUpdatesResult> {
         return invoke<CheckUpdatesResult>('check_updates');
     }

@@ -151,6 +151,30 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 if (cancelled) return;
                 dataRef.current = data;
                 patch({ data, systemInfo: data.systemInfo, booting: false });
+                if (data.needsScan) {
+                    scanningRef.current = true;
+                    patch({ scanning: true });
+                    void backend
+                        .scanInventory()
+                        .then((next) => {
+                            if (cancelled) return;
+                            dataRef.current = next;
+                            patch({ data: next, systemInfo: next.systemInfo });
+                        })
+                        .catch((error) => {
+                            if (cancelled) return;
+                            const current = dataRef.current ?? data;
+                            dataRef.current = {
+                                ...current,
+                                scanError: error instanceof Error ? error.message : String(error),
+                            };
+                            patch({ data: dataRef.current });
+                        })
+                        .finally(() => {
+                            scanningRef.current = false;
+                            if (!cancelled) patch({ scanning: false });
+                        });
+                }
             } catch (error) {
                 if (cancelled) return;
                 /** Keep the window usable even if the backend or a locale chunk fails. */
