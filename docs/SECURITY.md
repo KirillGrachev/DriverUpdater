@@ -65,7 +65,7 @@ General bugs without a security impact belong in the normal issue tracker.
 - Component installation accepts only ids from the Rust winget allowlist and
   validates version strings before spawning winget.
 - Persisted settings, the driver cache, restore points and component state are
-  sealed with Windows DPAPI (current-user scope) and application entropy.
+  sealed with Windows DPAPI (current-user scope) and stable application entropy.
 - Drivers have a single persisted source, `installed-drivers.json`; the state
   document no longer duplicates the inventory.
 - The webview has devtools, drag-and-drop, zoom hotkeys and browser shortcuts

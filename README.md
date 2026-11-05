@@ -346,8 +346,8 @@ is not listed yet.
 <h3 align="center">Local data protection</h3>
 
 Persisted application data is encrypted at rest with Windows DPAPI in the
-current-user scope. The payload is additionally bound to the application
-identifier through DPAPI entropy. A copied profile, a file taken from another
+current-user scope. The payload is additionally bound to stable application-specific DPAPI
+entropy. A copied profile, a file taken from another
 Windows account, or an offline disk image cannot be decrypted with this app
 alone.
 
