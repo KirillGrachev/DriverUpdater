@@ -27,7 +27,8 @@
         "transparent": false,
         "devtools": false,
         "dragDropEnabled": false,
-        "zoomHotkeysEnabled": false
+        "zoomHotkeysEnabled": false,
+        "shadow": false
       }
     ],
     "security": {
