@@ -94,6 +94,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
     const languageSeqRef = useRef(0);
     const detectedComponentsRef = useRef<InstalledComponent[] | null>(null);
     const settingsQueueRef = useRef<Promise<unknown>>(Promise.resolve());
+    const toastsRef = useRef<Toast[]>([]);
     const [state, setState] = useState<AppState>({
         route: 'home',
         data: null,
@@ -115,6 +116,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
         dataRef.current = state.data;
     }, [state.data]);
 
+    useEffect(() => {
+        toastsRef.current = state.toasts;
+    }, [state.toasts]);
+
     const patch = useCallback((partial: Partial<AppState>) => {
         setState((prev) => ({ ...prev, ...partial }));
     }, []);
@@ -134,8 +139,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     const pushToast = useCallback(
         (text: string, tone: Toast['tone'] = 'info') => {
+            if (toastsRef.current.some((toast) => !toast.leaving && toast.text === text && toast.tone === tone)) {
+                return;
+            }
             const id = ++toastSeq;
-            setState((prev) => ({ ...prev, toasts: [...prev.toasts, { id, text, tone }] }));
+            const toast = { id, text, tone };
+            toastsRef.current = [...toastsRef.current, toast];
+            setState((prev) => ({ ...prev, toasts: [...prev.toasts, toast] }));
             window.setTimeout(() => dismissToast(id), 4200);
         },
         [dismissToast],
