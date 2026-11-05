@@ -7,21 +7,6 @@ import { formatDateTime } from '../utils/format';
 
 let backupsCache: DriverBackup[] | null = null;
 
-function BackupsSkeleton() {
-    return (
-        <div className="backup-skeleton" role="status" aria-busy="true" aria-label="Loading driver backups">
-            {[0, 1, 2].map((row) => (
-                <div className="backup-skeleton-row" key={row}>
-                    <div className="skeleton-line skeleton-line-name" />
-                    <div className="skeleton-line skeleton-line-date" />
-                    <div className="skeleton-line skeleton-line-size" />
-                    <div className="skeleton-line skeleton-line-action" />
-                </div>
-            ))}
-        </div>
-    );
-}
-
 function AnimatedHeight({ children }: { children: ReactNode }) {
     const innerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number | undefined>(undefined);
@@ -66,31 +51,35 @@ export function BackupsPage() {
         pushToast,
     } = useApp();
     const [creating, setCreating] = useState(false);
-    const [pointsLoading, setPointsLoading] = useState(true);
+    const [loading, setLoading] = useState(true);
     const [backups, setBackups] = useState<DriverBackup[]>(() => backupsCache ?? []);
-    const [backupsLoading, setBackupsLoading] = useState(backupsCache === null);
     const [creatingBackup, setCreatingBackup] = useState(false);
     const [busyBackup, setBusyBackup] = useState<string | null>(null);
 
     useEffect(() => {
         let cancelled = false;
-        void refreshRestorePoints().finally(() => {
-            if (!cancelled) setPointsLoading(false);
-        });
-        void listDriverBackups()
-            .then((items) => {
+        void Promise.allSettled([
+            refreshRestorePoints(),
+            listDriverBackups().then((items) => {
                 backupsCache = items;
                 if (!cancelled) setBackups(items);
-            })
-            .finally(() => {
-                if (!cancelled) setBackupsLoading(false);
-            });
+            }),
+        ]).then(() => {
+            if (!cancelled) setLoading(false);
+        });
         return () => {
             cancelled = true;
         };
     }, [listDriverBackups, refreshRestorePoints]);
 
     if (!data) return null;
+    if (loading) {
+        return (
+            <div className="page-loading">
+                <Spinner size={26} />
+            </div>
+        );
+    }
 
     const settings = data.settings;
 
@@ -201,9 +190,7 @@ export function BackupsPage() {
                     </Button>
                 </div>
                 <AnimatedHeight>
-                    {pointsLoading && data.restorePoints.length === 0 ? (
-                        <BackupsSkeleton />
-                    ) : data.restorePoints.length === 0 ? (
+                    {data.restorePoints.length === 0 ? (
                         <div className="backups-empty">
                             <div className="backups-empty-title">{t('backups.emptyTitle')}</div>
                             <div className="backups-empty-sub">{t('backups.emptySub')}</div>
@@ -275,9 +262,7 @@ export function BackupsPage() {
                         {creatingBackup ? t('backups.creatingBackup') : t('backups.createBackup')}
                     </Button>
                 </div>
-                {backupsLoading ? (
-                    <BackupsSkeleton />
-                ) : backups.length === 0 ? (
+                {backups.length === 0 ? (
                     <div className="backups-empty">
                         <div className="backups-empty-title">{t('backups.backupEmpty')}</div>
                         <div className="backups-empty-sub">{t('backups.backupEmptySub')}</div>
