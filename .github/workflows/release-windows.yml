@@ -60,7 +60,7 @@ jobs:
       - name: Package portable and symbols
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-${{ matrix.arch }}
           path: artifacts/windows-${{ matrix.arch }}
