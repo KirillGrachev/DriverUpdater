@@ -5,6 +5,23 @@ import type { DriverBackup, RestorePointPeriod } from '../ipc/types';
 import { useApp } from '../store/app';
 import { formatDateTime } from '../utils/format';
 
+let backupsCache: DriverBackup[] | null = null;
+
+function BackupsSkeleton() {
+    return (
+        <div className="backup-skeleton" role="status" aria-busy="true" aria-label="Loading driver backups">
+            {[0, 1, 2].map((row) => (
+                <div className="backup-skeleton-row" key={row}>
+                    <div className="skeleton-line skeleton-line-name" />
+                    <div className="skeleton-line skeleton-line-date" />
+                    <div className="skeleton-line skeleton-line-size" />
+                    <div className="skeleton-line skeleton-line-action" />
+                </div>
+            ))}
+        </div>
+    );
+}
+
 function AnimatedHeight({ children }: { children: ReactNode }) {
     const innerRef = useRef<HTMLDivElement>(null);
     const [height, setHeight] = useState<number | undefined>(undefined);
@@ -48,8 +65,8 @@ export function BackupsPage() {
         pushToast,
     } = useApp();
     const [creating, setCreating] = useState(false);
-    const [backups, setBackups] = useState<DriverBackup[]>([]);
-    const [backupsLoading, setBackupsLoading] = useState(true);
+    const [backups, setBackups] = useState<DriverBackup[]>(() => backupsCache ?? []);
+    const [backupsLoading, setBackupsLoading] = useState(backupsCache === null);
     const [creatingBackup, setCreatingBackup] = useState(false);
     const [busyBackup, setBusyBackup] = useState<string | null>(null);
 
@@ -57,6 +74,7 @@ export function BackupsPage() {
         let cancelled = false;
         void listDriverBackups()
             .then((items) => {
+                backupsCache = items;
                 if (!cancelled) setBackups(items);
             })
             .finally(() => {
@@ -82,7 +100,11 @@ export function BackupsPage() {
         setCreatingBackup(true);
         try {
             const backup = await createDriverBackup();
-            setBackups((current) => [backup, ...current]);
+            setBackups((current) => {
+                const next = [backup, ...current];
+                backupsCache = next;
+                return next;
+            });
             pushToast(t('backups.backupCreated'), 'success');
         } catch (error) {
             console.error('driver backup failed', error);
@@ -127,7 +149,11 @@ export function BackupsPage() {
                 setBusyBackup(backup.id);
                 try {
                     await deleteDriverBackup(backup.id);
-                    setBackups((current) => current.filter((item) => item.id !== backup.id));
+                    setBackups((current) => {
+                        const next = current.filter((item) => item.id !== backup.id);
+                        backupsCache = next;
+                        return next;
+                    });
                     pushToast(t('backups.backupDeleted'), 'info');
                 } catch (error) {
                     console.error('driver backup operation failed', error);
@@ -243,9 +269,7 @@ export function BackupsPage() {
                     </Button>
                 </div>
                 {backupsLoading ? (
-                    <div className="backups-empty">
-                        <Spinner size={20} />
-                    </div>
+                    <BackupsSkeleton />
                 ) : backups.length === 0 ? (
                     <div className="backups-empty">
                         <div className="backups-empty-title">{t('backups.backupEmpty')}</div>
