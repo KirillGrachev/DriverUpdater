@@ -37,25 +37,28 @@
 
 ---
 
-## Contents
+<h2 align="center" id="contents">Contents</h2>
 
-- [Why](#why)
-- [Features](#features)
-- [Screenshots](#screenshots)
-- [Requirements](#requirements)
-- [Install](#install)
-- [Build from source](#build-from-source)
-- [Architecture](#architecture)
-- [Languages](#languages)
-- [Privacy](#privacy)
-- [Tests](#tests)
-- [Contributing](#contributing)
-- [Security](#security)
-- [License](#license)
+<p align="center">
+  <a href="#why">Why</a> ·
+  <a href="#features">Features</a> ·
+  <a href="#screenshots">Screenshots</a> ·
+  <a href="#requirements">Requirements</a> ·
+  <a href="#install">Install</a> ·
+  <a href="#build-from-source">Build</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#languages">Languages</a> ·
+  <a href="#privacy">Privacy</a> ·
+  <a href="#tests">Tests</a> ·
+  <a href="#documentation">Documentation</a> ·
+  <a href="#contributing">Contributing</a> ·
+  <a href="#security">Security</a> ·
+  <a href="#license">License</a>
+</p>
 
 ---
 
-## Why
+<h2 align="center" id="why">Why</h2>
 
 Driver management on Windows usually means guessing. Device Manager shows
 devices, not package state. Vendor utilities only know their own hardware.
@@ -73,47 +76,47 @@ Driver Updater keeps the workflow visible:
 | A web app in a desktop shell                                                   | Frameless native window, keyboard-safe layout, no context menu or browser shortcuts |
 
 The project is intentionally local-first. The driver scan reads Windows APIs
-through PowerShell/CIM, the UI never talks to a remote service, and anonymous
-telemetry is opt-in and disabled by default.
+through PowerShell/CIM, the UI never talks to a remote service, and no telemetry
+is collected.
 
 ---
 
-## Features
+<h2 align="center" id="features">Features</h2>
 
-<table>
+<table align="center">
   <tr>
     <td width="50%" valign="top">
       <h3>Real Windows inventory</h3>
-      <p><code>Win32_PnPSignedDriver</code> is queried through CIM, deduplicated by device, version and vendor, cached to the app data directory, and rescanned on demand. A machine with 170+ raw driver records is reduced to a stable, readable list.</p>
+      <p><code>Win32_PnPSignedDriver</code> is queried through CIM, deduplicated by device instance id, cached to the app data directory, and rescanned on demand. A machine with 170+ raw driver records is reduced to a stable, readable list.</p>
       <p>Installed software is detected from the uninstall registry on any drive, including <code>InstallLocation</code> and <code>DisplayIcon</code>, so portable tools outside <code>C:\</code> are not lost.</p>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <h3>Restore points and backups</h3>
-      <p>Create a restore point manually or automatically before a driver install. Restore points and driver backups are listed with date, origin and estimated size, and can be restored or deleted from the same screen.</p>
+      <p>Create a restore point manually or automatically before a driver install. Restore points and driver backups are listed with date, origin and known size when Windows exposes one, and can be restored or deleted from the same screen.</p>
       <p>Empty states, animated list resizing and confirmation dialogs make destructive actions explicit instead of silent.</p>
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <h3>Components without a scavenger hunt</h3>
       <p>A version-aware catalogue of runtimes and tools: .NET Framework 3.5/4.x, .NET Desktop Runtime 6/8/9, Visual C++, DirectX, Visual Studio 2022 editions, Python 3.10-3.13, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.4, Git, CMake and 7-Zip.</p>
       <p>Each row exposes the versions available from winget. Installed versions are detected from the registry; chosen versions are installed through the Windows Package Manager.</p>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <h3>Desktop behaviour, not a website</h3>
       <p>Custom frameless titlebar, a floating bottom dock, no text selection, no permanent scrollbar, no context menu, no devtools shortcuts. Light, dark and system themes are applied before the first paint; the native window is shown on the first React commit with a themed boot splash while the blocking scan finishes.</p>
     </td>
   </tr>
 </table>
 
-### Installer prerequisites
+<h3 align="center">Installer prerequisites</h3>
 
 The Windows installer embeds the full WebView2 offline installer and runs it
 before the app first launches. The MSVC runtime is linked statically. A clean
 Windows 10/11 machine does not need a network connection during setup and does
 not need a separate Visual C++ Redistributable.
 
-### Component installation
+<h3 align="center">Component installation</h3>
 
 Components use winget and need the **App Installer** (`winget`) from the
 Microsoft Store. If winget is unavailable, the components page reports the
@@ -130,28 +133,28 @@ failure instead of pretending the package was installed.
 
 ---
 
-## Screenshots
+<h2 align="center" id="screenshots">Screenshots</h2>
 
-<table>
+<table align="center">
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/drivers-light.png" alt="Driver list with search, category filter, update badges and per-driver actions" width="100%">
       <br>
       <sub>Drivers: search, category filter, list/categories views and expandable details.</sub>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/backups-light.png" alt="Restore points list with create, restore and delete actions" width="100%">
       <br>
       <sub>Backups: restore points, sizes and automatic creation settings.</sub>
     </td>
   </tr>
   <tr>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/settings-dark.png" alt="Settings screen in dark theme" width="100%">
       <br>
-      <sub>Settings: theme, language, notifications, scan interval and backup path.</sub>
+      <sub>Settings: theme, language, automatic checks, restore points and backup path.</sub>
     </td>
-    <td width="50%" valign="top">
+    <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/home-dark.png" alt="Home screen in dark theme" width="100%">
       <br>
       <sub>The same home screen in dark theme. Theme is persisted and restored on launch.</sub>
@@ -161,16 +164,16 @@ failure instead of pretending the package was installed.
 
 ---
 
-## Requirements
+<h2 align="center" id="requirements">Requirements</h2>
 
-### Running the app
+<h3 align="center">Running the app</h3>
 
 - Windows 10 or Windows 11;
 - x64, ARM64 or 32-bit x86 (x86 is Windows 10 only);
 - no separate WebView2 or Visual C++ installation: both are handled by the installer;
 - about 250 MB of disk space for the installed app and the offline runtime payload.
 
-### Building
+<h3 align="center">Building</h3>
 
 - Node.js 20+ and npm;
 - Rust stable with the MSVC toolchain (`rustup default stable-x86_64-pc-windows-msvc`);
@@ -179,20 +182,37 @@ failure instead of pretending the package was installed.
 
 ---
 
-## Install
+<h2 align="center" id="install">Install</h2>
 
 Download the installer for your architecture from
 [Releases](https://github.com/KirillGrachev/DriverUpdater/releases):
 
-| Architecture   | Recommended asset                          |
-| -------------- | ------------------------------------------ |
-| Windows x64    | `Driver.Updater_<version>_x64-setup.exe`   |
-| Windows ARM64  | `Driver.Updater_<version>_arm64-setup.exe` |
-| Windows 10 x86 | `Driver.Updater_<version>_x86-setup.exe`   |
+<table align="center">
+  <tr>
+    <th align="left">Architecture</th>
+    <th align="left">Recommended asset</th>
+  </tr>
+  <tr><td>Windows x64</td><td><code>Driver.Updater_&lt;version&gt;_x64-setup.exe</code></td></tr>
+  <tr><td>Windows ARM64</td><td><code>Driver.Updater_&lt;version&gt;_arm64-setup.exe</code></td></tr>
+  <tr><td>Windows 10 x86</td><td><code>Driver.Updater_&lt;version&gt;_x86-setup.exe</code></td></tr>
+</table>
 
 MSI, portable ZIP and symbol ZIP variants are published for each architecture.
 
-![The branded Driver Updater setup wizard](docs/screenshots/installer-light.png)
+<table align="center">
+  <tr>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/installer-nsis.png" alt="Branded NSIS setup wizard with Driver Updater sidebar" width="100%">
+      <br>
+      <sub>NSIS installer: branded sidebar, header and app icon.</sub>
+    </td>
+    <td width="50%" align="center" valign="top">
+      <img src="docs/screenshots/installer-msi.png" alt="Branded MSI setup wizard with Driver Updater banner" width="100%">
+      <br>
+      <sub>MSI installer: branded WiX banner and welcome dialog.</sub>
+    </td>
+  </tr>
+</table>
 
 The installer is per-user by default and does not require a reboot.
 
@@ -209,7 +229,7 @@ leaving a half-working application behind.
 
 ---
 
-## Build from source
+<h2 align="center" id="build-from-source">Build from source</h2>
 
 ```powershell
 git clone https://github.com/KirillGrachev/DriverUpdater.git
@@ -242,7 +262,7 @@ The first Rust build takes a few minutes. Later builds reuse the Cargo cache.
 
 ---
 
-## Architecture
+<h2 align="center" id="architecture">Architecture</h2>
 
 Driver Updater keeps the Windows boundary in Rust and the presentation layer in
 React. The webview never calls PowerShell directly; it goes through typed IPC
@@ -260,9 +280,12 @@ src/
 
 src-tauri/src/
   commands.rs                typed Tauri commands, validation and blocking-pool boundary
-  repository.rs              application service and in-memory state
-  detection.rs               detector traits and the native Windows adapters
-  storage.rs                 encrypted state and driver-cache persistence
+  repository.rs              application service, locking and persistence
+  detection.rs               detector traits and native Windows CIM adapters
+  windows_update.rs          Windows Update driver discovery and installation
+  restore.rs                 System Restore points through WMI
+  backup.rs                  driver package export and restore through pnputil
+  storage.rs                 versioned encrypted state and driver cache
   security.rs                DPAPI sealing for files at rest
   models.rs                  serde models mirroring src/ipc/types.ts
   lib.rs                     Tauri setup, window icon, backup folder metadata
@@ -270,16 +293,14 @@ src-tauri/src/
 shared/fixtures/             single source of test data for Rust and TypeScript
 ```
 
-Flow of a scan:
+Flow of an update check:
 
 ```text
 React action
   -> invoke("check_updates")
-  -> async Tauri command
-  -> spawn_blocking
-  -> DriverRepository (mutex)
-  -> PowerShell / CIM with a 20 s timeout
-  -> dedupe + cache + summary
+  -> driver scan and Windows Update search run outside the state lock
+  -> typed repository update + persist
+  -> dedupe + HardwareID matching + cache + summary
   -> typed JSON back to the webview
 ```
 
@@ -294,7 +315,7 @@ continue when the Windows toolchain is unavailable.
 
 ---
 
-## Languages
+<h2 align="center" id="languages">Languages</h2>
 
 The interface ships 35 locales in the same order as the
 [BirthdayBot](https://github.com/KirillGrachev/BirthdayBot) language picker:
@@ -306,16 +327,16 @@ el ga mt kk ky tg tk uz az ka hy
 
 Russian and English are the reference dictionaries. Every other locale is a
 lazy-loaded JSON chunk under `src/i18n/locales/`, so the initial bundle does not
-carry all translations. Missing keys fall back to English, then to Russian.
+carry all translations. Missing keys fall back to English.
 To add a language, copy an existing JSON file, translate the values, keep the
 key structure, and add the locale to `LOCALE_ORDER` in `src/i18n/index.ts` if it
 is not listed yet.
 
 ---
 
-## Privacy
+<h2 align="center" id="privacy">Privacy</h2>
 
-### Local data protection
+<h3 align="center">Local data protection</h3>
 
 Persisted application data is encrypted at rest with Windows DPAPI in the
 current-user scope. The payload is additionally bound to the application
@@ -345,15 +366,14 @@ of the threat model.
   never used by the desktop build.
 - Theme preference is the only desktop `localStorage` value; it contains a
   single word (`light`, `dark` or `system`).
-- Anonymous telemetry is **off by default**. The setting only records a local
-  preference until a telemetry endpoint is implemented.
+- No telemetry is collected.
 - Component installs download packages from the configured winget sources.
 - External links open in the system browser. The app does not embed a browser
   or load remote content.
 
 ---
 
-## Tests
+<h2 align="center" id="tests">Tests</h2>
 
 ```powershell
 npm run typecheck
@@ -370,24 +390,24 @@ Formatting is enforced with Prettier (4 spaces, 120 columns) and `cargo fmt`:
 npm run format:check
 ```
 
-CI runs Prettier, typecheck, unit tests, the Vite build, `cargo fmt`, `cargo check` and Rust unit tests on Linux and Windows.
+CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, clippy with warnings as errors, `cargo fmt`, `cargo check` and Rust unit tests on Linux and Windows.
 
 ---
 
-## Documentation
+<h2 align="center" id="documentation">Documentation</h2>
 
-- [Wiki source](docs/wiki/Home.md)
+- [Documentation index](docs/README.md)
 - [Contributing](docs/CONTRIBUTING.md)
 - [Security policy](docs/SECURITY.md)
 - [Code of Conduct](docs/CODE_OF_CONDUCT.md)
 - [Third-party notices](docs/THIRD_PARTY_NOTICES.md)
 
-The rendered wiki is at https://github.com/KirillGrachev/DriverUpdater/wiki.
+Developer-only scripts live in `scripts/`. They are used by CI and maintainers,
+and are not bundled into the installer.
 
-## Contributing
+<h2 align="center" id="contributing">Contributing</h2>
 
-Read the [wiki](https://github.com/KirillGrachev/DriverUpdater/wiki),
-[CONTRIBUTING.md](docs/CONTRIBUTING.md) before opening a pull request. In short:
+Read [CONTRIBUTING.md](docs/CONTRIBUTING.md) before opening a pull request. In short:
 
 - keep TypeScript strict and run `npm run typecheck`;
 - format with `npm run format` (Prettier + `cargo fmt`);
@@ -400,14 +420,14 @@ Bug reports and feature requests use the issue templates in
 
 ---
 
-## Security
+<h2 align="center" id="security">Security</h2>
 
 Please do not open a public issue for a vulnerability. See
 [SECURITY.md](docs/SECURITY.md) for the reporting process and scope.
 
 ---
 
-## License
+<h2 align="center" id="license">License</h2>
 
 MIT. See [LICENSE](LICENSE). The bundled Montserrat fonts are distributed under
 the SIL Open Font License; see

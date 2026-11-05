@@ -1,8 +1,0 @@
-- [Home](https://github.com/KirillGrachev/DriverUpdater/wiki/Home)
-- [Getting Started](https://github.com/KirillGrachev/DriverUpdater/wiki/Getting-Started)
-- [Architecture](https://github.com/KirillGrachev/DriverUpdater/wiki/Architecture)
-- [Components](https://github.com/KirillGrachev/DriverUpdater/wiki/Components)
-- [Security and Privacy](https://github.com/KirillGrachev/DriverUpdater/wiki/Security-and-Privacy)
-- [Development](https://github.com/KirillGrachev/DriverUpdater/wiki/Development)
-- [FAQ](https://github.com/KirillGrachev/DriverUpdater/wiki/FAQ)
-- [Troubleshooting](https://github.com/KirillGrachev/DriverUpdater/wiki/Troubleshooting)
