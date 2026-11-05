@@ -115,10 +115,10 @@ is collected.
 
 <h3 align="center">Installer prerequisites</h3>
 
-The Windows installer embeds the full WebView2 offline installer and runs it
-before the app first launches. The MSVC runtime is linked statically. A clean
-Windows 10/11 machine does not need a network connection during setup and does
-not need a separate Visual C++ Redistributable.
+The Windows installer downloads the small Microsoft WebView2 bootstrapper when
+the runtime is missing, then launches the app. The MSVC runtime is linked
+statically, so a separate Visual C++ Redistributable is not required. Setup
+therefore needs an internet connection on a clean Windows 10/11 machine.
 
 <h3 align="center">Component installation</h3>
 
@@ -132,8 +132,6 @@ failure instead of pretending the package was installed.
   needs a network connection and may show a Windows UAC prompt.
 - The Rust allowlist in `src-tauri/src/packages.rs` restricts package ids; the
   webview cannot ask winget to install an arbitrary package.
-- OpenGL has no standalone runtime package. It is provided by the GPU driver, so
-  the page explains that instead of offering a fake installer.
 
 ---
 
@@ -174,8 +172,10 @@ failure instead of pretending the package was installed.
 
 - Windows 10 or Windows 11;
 - x64, ARM64 or 32-bit x86 (x86 is Windows 10 only);
-- no separate WebView2 or Visual C++ installation: both are handled by the installer;
-- about 250 MB of disk space for the installed app and the offline runtime payload.
+- the installer downloads the WebView2 bootstrapper only when the runtime is missing;
+- the MSVC runtime is linked statically;
+- the unified setup UI itself needs WebView2; on a clean Windows 10 image, setup installs it before the app first launches;
+- about 25 MB for the installed app, plus the shared WebView2 runtime.
 
 <h3 align="center">Building</h3>
 
@@ -196,24 +196,26 @@ Download the installer for your architecture from
     <th align="left">Architecture</th>
     <th align="left">Recommended asset</th>
   </tr>
-  <tr><td>Windows x64</td><td><code>Driver.Updater_&lt;version&gt;_x64-setup.exe</code></td></tr>
-  <tr><td>Windows ARM64</td><td><code>Driver.Updater_&lt;version&gt;_arm64-setup.exe</code></td></tr>
-  <tr><td>Windows 10 x86</td><td><code>Driver.Updater_&lt;version&gt;_x86-setup.exe</code></td></tr>
+  <tr><td>Windows x64</td><td><code>DriverUpdaterSetup-&lt;version&gt;-x64.zip</code></td></tr>
+  <tr><td>Windows ARM64</td><td><code>DriverUpdaterSetup-&lt;version&gt;-arm64.zip</code></td></tr>
+  <tr><td>Windows 10 x86</td><td><code>DriverUpdaterSetup-&lt;version&gt;-x86.zip</code></td></tr>
 </table>
 
-MSI, portable ZIP and symbol ZIP variants are published for each architecture.
+The ZIP contains the unified setup wizard and its MSI/NSIS payload. Direct MSI,
+NSIS, portable and symbol archives remain published for managed deployment and
+architecture-specific automation.
 
 <table align="center">
   <tr>
     <td width="50%" align="center" valign="top">
-      <img src="docs/screenshots/installer-nsis.png" alt="Branded NSIS setup wizard with Driver Updater sidebar" width="100%">
+      <img src="docs/screenshots/setup-welcome.png" alt="Unified Driver Updater setup wizard welcome page" width="100%">
       <br>
-      <sub>NSIS installer: branded sidebar, header and app icon.</sub>
+      <sub>Unified setup: branded welcome, language and appearance steps.</sub>
     </td>
     <td width="50%" align="center" valign="top">
-      <img src="docs/screenshots/installer-msi.png" alt="Branded MSI setup wizard with Driver Updater banner" width="100%">
+      <img src="docs/screenshots/setup-language.png" alt="Unified setup language selection" width="100%">
       <br>
-      <sub>MSI installer: branded WiX banner and welcome dialog.</sub>
+      <sub>The same wizard is used for x64, ARM64 and x86 builds.</sub>
     </td>
   </tr>
 </table>
@@ -222,11 +224,12 @@ The installer is per-user by default and does not require a reboot.
 
 The installer:
 
-1. installs the WebView2 runtime from the bundled offline payload when it is
+1. applies the selected language and theme on the first app launch;
+2. downloads and runs the Microsoft WebView2 bootstrapper when the runtime is
    missing or older than the app expects;
-2. links the MSVC runtime into the executable, so no VC++ Redistributable is
+3. links the MSVC runtime into the executable, so no VC++ Redistributable is
    required;
-3. copies the app, creates shortcuts and registers the uninstaller.
+4. copies the app, creates shortcuts and registers the uninstaller.
 
 If a prerequisite cannot be installed, setup stops with an error instead of
 leaving a half-working application behind.
@@ -243,20 +246,24 @@ npm install
 npm run tauri dev
 ```
 
-Create a production build and installers for the native architecture:
+Create the MSI/NSIS payload and the unified setup wizard for the native
+architecture:
 
 ```powershell
-npm run tauri build -- --bundles nsis
+npm run tauri build -- --bundles msi nsis
+./scripts/build-setup.ps1 -Target x86_64-pc-windows-msvc
 ```
 
 For a specific Windows target:
 
 ```powershell
 npm run tauri -- build --target aarch64-pc-windows-msvc --bundles msi nsis
+./scripts/build-setup.ps1 -Target aarch64-pc-windows-msvc
 npm run tauri -- build --target i686-pc-windows-msvc --bundles msi nsis
+./scripts/build-setup.ps1 -Target i686-pc-windows-msvc
 ```
 
-The installers are written to:
+The native bundles are written to:
 
 ```text
 src-tauri/target/release/bundle/nsis/
@@ -374,6 +381,7 @@ of the threat model.
   single word (`light`, `dark` or `system`).
 - No telemetry is collected.
 - Component installs download packages from the configured winget sources.
+- Setup downloads the WebView2 bootstrapper from Microsoft when needed.
 - External links open in the system browser. The app does not embed a browser
   or load remote content.
 
@@ -398,8 +406,8 @@ npm run format:check
 
 CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, production npm audit,
 clippy with warnings as errors, `cargo fmt`, `cargo check`, Rust unit tests on Linux and Windows, and
-the RustSec advisory audit. The release workflow also smoke tests the MSI and NSIS payloads and
-publishes a CycloneDX SBOM.
+the RustSec advisory audit. The release workflow also builds the unified setup
+wizard, smoke tests the MSI and NSIS payloads and publishes a CycloneDX SBOM.
 
 ---
 
