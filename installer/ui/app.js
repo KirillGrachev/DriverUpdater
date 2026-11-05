@@ -93,6 +93,14 @@ document.addEventListener('click', async (event) => {
         window.close();
         return;
     }
+    if (target.dataset.action === 'minimize') {
+        if (invoke) await invoke('minimize_setup');
+        return;
+    }
+    if (target.dataset.action === 'maximize') {
+        if (invoke) await invoke('toggle_maximize');
+        return;
+    }
     if (target.dataset.next) {
         showScreen(target.dataset.next);
         return;

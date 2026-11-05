@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react';
 import logo from '../assets/branding/logo.png';
 import { isTauriRuntime } from '../ipc/backend';
 import { useApp } from '../store/app';
-import { IconClose, IconMaximize, IconMinimize } from './icons';
 
 interface WindowApi {
     minimize: () => Promise<void>;
@@ -96,7 +95,9 @@ export function TitleBar() {
                         void api?.minimize().catch(() => undefined);
                     }}
                 >
-                    <IconMinimize size={13} strokeWidth={1.6} />
+                    <span className="titlebar-glyph" aria-hidden="true">
+                        {'\uE921'}
+                    </span>
                 </button>
                 <button
                     type="button"
@@ -110,7 +111,9 @@ export function TitleBar() {
                             .catch(() => undefined);
                     }}
                 >
-                    <IconMaximize size={12} strokeWidth={1.6} />
+                    <span className="titlebar-glyph" aria-hidden="true">
+                        {maximized ? '\uE923' : '\uE922'}
+                    </span>
                 </button>
                 <button
                     type="button"
@@ -119,7 +122,9 @@ export function TitleBar() {
                     aria-label={t('titlebar.close')}
                     onClick={() => void api?.close().catch(() => undefined)}
                 >
-                    <IconClose size={13} strokeWidth={1.6} />
+                    <span className="titlebar-glyph" aria-hidden="true">
+                        {'\uE8BB'}
+                    </span>
                 </button>
             </div>
         </header>

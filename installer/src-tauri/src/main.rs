@@ -3,7 +3,7 @@
 use serde::{Deserialize, Serialize};
 use std::path::{Path, PathBuf};
 use std::process::Command;
-use tauri::{AppHandle, Emitter, Manager};
+use tauri::{AppHandle, Emitter, Manager, Window};
 
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -18,6 +18,25 @@ struct InstallRequest {
 struct InstallProgress {
     percent: u32,
     stage: String,
+}
+
+#[tauri::command]
+fn minimize_setup(window: Window) {
+    let _ = window.minimize();
+}
+
+#[tauri::command]
+fn toggle_maximize(window: Window) {
+    let _ = if window.is_maximized().unwrap_or(false) {
+        window.unmaximize()
+    } else {
+        window.maximize()
+    };
+}
+
+#[tauri::command]
+fn close_setup(window: Window) {
+    let _ = window.close();
 }
 
 #[tauri::command]
@@ -186,6 +205,9 @@ fn write_first_run(request: &InstallRequest) -> Result<(), String> {
 fn main() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
+            minimize_setup,
+            toggle_maximize,
+            close_setup,
             choose_directory,
             install,
             finish_setup

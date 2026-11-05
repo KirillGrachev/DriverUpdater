@@ -8,6 +8,18 @@
     </head>
     <body>
         <div class="setup-window">
+            <header class="titlebar" data-tauri-drag-region>
+                <div class="titlebar-brand" data-tauri-drag-region>
+                    <img src="assets/logo.png" alt="" />
+                    <span>Driver Updater Setup</span>
+                </div>
+                <div class="window-controls">
+                    <button type="button" aria-label="Minimize" data-action="minimize">&#xE921;</button>
+                    <button type="button" aria-label="Maximize" data-action="maximize">&#xE922;</button>
+                    <button type="button" aria-label="Close" data-action="close">&#xE8BB;</button>
+                </div>
+            </header>
+
             <main class="wizard">
                 <section class="screen is-active" data-screen="welcome">
                     <div class="welcome-layout">

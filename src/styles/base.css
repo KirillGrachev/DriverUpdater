@@ -262,6 +262,13 @@ a {
     padding: 0;
 }
 
+.titlebar-glyph {
+    font-family: 'Segoe Fluent Icons', 'Segoe MDL2 Assets', sans-serif;
+    font-size: 10px;
+    font-weight: 400;
+    line-height: 1;
+}
+
 .titlebar-btn {
     width: 44px;
     height: 38px;
