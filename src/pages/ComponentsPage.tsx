@@ -6,6 +6,7 @@ import { PACKAGE_CANCELLED_ERROR, type InstalledComponent } from '../ipc/types';
 import { useApp } from '../store/app';
 
 const remoteVersionCache = new Map<string, string[]>();
+const versionRequests = new Map<string, Promise<void>>();
 
 const RUNTIME_SUBGROUPS: { id: ComponentSubgroup; titleKey: string }[] = [
     { id: 'dotnet', titleKey: 'components.groupDotnet' },
@@ -80,32 +81,25 @@ export function ComponentsPage() {
         };
     }, [detectInstalledComponents, getInstalledComponents, saveInstalledComponents]);
 
-    useEffect(() => {
-        let cancelled = false;
-        const queue = COMPONENT_CATALOG.filter((item) => item.wingetId);
-        let cursor = 0;
-
-        const worker = async () => {
-            while (!cancelled && cursor < queue.length) {
-                const item = queue[cursor++];
-                if (!item.wingetId) continue;
-                const cached = remoteVersionCache.get(item.id);
-                if (cached) {
-                    setVersions((prev) => ({ ...prev, [item.id]: cached }));
-                    continue;
-                }
-                const remote = await listPackageVersions(item.wingetId);
-                if (cancelled || remote.length === 0) continue;
+    const loadVersions = (item: AppComponent) => {
+        if (!item.wingetId) return;
+        const cached = remoteVersionCache.get(item.id);
+        if (cached) {
+            setVersions((prev) => (prev[item.id] === cached ? prev : { ...prev, [item.id]: cached }));
+            return;
+        }
+        if (versionRequests.has(item.id)) return;
+        const request = listPackageVersions(item.wingetId)
+            .then((remote) => {
+                if (remote.length === 0) return;
                 remoteVersionCache.set(item.id, remote);
                 setVersions((prev) => ({ ...prev, [item.id]: remote }));
-            }
-        };
-
-        void Promise.all(Array.from({ length: 1 }, worker));
-        return () => {
-            cancelled = true;
-        };
-    }, [listPackageVersions]);
+            })
+            .finally(() => {
+                versionRequests.delete(item.id);
+            });
+        versionRequests.set(item.id, request);
+    };
 
     const install = async (item: AppComponent) => {
         if (!item.wingetId || packageInstalling.includes(item.wingetId)) return;
@@ -220,6 +214,7 @@ export function ComponentsPage() {
                                                                 setSelected((prev) => ({ ...prev, [item.id]: next }))
                                                             }
                                                             ariaLabel={`${item.name} ${t('components.version')}`}
+                                                            onOpen={() => loadVersions(item)}
                                                             options={[value, detectedVersion, ...options]
                                                                 .filter(
                                                                     (version, index, list): version is string =>

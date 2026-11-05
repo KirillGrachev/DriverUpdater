@@ -210,16 +210,18 @@ export function DriversPage() {
                     options={categoryOptions}
                     ariaLabel={t('drivers.filterAll')}
                 />
-                {drivers.some((driver) => driver.status === 'update') ? (
+                {data?.drivers.some((driver) => driver.status === 'update') ? (
                     <Button
                         variant="primary"
                         size="sm"
-                        loading={drivers.some(
+                        loading={data.drivers.some(
                             (driver) => driver.status === 'update' && installingIds.includes(driver.id),
                         )}
                         onClick={() =>
                             void installUpdates(
-                                drivers.filter((driver) => driver.status === 'update').map((driver) => driver.id),
+                                (data?.drivers ?? [])
+                                    .filter((driver) => driver.status === 'update')
+                                    .map((driver) => driver.id),
                             )
                         }
                     >
