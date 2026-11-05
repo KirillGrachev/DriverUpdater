@@ -32,7 +32,6 @@ pub struct Driver {
     pub recommended: bool,
     pub device: String,
     pub released: String,
-    pub description: LocalizedText,
     #[serde(default)]
     pub device_id: String,
     #[serde(default)]

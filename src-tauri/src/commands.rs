@@ -17,7 +17,6 @@ use crate::models::{
 };
 use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
-use crate::restore::{RestorePointProvider, WindowsRestorePoints};
 use crate::windows_update::{DriverUpdateProvider, WindowsUpdateProvider};
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
@@ -108,16 +107,6 @@ async fn install_one(
     })
     .await?;
 
-    if plan.restore_before_install {
-        let name = crate::models::LocalizedText {
-            ru: format!("Driver Updater: перед обновлением {}", plan.driver_name),
-            en: format!("Driver Updater: before updating {}", plan.driver_name),
-        };
-        tauri::async_runtime::spawn_blocking(move || WindowsRestorePoints.create(&name))
-            .await
-            .map_err(|error| error.to_string())?
-            .map_err(|error| format!("restore point was not created: {error}"))?;
-    }
     if plan.keep_backups {
         let backup_dir = plan.backup_dir.clone();
         tauri::async_runtime::spawn_blocking(move || {

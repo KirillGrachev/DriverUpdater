@@ -27,7 +27,6 @@ export interface Driver {
     recommended: boolean;
     device: string;
     released: string;
-    description: LocalizedText;
     /** Device instance id from Windows PnP. */
     deviceId?: string;
     /** Hardware ids reported by the driver. */

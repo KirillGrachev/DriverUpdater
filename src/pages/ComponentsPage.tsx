@@ -122,9 +122,8 @@ export function ComponentsPage() {
             }
             pushToast(t('components.installedToast', { name: item.name }), 'success');
         } catch (error) {
-            const message =
-                typeof error === 'string' ? error : error instanceof Error ? error.message : t('toasts.error');
-            pushToast(message, 'error');
+            console.error('component install failed', error);
+            pushToast(t('toasts.error'), 'error');
         }
     };
 

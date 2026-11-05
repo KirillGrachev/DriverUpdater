@@ -85,7 +85,8 @@ export function BackupsPage() {
             setBackups((current) => [backup, ...current]);
             pushToast(t('backups.backupCreated'), 'success');
         } catch (error) {
-            pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+            console.error('driver backup failed', error);
+            pushToast(t('toasts.error'), 'error');
         } finally {
             setCreatingBackup(false);
         }
@@ -105,7 +106,8 @@ export function BackupsPage() {
                     await restoreDriverBackup(backup.id);
                     pushToast(t('backups.backupRestored'), 'success');
                 } catch (error) {
-                    pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+                    console.error('driver backup operation failed', error);
+                    pushToast(t('toasts.error'), 'error');
                 } finally {
                     setBusyBackup(null);
                 }
@@ -128,7 +130,8 @@ export function BackupsPage() {
                     setBackups((current) => current.filter((item) => item.id !== backup.id));
                     pushToast(t('backups.backupDeleted'), 'info');
                 } catch (error) {
-                    pushToast(error instanceof Error ? error.message : t('toasts.error'), 'error');
+                    console.error('driver backup operation failed', error);
+                    pushToast(t('toasts.error'), 'error');
                 } finally {
                     setBusyBackup(null);
                 }

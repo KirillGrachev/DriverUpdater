@@ -21,8 +21,6 @@ use crate::windows_update::{merge_updates, DriverUpdate};
 
 pub struct InstallPlan {
     pub update_id: String,
-    pub driver_name: String,
-    pub restore_before_install: bool,
     pub keep_backups: bool,
     pub backup_dir: PathBuf,
 }
@@ -304,8 +302,6 @@ impl DriverRepository {
         })?;
         Ok(InstallPlan {
             update_id,
-            driver_name: driver.name.clone(),
-            restore_before_install: self.settings.restore_point_before_install,
             keep_backups: self.settings.keep_backups,
             backup_dir: self.backup_dir.clone(),
         })

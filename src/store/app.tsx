@@ -51,7 +51,7 @@ interface AppContextValue extends AppState {
     scan: () => Promise<void>;
     installDriver: (id: string) => Promise<void>;
     installUpdates: (ids: string[]) => Promise<void>;
-    createRestorePoint: (options?: { silentSuccess?: boolean }) => Promise<boolean>;
+    createRestorePoint: (options?: { silentSuccess?: boolean; name?: string }) => Promise<boolean>;
     requestDeleteRestorePoint: (id: string, name: string) => void;
     requestRestorePoint: (id: string, name: string) => void;
     saveSettings: (settings: Settings) => Promise<void>;
@@ -272,6 +272,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
             if (!backend || !base) return;
             setState((prev) => ({ ...prev, installingIds: [...prev.installingIds, id] }));
             try {
+                const driver = base.drivers.find((item) => item.id === id);
+                if (base.settings.restorePointBeforeInstall && driver) {
+                    const created = await createRestorePoint({
+                        silentSuccess: true,
+                        name: translate(locale, 'backups.beforeInstallName', { name: driver.name }),
+                    });
+                    if (!created) return;
+                }
                 const updated = await backend.installDriver(id);
                 const latest = dataRef.current ?? base;
                 const drivers = latest.drivers.map((d) => (d.id === id ? updated : d));
@@ -304,6 +312,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 installingIds: [...prev.installingIds, ...ids],
             }));
             try {
+                if (base.settings.restorePointBeforeInstall) {
+                    const created = await createRestorePoint({
+                        silentSuccess: true,
+                        name: translate(locale, 'backups.batchName'),
+                    });
+                    if (!created) return;
+                }
                 const updatedList = await backend.installUpdates(ids);
                 const updatedById = new Map(updatedList.map((d) => [d.id, d]));
                 const latest = dataRef.current ?? base;
@@ -328,15 +343,13 @@ export function AppProvider({ children }: { children: ReactNode }) {
     );
 
     const createRestorePoint = useCallback(
-        async (options?: { silentSuccess?: boolean }) => {
+        async (options?: { silentSuccess?: boolean; name?: string }) => {
             const backend = backendRef.current;
             const base = dataRef.current;
             if (!backend || !base) return false;
             try {
-                const name = {
-                    ru: translate('ru', 'backups.newName'),
-                    en: translate('en', 'backups.newName'),
-                };
+                const description = options?.name ?? translate(locale, 'backups.newName');
+                const name = { ru: description, en: description };
                 const point = await backend.createRestorePoint(name);
                 const latest = dataRef.current ?? base;
                 const next = { ...latest, restorePoints: [point, ...latest.restorePoints] };

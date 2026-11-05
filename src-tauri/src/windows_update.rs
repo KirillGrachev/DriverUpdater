@@ -308,10 +308,6 @@ mod tests {
             recommended: false,
             device: "Voice Clarity".to_string(),
             released: String::new(),
-            description: crate::models::LocalizedText {
-                ru: String::new(),
-                en: String::new(),
-            },
             device_id: "SWD\\DEVICE".to_string(),
             hardware_ids: vec!["SWC\\VEN_MSFT&AUDIO".to_string()],
             inf_name: String::new(),

@@ -10,7 +10,6 @@ use std::collections::HashSet;
 use std::time::Duration;
 
 #[cfg(target_os = "windows")]
-use crate::models::LocalizedText;
 use crate::models::{Driver, InstalledComponent, SystemInfo};
 #[cfg(target_os = "windows")]
 use sha2::{Digest, Sha256};
@@ -220,10 +219,6 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             recommended: false,
             device: name.clone(),
             released: normalize_driver_date(&text(row, "DriverDate")),
-            description: LocalizedText {
-                ru: format!("Драйвер устройства {name}, установленный в системе."),
-                en: format!("Installed device driver for {name}."),
-            },
             device_id,
             hardware_ids,
             inf_name: text(row, "InfName"),

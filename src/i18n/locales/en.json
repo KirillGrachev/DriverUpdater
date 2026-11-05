@@ -86,7 +86,8 @@
       "chipset": "System devices",
       "network": "Network adapters",
       "input": "Input devices"
-    }
+    },
+    "description": "Installed device driver for {name}."
   },
   "components": {
     "title": "Components",
@@ -179,7 +180,9 @@
       "weekly": "Weekly",
       "monthly": "Monthly"
     },
-    "newName": "Manual restore point"
+    "newName": "Manual restore point",
+    "beforeInstallName": "Driver Updater: before updating {name}",
+    "batchName": "Driver Updater: before updating drivers"
   },
   "settings": {
     "title": "Settings",
