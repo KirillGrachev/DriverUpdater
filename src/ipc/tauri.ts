@@ -9,7 +9,6 @@ import type {
     InstallReport,
     RestorePoint,
     Settings,
-    Summary,
     SystemInfo,
 } from './types';
 
@@ -101,9 +100,5 @@ export class TauriBackend implements Backend {
 
     getSystemInfo(): Promise<SystemInfo> {
         return invoke<SystemInfo>('get_system_info');
-    }
-
-    computeSummary(drivers: Driver[]): Promise<Summary> {
-        return invoke<Summary>('compute_summary', { drivers });
     }
 }

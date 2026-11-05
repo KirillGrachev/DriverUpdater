@@ -277,8 +277,4 @@ export class MockBackend implements Backend {
         await latency(60, 60);
         return detectSystemInfo();
     }
-
-    async computeSummary(): Promise<Summary> {
-        return this.summary();
-    }
 }

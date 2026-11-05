@@ -7,7 +7,6 @@ import type {
     InstallReport,
     RestorePoint,
     Settings,
-    Summary,
     SystemInfo,
 } from './types';
 
@@ -44,7 +43,6 @@ export interface Backend {
     restoreDriverBackup(id: string): Promise<void>;
     deleteDriverBackup(id: string): Promise<void>;
     getSystemInfo(): Promise<SystemInfo>;
-    computeSummary(drivers: Driver[]): Promise<Summary>;
 }
 
 /**

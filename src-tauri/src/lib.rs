@@ -156,8 +156,7 @@ pub fn run() {
             commands::list_package_versions,
             commands::install_package,
             commands::cancel_package_install,
-            commands::get_system_info,
-            commands::compute_summary
+            commands::get_system_info
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

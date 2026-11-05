@@ -15,7 +15,7 @@ use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, RestorePoint, Settings,
-    Summary, SystemInfo,
+    SystemInfo,
 };
 use crate::repository::DriverRepository;
 use crate::restore::default_restore_provider;
@@ -563,27 +563,6 @@ pub async fn get_system_info() -> Result<SystemInfo, String> {
     tauri::async_runtime::spawn_blocking(detect_system_info)
         .await
         .map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-pub async fn compute_summary(
-    state: State<'_, AppRepository>,
-    drivers: Vec<Driver>,
-) -> Result<Summary, String> {
-    run_repository(state, move |repository| {
-        let base = repository.summary();
-        let updates_available = drivers
-            .iter()
-            .filter(|driver| driver.status == "update")
-            .count() as u32;
-        Ok(Summary {
-            devices_total: base.devices_total,
-            up_to_date: base.devices_total.saturating_sub(updates_available),
-            updates_available,
-            last_check: base.last_check,
-        })
-    })
-    .await
 }
 
 #[tauri::command]

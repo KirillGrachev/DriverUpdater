@@ -247,10 +247,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
     /** Shared state helpers used by the command callbacks below. */
     const refreshSummary = useCallback(async (drivers: Driver[]) => {
-        const backend = backendRef.current;
         const current = dataRef.current;
-        if (!backend || !current) return;
-        const summary = await backend.computeSummary(drivers);
+        if (!current) return;
+        const updatesAvailable = drivers.filter((driver) => driver.status === 'update').length;
+        const summary = {
+            devicesTotal: drivers.length,
+            upToDate: drivers.length - updatesAvailable,
+            updatesAvailable,
+            lastCheck: current.summary.lastCheck,
+        };
         const next = { ...current, drivers, summary };
         dataRef.current = next;
         setState((prev) => (prev.data ? { ...prev, data: next } : prev));
