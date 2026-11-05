@@ -117,6 +117,7 @@ async fn install_one(
     restore_point_name: Option<String>,
     create_restore: bool,
 ) -> Result<Driver, String> {
+    log::info!("preparing driver install for {id}");
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
         move |repository| repository.prepare_install(&id)
@@ -153,11 +154,17 @@ async fn install_one(
     }
 
     let update_id = plan.update_id.clone();
+    log::info!("installing Windows Update package {update_id}");
+    let logged_update_id = update_id.clone();
     let outcome = tauri::async_runtime::spawn_blocking(move || {
         default_update_provider().install_update(&update_id)
     })
     .await
     .map_err(|error| error.to_string())??;
+    log::info!(
+        "Windows Update package {logged_update_id} finished, reboot={}",
+        outcome.reboot_required
+    );
     run_repository_handle(repository, move |repository| {
         repository.finish_install(&id, outcome)
     })

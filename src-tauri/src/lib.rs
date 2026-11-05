@@ -61,8 +61,20 @@ pub fn run() {
             },
         ))
         .plugin(tauri_plugin_opener::init())
+        .plugin(
+            tauri_plugin_log::Builder::new()
+                .targets([
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::LogDir {
+                        file_name: Some("driver-updater".to_string()),
+                    }),
+                    tauri_plugin_log::Target::new(tauri_plugin_log::TargetKind::Stdout),
+                ])
+                .level(log::LevelFilter::Info)
+                .build(),
+        )
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
+            log::info!("Driver Updater {} starting", env!("CARGO_PKG_VERSION"));
             let state_dir = app.path().app_data_dir().ok();
             if let Some(directory) = &state_dir {
                 let _ = std::fs::create_dir_all(directory);
