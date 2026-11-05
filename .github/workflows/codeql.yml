@@ -9,6 +9,10 @@ on:
         - cron: '0 6 * * 1'
     workflow_dispatch:
 
+concurrency:
+    group: codeql-${{ github.ref }}
+    cancel-in-progress: true
+
 permissions:
     actions: read
     contents: read
@@ -16,15 +20,24 @@ permissions:
 
 jobs:
     analyze:
-        name: Analyze JavaScript and TypeScript
+        name: Analyze ${{ matrix.language }}
         runs-on: ubuntu-24.04
-        timeout-minutes: 20
+        timeout-minutes: 30
+        strategy:
+            fail-fast: false
+            matrix:
+                include:
+                    - language: javascript-typescript
+                      queries: security-and-quality
+                    - language: actions
+                      queries: security-extended
         steps:
             - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
             - uses: github/codeql-action/init@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
               with:
-                  languages: javascript-typescript
-                  queries: security-and-quality
+                  languages: ${{ matrix.language }}
+                  queries: ${{ matrix.queries }}
+                  config-file: ./.github/codeql/codeql-config.yml
             - uses: github/codeql-action/analyze@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
               with:
-                  category: '/language:javascript-typescript'
+                  category: '/language:${{ matrix.language }}'
