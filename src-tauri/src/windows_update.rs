@@ -54,7 +54,25 @@ pub struct WindowsUpdateProvider;
 #[cfg(target_os = "windows")]
 impl DriverUpdateProvider for WindowsUpdateProvider {
     fn find_updates(&self) -> Result<Vec<DriverUpdate>, String> {
-        let script = r#"
+        match find_updates_native() {
+            Ok(updates) => Ok(updates),
+            Err(error) => {
+                log::warn!(
+                    "native Windows Update search failed, falling back to PowerShell: {error}"
+                );
+                find_updates_powershell()
+            }
+        }
+    }
+
+    fn install_update(&self, update_id: &str) -> Result<InstallOutcome, String> {
+        install_update_powershell(update_id)
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn find_updates_powershell() -> Result<Vec<DriverUpdate>, String> {
+    let script = r#"
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.Encoding]::UTF8
 $session = New-Object -ComObject Microsoft.Update.Session
@@ -75,21 +93,117 @@ foreach ($update in $result.Updates) {
 $payload = [pscustomobject]@{ updates = @($items) }
 ConvertTo-Json -InputObject $payload -Compress -Depth 4
 "#;
-        let output = process::run_powershell(script, Duration::from_secs(180))?;
-        if !output.success {
-            return Err(command_error(&output));
+    let output = process::run_powershell(script, Duration::from_secs(180))?;
+    if !output.success {
+        return Err(command_error(&output));
+    }
+    let parsed: UpdateEnvelope =
+        serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
+    Ok(parsed.updates)
+}
+
+#[cfg(target_os = "windows")]
+fn find_updates_native() -> Result<Vec<DriverUpdate>, String> {
+    use windows::core::{IUnknown, Interface, BSTR};
+    use windows::Win32::System::Com::{
+        CoCreateInstance, CoInitializeEx, CoUninitialize, CLSCTX_INPROC_SERVER,
+        COINIT_MULTITHREADED,
+    };
+    use windows::Win32::System::UpdateAgent::{
+        IUpdateSession, IWindowsDriverUpdate, UpdateSession,
+    };
+
+    struct ComGuard(bool);
+
+    impl Drop for ComGuard {
+        fn drop(&mut self) {
+            if self.0 {
+                unsafe {
+                    CoUninitialize();
+                }
+            }
         }
-        let parsed: UpdateEnvelope =
-            serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
-        Ok(parsed.updates)
     }
 
-    fn install_update(&self, update_id: &str) -> Result<InstallOutcome, String> {
-        if !valid_update_id(update_id) {
-            return Err("invalid Windows Update identity".to_string());
+    let initialized = unsafe { CoInitializeEx(None, COINIT_MULTITHREADED) }
+        .ok()
+        .is_ok();
+    let _guard = ComGuard(initialized);
+    let result = (|| -> windows::core::Result<Vec<DriverUpdate>> {
+        let session: IUpdateSession =
+            unsafe { CoCreateInstance(&UpdateSession, None::<&IUnknown>, CLSCTX_INPROC_SERVER) }?;
+        let searcher = unsafe { session.CreateUpdateSearcher() }?;
+        let found = unsafe { searcher.Search(&BSTR::from("IsInstalled=0 AND Type='Driver'")) }?;
+        let updates = unsafe { found.Updates()? };
+        let count = unsafe { updates.Count()? };
+        let mut drivers = Vec::new();
+        for index in 0..count {
+            let update = unsafe { updates.get_Item(index)? };
+            let driver_update: IWindowsDriverUpdate = update.cast()?;
+            let update_id = unsafe { update.Identity()?.UpdateID()?.to_string() };
+            let title = unsafe { update.Title()?.to_string() };
+            let hardware = unsafe { driver_update.DriverHardwareID()?.to_string() };
+            let hardware_ids = hardware
+                .split([';', ','])
+                .map(str::trim)
+                .filter(|value| !value.is_empty())
+                .map(ToString::to_string)
+                .collect();
+            let date = unsafe { driver_update.DriverVerDate() }.unwrap_or(0.0);
+            let size = unsafe { driver_update.MaxDownloadSize() }.unwrap_or_default();
+            drivers.push(DriverUpdate {
+                update_id,
+                title,
+                hardware_ids,
+                driver_date: ole_date_to_iso(date),
+                max_download_size: decimal_to_u64(size),
+            });
         }
-        let script = format!(
-            r#"
+        Ok(drivers)
+    })();
+    result.map_err(|error| error.to_string())
+}
+
+#[cfg(target_os = "windows")]
+fn ole_date_to_iso(value: f64) -> String {
+    if !(value.is_finite() && value > 0.0) {
+        return String::new();
+    }
+    let seconds = ((value - 25_569.0) * 86_400.0).max(0.0) as u64;
+    let days = seconds / 86_400;
+    let time = seconds % 86_400;
+    let (year, month, day) = crate::detection::days_to_civil(days);
+    format!(
+        "{year:04}-{month:02}-{day:02}T{:02}:{:02}:{:02}Z",
+        time / 3600,
+        (time % 3600) / 60,
+        time % 60
+    )
+}
+
+#[cfg(target_os = "windows")]
+fn decimal_to_u64(value: windows::Win32::Foundation::DECIMAL) -> u64 {
+    let (scale, sign) = unsafe {
+        (
+            value.Anonymous1.Anonymous.scale,
+            value.Anonymous1.Anonymous.sign,
+        )
+    };
+    if sign != 0 {
+        return 0;
+    }
+    let raw = unsafe { value.Anonymous2.Lo64 };
+    let divisor = 10u64.saturating_pow(scale as u32);
+    raw.checked_div(divisor).unwrap_or(raw)
+}
+
+#[cfg(target_os = "windows")]
+fn install_update_powershell(update_id: &str) -> Result<InstallOutcome, String> {
+    if !valid_update_id(update_id) {
+        return Err("invalid Windows Update identity".to_string());
+    }
+    let script = format!(
+        r#"
 $ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.Encoding]::UTF8
 $session = New-Object -ComObject Microsoft.Update.Session
@@ -117,21 +231,20 @@ $install = $installer.Install()
     hResult = [int64]$install.HResult
 }} | ConvertTo-Json -Compress
 "#
-        );
-        let output = process::run_powershell(&script, Duration::from_secs(30 * 60))?;
-        if !output.success {
-            return Err(command_error(&output));
-        }
-        let outcome: InstallOutcome =
-            serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
-        if outcome.result_code == 2 || outcome.result_code == 3 {
-            Ok(outcome)
-        } else {
-            Err(format!(
-                "Windows Update returned result code {} (HRESULT 0x{:08X})",
-                outcome.result_code, outcome.h_result
-            ))
-        }
+    );
+    let output = process::run_powershell(&script, Duration::from_secs(30 * 60))?;
+    if !output.success {
+        return Err(command_error(&output));
+    }
+    let outcome: InstallOutcome =
+        serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
+    if outcome.result_code == 2 || outcome.result_code == 3 {
+        Ok(outcome)
+    } else {
+        Err(format!(
+            "Windows Update returned result code {} (HRESULT 0x{:08X})",
+            outcome.result_code, outcome.h_result
+        ))
     }
 }
 
@@ -427,5 +540,31 @@ mod tests {
         assert!(is_newer_version("2.0.0", "1.0.0"));
         assert!(is_newer_version("1.0.4.55794", "1.0.4.7057"));
         assert!(!is_newer_version("1.0.0", "1.0.0"));
+    }
+}
+
+#[cfg(all(test, target_os = "windows"))]
+mod native_wu_tests {
+    use super::*;
+
+    #[test]
+    #[ignore = "queries Windows Update"]
+    fn native_update_search_returns_a_result() {
+        match find_updates_native() {
+            Ok(updates) => {
+                println!("native Windows Update candidates={}", updates.len());
+                for update in &updates {
+                    println!(
+                        "{} | {} | {:?} | {} | {}",
+                        update.update_id,
+                        update.title,
+                        update.hardware_ids,
+                        update.driver_date,
+                        update.max_download_size
+                    );
+                }
+            }
+            Err(error) => println!("native Windows Update error={error}"),
+        }
     }
 }
