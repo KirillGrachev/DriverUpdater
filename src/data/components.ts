@@ -89,16 +89,6 @@ export const COMPONENT_CATALOG: AppComponent[] = [
         sizeMb: 96,
     },
     {
-        id: 'opengl',
-        subgroup: 'native',
-        name: 'OpenGL',
-        vendor: 'GPU driver',
-        group: 'runtime',
-        versions: [],
-        defaultVersion: '',
-        noteKey: 'components.openglNote',
-    },
-    {
         id: 'vcredist-x64',
         subgroup: 'native',
         wingetId: 'Microsoft.VCRedist.2015+.x64',
