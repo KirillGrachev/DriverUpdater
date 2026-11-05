@@ -307,4 +307,13 @@ mod tests {
         assert!(validate_version("3.12.10; rm -rf /").is_err());
         assert!(validate_version("3.12.10").is_ok());
     }
+
+    #[test]
+    fn package_result_is_serialized_for_the_frontend() {
+        let value = serde_json::to_value(PackageInstallResult {
+            cancel_ignored: true,
+        })
+        .expect("json");
+        assert_eq!(value["cancelIgnored"], true);
+    }
 }
