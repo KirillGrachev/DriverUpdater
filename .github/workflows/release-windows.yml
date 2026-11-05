@@ -91,6 +91,10 @@ jobs:
           $arguments = @("run", "tauri", "--", "build", "--target", "${{ matrix.target }}", "--bundles", "msi", "nsis")
           if ($env:TAURI_SIGNING_CONFIG) { $arguments += @("--config", $env:TAURI_SIGNING_CONFIG) }
           npm @arguments
+      - name: Smoke test the MSI payload
+        if: matrix.arch == 'x64'
+        shell: pwsh
+        run: ./scripts/smoke-msi.ps1 -BundleDir "src-tauri/target/${{ matrix.target }}/release/bundle/msi"
       - name: Package portable and symbols
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
