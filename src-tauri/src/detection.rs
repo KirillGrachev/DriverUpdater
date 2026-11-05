@@ -359,6 +359,34 @@ fn extract_version(text: &str) -> Option<String> {
     best
 }
 
+/// Reads the current driver version for one device after an install.
+#[cfg(target_os = "windows")]
+pub fn detect_driver_version(device_id: &str) -> Option<String> {
+    if device_id.is_empty() {
+        return None;
+    }
+    let escaped = device_id.replace('\'', "''");
+    let script = format!(
+        r#"$ErrorActionPreference='Stop'
+[Console]::OutputEncoding=[Text.Encoding]::UTF8
+$item = Get-CimInstance Win32_PnPSignedDriver -Filter "DeviceID='{escaped}'" | Select-Object -First 1
+if ($item) {{ $item.DriverVersion }}"#
+    );
+    let value = run_powershell(&script, Duration::from_secs(30))?;
+    let version = value.trim();
+    (!version.is_empty()
+        && version.chars().next().is_some_and(|c| c.is_ascii_digit())
+        && version
+            .chars()
+            .all(|c| c.is_ascii_alphanumeric() || ".-_+".contains(c)))
+    .then(|| version.to_string())
+}
+
+#[cfg(not(target_os = "windows"))]
+pub fn detect_driver_version(_device_id: &str) -> Option<String> {
+    None
+}
+
 #[cfg(target_os = "windows")]
 pub fn detect_installed_components() -> Vec<InstalledComponent> {
     let script = r#"$ErrorActionPreference='SilentlyContinue'; [Console]::OutputEncoding=[Text.Encoding]::UTF8; $rows = @(Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*','HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*','HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\*' | Where-Object { $_.DisplayName } | Select-Object DisplayName,DisplayVersion,InstallLocation,DisplayIcon); $netfx = Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5' -ErrorAction SilentlyContinue; if ($netfx -and $netfx.Install -eq 1) { $rows += [pscustomobject]@{ DisplayName='.NET Framework 3.5'; DisplayVersion='3.5 SP1'; InstallLocation=''; DisplayIcon='' } }; ConvertTo-Json -InputObject $rows -Compress"#;

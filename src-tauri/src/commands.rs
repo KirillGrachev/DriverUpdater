@@ -12,7 +12,7 @@ use std::sync::{Arc, Mutex};
 use tauri::{AppHandle, Emitter, State};
 
 use crate::backup::default_backup_provider;
-use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
+use crate::detection::{detect_driver_version, detect_system_info, DriverDetector, NativeDetector};
 use crate::error::CommandError;
 use crate::models::{
     CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, RestorePoint, Settings,
@@ -214,6 +214,7 @@ async fn install_one(
 
     emit_install_progress(&app, &id, current, total, "install");
     let update_id = plan.update_id.clone();
+    let device_id = plan.device_id.clone();
     log::info!("installing Windows Update package {update_id}");
     let logged_update_id = update_id.clone();
     let outcome = tauri::async_runtime::spawn_blocking(move || {
@@ -225,8 +226,13 @@ async fn install_one(
         "Windows Update package {logged_update_id} finished, reboot={}",
         outcome.reboot_required
     );
+    let detected_version =
+        tauri::async_runtime::spawn_blocking(move || detect_driver_version(&device_id))
+            .await
+            .ok()
+            .flatten();
     run_repository_handle(repository, move |repository| {
-        repository.finish_install(&id, outcome)
+        repository.finish_install(&id, outcome, detected_version)
     })
     .await
 }

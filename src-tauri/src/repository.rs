@@ -17,6 +17,7 @@ use crate::windows_update::{merge_updates, DriverUpdate};
 
 pub struct InstallPlan {
     pub update_id: String,
+    pub device_id: String,
     pub restore_before_install: bool,
     pub keep_backups: bool,
     pub backup_dir: PathBuf,
@@ -301,6 +302,7 @@ impl DriverRepository {
         })?;
         Ok(InstallPlan {
             update_id,
+            device_id: driver.device_id.clone(),
             restore_before_install: self.settings.restore_point_before_install,
             keep_backups: self.settings.keep_backups,
             backup_dir: self.backup_dir.clone(),
@@ -311,19 +313,35 @@ impl DriverRepository {
         &mut self,
         id: &str,
         outcome: crate::windows_update::InstallOutcome,
+        detected_version: Option<String>,
     ) -> Result<Driver, String> {
         let driver = self
             .drivers
             .iter_mut()
             .find(|driver| driver.id == id)
             .ok_or_else(|| format!("Unknown driver: {id}"))?;
-        if let Some(available) = driver.available.take() {
-            driver.current = available;
+        let expected = driver.available.clone();
+        let applied = match (&expected, detected_version.as_ref()) {
+            (Some(expected), Some(actual)) => expected == actual,
+            (None, Some(actual)) => {
+                driver.current = actual.clone();
+                true
+            }
+            _ => true,
+        };
+        if !applied {
+            driver.status = "update".to_string();
+            driver.reboot_required = true;
+        } else {
+            if let Some(available) = expected {
+                driver.current = detected_version.unwrap_or(available);
+            }
+            driver.status = "current".to_string();
+            driver.update_id = None;
+            driver.recommended = false;
+            driver.reboot_required = outcome.reboot_required;
+            driver.available = None;
         }
-        driver.status = "current".to_string();
-        driver.update_id = None;
-        driver.recommended = false;
-        driver.reboot_required = outcome.reboot_required;
         let installed = driver.clone();
         self.cache.save(&self.drivers)?;
         self.persist()?;
