@@ -281,6 +281,10 @@ impl DriverRepository {
         })
     }
 
+    pub fn backup_policy(&self) -> (bool, PathBuf) {
+        (self.settings.keep_backups, self.backup_dir.clone())
+    }
+
     pub fn prepare_install(&self, id: &str) -> Result<InstallPlan, String> {
         let driver = self
             .drivers

@@ -6,6 +6,7 @@ import type {
     DriverBackup,
     InitialData,
     InstalledComponent,
+    InstallReport,
     RestorePoint,
     Settings,
     Summary,
@@ -26,8 +27,8 @@ export class TauriBackend implements Backend {
         return invoke<Driver>('install_driver', { id });
     }
 
-    installUpdates(ids: string[]): Promise<Driver[]> {
-        return invoke<Driver[]>('install_updates', { ids });
+    installUpdates(ids: string[]): Promise<InstallReport> {
+        return invoke<InstallReport>('install_updates', { ids });
     }
 
     listRestorePoints(): Promise<RestorePoint[]> {

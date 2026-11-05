@@ -63,19 +63,24 @@ pub fn run() {
         .plugin(tauri_plugin_opener::init())
         .plugin(tauri_plugin_window_state::Builder::default().build())
         .setup(|app| {
-            let state_dir = app
-                .path()
-                .app_data_dir()
-                .expect("app data dir must be resolvable");
-            let _ = std::fs::create_dir_all(&state_dir);
+            let state_dir = app.path().app_data_dir().ok();
+            if let Some(directory) = &state_dir {
+                let _ = std::fs::create_dir_all(directory);
+            }
             let backup_dir = std::env::var_os("LOCALAPPDATA")
                 .map(std::path::PathBuf::from)
                 .map(|base| base.join("DriverUpdater").join("Backups"))
-                .unwrap_or_else(|| state_dir.join("Backups"));
+                .or_else(|| {
+                    state_dir
+                        .as_ref()
+                        .map(|directory| directory.join("Backups"))
+                })
+                .unwrap_or_else(|| std::env::temp_dir().join("DriverUpdater").join("Backups"));
             let _ = std::fs::create_dir_all(&backup_dir);
             #[cfg(target_os = "windows")]
             apply_backup_folder_icon(&backup_dir);
-            let repo = DriverRepository::new(Some(state_dir.join("mock-state.json")), backup_dir);
+            let state_file = state_dir.map(|directory| directory.join("mock-state.json"));
+            let repo = DriverRepository::new(state_file, backup_dir);
             app.manage(AppRepository(std::sync::Arc::new(std::sync::Mutex::new(
                 repo,
             ))));
@@ -103,7 +108,6 @@ pub fn run() {
             commands::restore_from_point,
             commands::save_settings,
             commands::open_backup_folder,
-            commands::open_external_url,
             commands::detect_installed_components,
             commands::get_installed_components,
             commands::save_installed_components,

@@ -53,7 +53,8 @@ impl WingetPackageManager {
         if package_id == "Microsoft.WindowsFeature.NetFx3" {
             return Ok(vec!["3.5 SP1".to_string()]);
         }
-        let mut command = Command::new(winget_executable());
+        let executable = winget_executable()?;
+        let mut command = Command::new(executable);
         command.args([
             "show",
             "--id",
@@ -97,7 +98,8 @@ impl WingetPackageManager {
             return install_netfx3(cancel);
         }
 
-        let mut command = Command::new(winget_executable());
+        let executable = winget_executable()?;
+        let mut command = Command::new(executable);
         command.args([
             "install",
             "--id",
@@ -113,10 +115,7 @@ impl WingetPackageManager {
             "--disable-interactivity",
         ]);
         let output = run_command(command, Duration::from_secs(45 * 60), cancel)?;
-        if output.success
-            || output.stdout.contains("already installed")
-            || output.stderr.contains("already installed")
-        {
+        if winget_success(&output) {
             return Ok(());
         }
         Err(command_error(&output))
@@ -156,7 +155,7 @@ pub fn parse_versions(output: &str) -> Vec<String> {
     versions
 }
 
-fn winget_executable() -> std::path::PathBuf {
+fn winget_executable() -> Result<std::path::PathBuf, String> {
     let local = std::env::var_os("LOCALAPPDATA")
         .map(std::path::PathBuf::from)
         .map(|base| {
@@ -165,13 +164,12 @@ fn winget_executable() -> std::path::PathBuf {
                 .join("winget.exe")
         });
     if let Some(path) = local {
-        if path.exists() {
-            return path;
+        if path.is_file() {
+            return Ok(path);
         }
     }
-    std::path::PathBuf::from("winget.exe")
+    Err("Windows Package Manager (winget) is not installed".to_string())
 }
-
 fn validate_package_id(package_id: &str) -> Result<(), String> {
     if ALLOWED_PACKAGES.contains(&package_id) {
         Ok(())
@@ -193,6 +191,24 @@ fn validate_version(version: &str) -> Result<(), String> {
     }
 }
 
+#[cfg(target_os = "windows")]
+fn winget_success(output: &process::ProcessOutput) -> bool {
+    const OK: i32 = 0;
+    const ALREADY_INSTALLED: i32 = 0x8A15_002B_u32 as i32;
+    const REBOOT_REQUIRED: i32 = 0x8A15_0066_u32 as i32;
+    output.success
+        || matches!(
+            output.code,
+            Some(OK) | Some(ALREADY_INSTALLED) | Some(REBOOT_REQUIRED)
+        )
+}
+
+#[cfg(not(target_os = "windows"))]
+fn winget_success(output: &process::ProcessOutput) -> bool {
+    output.success
+}
+
+#[cfg(target_os = "windows")]
 fn command_error(output: &process::ProcessOutput) -> String {
     let details = if !output.stderr.trim().is_empty() {
         output.stderr.trim()
@@ -201,6 +217,22 @@ fn command_error(output: &process::ProcessOutput) -> String {
     };
     let last_line = details.lines().last().unwrap_or("winget failed");
     last_line.chars().take(300).collect()
+}
+
+#[cfg(not(target_os = "windows"))]
+fn command_error(output: &process::ProcessOutput) -> String {
+    let details = if !output.stderr.trim().is_empty() {
+        output.stderr.trim()
+    } else {
+        output.stdout.trim()
+    };
+    details
+        .lines()
+        .last()
+        .unwrap_or("winget failed")
+        .chars()
+        .take(300)
+        .collect()
 }
 
 #[cfg(target_os = "windows")]

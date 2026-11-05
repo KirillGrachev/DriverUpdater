@@ -130,7 +130,8 @@
     "doneToast": {
       "one": "{n} update installed",
       "other": "{n} updates installed"
-    }
+    },
+    "partialToast": "Could not install {n} updates"
   },
   "backups": {
     "driverBackups": "Driver backups",
@@ -165,7 +166,7 @@
     "kindSchedule": "Created on schedule",
     "kindManual": "Created manually",
     "confirmRestoreTitle": "Restore the system?",
-    "confirmRestoreText": "Restore point “{name}” will be applied. Current driver versions will be replaced.",
+    "confirmRestoreText": "Restore point “{name}” will be applied. Current driver versions will be replaced. Windows will restart. Save all open documents before continuing.",
     "confirmDeleteTitle": "Delete restore point?",
     "confirmDeleteText": "Restore point “{name}” will be deleted permanently.",
     "confirmOk": "Confirm",

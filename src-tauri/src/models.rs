@@ -86,6 +86,20 @@ impl Default for Settings {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
+pub struct InstallFailure {
+    pub id: String,
+    pub message: String,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+#[serde(rename_all = "camelCase")]
+pub struct InstallReport {
+    pub succeeded: Vec<Driver>,
+    pub failed: Vec<InstallFailure>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
 pub struct Summary {
     pub devices_total: u32,
     pub up_to_date: u32,

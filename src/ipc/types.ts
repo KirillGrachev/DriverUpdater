@@ -38,6 +38,16 @@ export interface Driver {
     rebootRequired?: boolean;
 }
 
+export interface InstallFailure {
+    id: string;
+    message: string;
+}
+
+export interface InstallReport {
+    succeeded: Driver[];
+    failed: InstallFailure[];
+}
+
 export type RestorePointKind = 'auto' | 'schedule' | 'manual';
 
 export interface RestorePoint {

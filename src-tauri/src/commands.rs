@@ -14,8 +14,8 @@ use tauri::State;
 use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
 use crate::models::{
-    CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
-    SystemInfo,
+    CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, LocalizedText,
+    RestorePoint, Settings, Summary, SystemInfo,
 };
 use crate::repository::DriverRepository;
 use crate::restore::default_restore_provider;
@@ -112,6 +112,7 @@ pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdat
 async fn install_one(
     repository: Arc<Mutex<DriverRepository>>,
     id: String,
+    create_backup: bool,
 ) -> Result<Driver, String> {
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
@@ -119,7 +120,7 @@ async fn install_one(
     })
     .await?;
 
-    if plan.keep_backups {
+    if create_backup && plan.keep_backups {
         let backup_dir = plan.backup_dir.clone();
         tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
             .await
@@ -141,20 +142,33 @@ async fn install_one(
 
 #[tauri::command]
 pub async fn install_driver(state: State<'_, AppRepository>, id: String) -> Result<Driver, String> {
-    install_one(Arc::clone(&state.0), id).await
+    install_one(Arc::clone(&state.0), id, true).await
 }
 
 #[tauri::command]
 pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
-) -> Result<Vec<Driver>, String> {
+) -> Result<InstallReport, String> {
     let repository = Arc::clone(&state.0);
-    let mut updated = Vec::new();
-    for id in ids {
-        updated.push(install_one(Arc::clone(&repository), id).await?);
+    let (keep_backups, backup_dir) = run_repository_handle(Arc::clone(&repository), |repository| {
+        Ok(repository.backup_policy())
+    })
+    .await?;
+    if keep_backups {
+        tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("driver backup was not created: {error}"))?;
     }
-    Ok(updated)
+    let mut report = InstallReport::default();
+    for id in ids {
+        match install_one(Arc::clone(&repository), id.clone(), false).await {
+            Ok(driver) => report.succeeded.push(driver),
+            Err(message) => report.failed.push(InstallFailure { id, message }),
+        }
+    }
+    Ok(report)
 }
 
 #[tauri::command]
@@ -293,63 +307,6 @@ fn open_folder(path: &Path) -> Result<(), String> {
         .spawn()
         .map(|_| ())
         .map_err(|error| error.to_string())
-}
-
-#[tauri::command]
-pub async fn open_external_url(url: String) -> Result<bool, String> {
-    if !(url.starts_with("https://") || url.starts_with("http://")) {
-        return Err("only http(s) urls are allowed".to_string());
-    }
-
-    #[cfg(target_os = "windows")]
-    {
-        tauri::async_runtime::spawn_blocking(move || open_in_running_browser(&url))
-            .await
-            .map(Ok)
-            .map_err(|error| error.to_string())?
-    }
-
-    #[cfg(not(target_os = "windows"))]
-    {
-        let _ = url;
-        Ok(false)
-    }
-}
-
-/// Prefers an already running browser over launching the default one.
-///
-/// @param url HTTP(S) URL to open
-/// @return {@code true} when the URL was handed to a running browser process
-#[cfg(target_os = "windows")]
-fn open_in_running_browser(url: &str) -> bool {
-    const BROWSERS: [&str; 8] = [
-        "chrome.exe",
-        "msedge.exe",
-        "brave.exe",
-        "vivaldi.exe",
-        "opera.exe",
-        "yandex.exe",
-        "browser.exe",
-        "firefox.exe",
-    ];
-
-    let system = sysinfo::System::new_all();
-    for browser in BROWSERS {
-        let process = system
-            .processes()
-            .values()
-            .find(|process| process.name().eq_ignore_ascii_case(browser));
-        let Some(process) = process else {
-            continue;
-        };
-        let Some(executable) = process.exe() else {
-            continue;
-        };
-        if Command::new(executable).arg(url).spawn().is_ok() {
-            return true;
-        }
-    }
-    false
 }
 
 #[tauri::command]

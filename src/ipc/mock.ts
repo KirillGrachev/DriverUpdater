@@ -9,6 +9,7 @@ import type {
     DriverBackup,
     InitialData,
     InstalledComponent,
+    InstallReport,
     LocalizedText,
     RestorePoint,
     Settings,
@@ -147,7 +148,7 @@ export class MockBackend implements Backend {
         return clone(driver);
     }
 
-    async installUpdates(ids: string[]): Promise<Driver[]> {
+    async installUpdates(ids: string[]): Promise<InstallReport> {
         await sleep(1500 + Math.random() * 700);
         const updated: Driver[] = [];
         for (const id of ids) {
@@ -160,7 +161,7 @@ export class MockBackend implements Backend {
         }
         this.state.lastCheck = new Date().toISOString();
         this.persist();
-        return updated;
+        return { succeeded: updated, failed: [] };
     }
 
     async listRestorePoints(): Promise<RestorePoint[]> {

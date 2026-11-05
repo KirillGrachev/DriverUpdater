@@ -320,14 +320,20 @@ export function AppProvider({ children }: { children: ReactNode }) {
                     });
                     if (!created) return;
                 }
-                const updatedList = await backend.installUpdates(ids);
+                const report = await backend.installUpdates(ids);
+                const updatedList = report.succeeded;
                 const updatedById = new Map(updatedList.map((d) => [d.id, d]));
                 const latest = dataRef.current ?? base;
                 const drivers = latest.drivers.map((d) => updatedById.get(d.id) ?? d);
                 dataRef.current = { ...latest, drivers };
                 setState((prev) => (prev.data ? { ...prev, data: { ...prev.data, drivers } } : prev));
                 await refreshSummary(drivers);
-                pushToast(translate(locale, 'updates.doneToast', { count: ids.length }), 'success');
+                if (updatedList.length > 0) {
+                    pushToast(translate(locale, 'updates.doneToast', { count: updatedList.length }), 'success');
+                }
+                if (report.failed.length > 0) {
+                    pushToast(translate(locale, 'updates.partialToast', { n: report.failed.length }), 'error');
+                }
                 if (updatedList.some((driver) => driver.rebootRequired)) {
                     pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
                 }

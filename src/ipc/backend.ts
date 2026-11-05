@@ -4,6 +4,7 @@ import type {
     DriverBackup,
     InitialData,
     InstalledComponent,
+    InstallReport,
     RestorePoint,
     Settings,
     Summary,
@@ -24,7 +25,7 @@ export interface Backend {
     getInitialData(): Promise<InitialData>;
     checkUpdates(): Promise<CheckUpdatesResult>;
     installDriver(id: string): Promise<Driver>;
-    installUpdates(ids: string[]): Promise<Driver[]>;
+    installUpdates(ids: string[]): Promise<InstallReport>;
     listRestorePoints(): Promise<RestorePoint[]>;
     createRestorePoint(name: { ru: string; en: string }): Promise<RestorePoint>;
     deleteRestorePoint(id: string): Promise<void>;
@@ -64,6 +65,9 @@ export async function createBackend(): Promise<Backend> {
     if (isTauriRuntime()) {
         const { TauriBackend } = await import('./tauri');
         return new TauriBackend();
+    }
+    if (import.meta.env.PROD) {
+        throw new Error('Tauri IPC bridge is not available in a production build');
     }
     const { MockBackend } = await import('./mock');
     return new MockBackend();
