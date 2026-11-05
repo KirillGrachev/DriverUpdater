@@ -13,6 +13,9 @@ jobs:
   build-windows:
     name: Windows ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
+    env:
+      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
     strategy:
       fail-fast: false
       matrix:
@@ -30,18 +33,18 @@ jobs:
             msvc: x86
             runner: windows-latest
     steps:
-      - uses: actions/checkout@v7
-      - uses: actions/setup-node@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
         with:
           node-version: 22
           cache: npm
-      - uses: dtolnay/rust-toolchain@stable
+      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
         with:
           targets: ${{ matrix.target }}
-      - uses: ilammy/msvc-dev-cmd@v1
+      - uses: ilammy/msvc-dev-cmd@0b201ec74fa43914dc39ae48a89fd1d8cb592756 # v1
         with:
           arch: ${{ matrix.msvc }}
-      - uses: Swatinem/rust-cache@v2
+      - uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
         with:
           workspaces: src-tauri
           key: ${{ matrix.target }}
@@ -55,12 +58,39 @@ jobs:
           }
       - name: Install dependencies
         run: npm ci
+      - name: Configure Authenticode signing
+        if: env.WINDOWS_CERTIFICATE != ''
+        shell: pwsh
+        run: |
+          $pfx = Join-Path $env:RUNNER_TEMP "driver-updater.pfx"
+          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+          Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password | Out-Null
+          $certificate = Get-ChildItem Cert:\CurrentUser\My |
+            Where-Object { $_.HasPrivateKey } |
+            Sort-Object NotAfter -Descending |
+            Select-Object -First 1
+          if (-not $certificate) { throw "No signing certificate with a private key was imported" }
+          @{
+            bundle = @{
+              windows = @{
+                certificateThumbprint = $certificate.Thumbprint
+                digestAlgorithm = "sha256"
+                timestampUrl = "http://timestamp.digicert.com"
+              }
+            }
+          } | ConvertTo-Json -Depth 5 | Set-Content (Join-Path $env:RUNNER_TEMP "signing.json")
+          "TAURI_SIGNING_CONFIG=$(Join-Path $env:RUNNER_TEMP 'signing.json')" >> $env:GITHUB_ENV
       - name: Build installers
-        run: npm run tauri -- build --target ${{ matrix.target }} --bundles msi nsis
+        shell: pwsh
+        run: |
+          $arguments = @("run", "tauri", "--", "build", "--target", "${{ matrix.target }}", "--bundles", "msi", "nsis")
+          if ($env:TAURI_SIGNING_CONFIG) { $arguments += @("--config", $env:TAURI_SIGNING_CONFIG) }
+          npm @arguments
       - name: Package portable and symbols
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: windows-${{ matrix.arch }}
           path: artifacts/windows-${{ matrix.arch }}
@@ -72,11 +102,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v8
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8
         with:
           pattern: windows-*
           path: artifacts
-      - uses: softprops/action-gh-release@v3
+      - uses: softprops/action-gh-release@5113cdc90fd4d541c801c55356214017bf5ae34b # v3
         with:
           files: artifacts/**
           generate_release_notes: true

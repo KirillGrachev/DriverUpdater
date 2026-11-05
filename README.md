@@ -6,7 +6,7 @@
 
 <p align="center">
   <b>A native Windows driver manager: inventory, updates, rollback points and portable components.</b><br>
-  Tauri 2, Rust and React. Offline-first, no browser chrome, no telemetry by default.
+  Tauri 2, Rust and React. Offline-first, no browser chrome, no telemetry.
 </p>
 
 <p align="center">
@@ -317,6 +317,9 @@ The same `Backend` interface is implemented twice:
 This keeps `npm run dev` usable without the native shell and lets UI work
 continue when the Windows toolchain is unavailable.
 
+The native detection and update design, including the Driver Booster research,
+is documented in [docs/architecture/driver-detection.md](docs/architecture/driver-detection.md).
+
 ---
 
 <h2 align="center" id="languages">Languages</h2>
@@ -405,7 +408,9 @@ CI runs Prettier, typecheck, unit tests, the Vite build, version consistency, cl
   <a href="docs/CONTRIBUTING.md">Contributing</a> ·
   <a href="docs/SECURITY.md">Security policy</a> ·
   <a href="docs/CODE_OF_CONDUCT.md">Code of Conduct</a> ·
-  <a href="docs/THIRD_PARTY_NOTICES.md">Third-party notices</a>
+  <a href="docs/THIRD_PARTY_NOTICES.md">Third-party notices</a> ·
+  <a href="docs/architecture/driver-detection.md">Driver detection research</a> ·
+  <a href="docs/CODE_SIGNING.md">Code signing</a>
 </p>
 
 Developer-only scripts live in `scripts/`. They are used by CI and maintainers,
