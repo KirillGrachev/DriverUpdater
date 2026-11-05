@@ -148,10 +148,19 @@ installButton.addEventListener('click', async () => {
         return;
     }
 
-    const unlisten = await listen?.('install-progress', (event) => {
-        const payload = event.payload ?? {};
-        setProgress(payload.percent ?? 0, payload.stage);
-    });
+    let unlisten;
+    if (listen) {
+        listen('install-progress', (event) => {
+            const payload = event.payload ?? {};
+            setProgress(payload.percent ?? 0, payload.stage);
+        })
+            .then((stop) => {
+                unlisten = stop;
+            })
+            .catch(() => {
+                // Progress events are optional; the final result still matters.
+            });
+    }
 
     try {
         await invoke('install', {
