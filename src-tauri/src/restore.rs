@@ -268,3 +268,24 @@ fn command_error(output: &process::ProcessOutput) -> String {
         .take(300)
         .collect()
 }
+
+#[cfg(all(test, target_os = "windows"))]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn formats_the_current_time_as_utc_iso() {
+        let value = now_iso();
+        assert_eq!(value.len(), 20);
+        assert!(value.ends_with('Z'));
+        assert_eq!(&value[4..5], "-");
+        assert_eq!(&value[10..11], "T");
+    }
+
+    #[test]
+    fn parses_only_numeric_restore_point_ids() {
+        assert_eq!(sequence_number("rp-42").expect("id"), 42);
+        assert!(sequence_number("42").is_err());
+        assert!(sequence_number("rp-nope").is_err());
+    }
+}
