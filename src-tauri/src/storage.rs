@@ -22,8 +22,6 @@ pub struct PersistedState {
     #[serde(default)]
     pub version: u32,
     #[serde(default)]
-    pub drivers: Vec<Driver>,
-    #[serde(default)]
     pub restore_points: Vec<RestorePoint>,
     #[serde(default)]
     pub settings: Settings,

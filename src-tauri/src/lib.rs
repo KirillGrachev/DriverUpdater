@@ -79,7 +79,18 @@ pub fn run() {
             let _ = std::fs::create_dir_all(&backup_dir);
             #[cfg(target_os = "windows")]
             apply_backup_folder_icon(&backup_dir);
-            let state_file = state_dir.map(|directory| directory.join("mock-state.json"));
+            let state_file = state_dir.map(|directory| {
+                let current = directory.join("state.json");
+                let legacy = directory.join("mock-state.json");
+                if !current.exists() && legacy.exists() {
+                    let _ = std::fs::rename(&legacy, &current);
+                }
+                if current.exists() || !legacy.exists() {
+                    current
+                } else {
+                    legacy
+                }
+            });
             let repo = DriverRepository::new(state_file, backup_dir);
             app.manage(AppRepository(std::sync::Arc::new(std::sync::Mutex::new(
                 repo,

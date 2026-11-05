@@ -130,15 +130,29 @@ impl DriverBackupProvider for WindowsDriverBackups {
         if inf_files.is_empty() {
             return Err("driver backup contains no INF packages".to_string());
         }
+        let total = inf_files.len();
+        let mut failures: Vec<String> = Vec::new();
         for inf in inf_files {
             let mut command = std::process::Command::new(process::system_executable("pnputil.exe"));
             command.args(["/add-driver", &inf.to_string_lossy(), "/install"]);
-            let output = process::run(command, Duration::from_secs(10 * 60))?;
-            if !output.success {
-                return Err(command_error(&output));
+            match process::run(command, Duration::from_secs(10 * 60)) {
+                Ok(output) if output.success => {}
+                Ok(output) => {
+                    failures.push(format!("{}: {}", inf.display(), command_error(&output)))
+                }
+                Err(error) => failures.push(format!("{}: {error}", inf.display())),
             }
         }
-        Ok(())
+        if failures.is_empty() {
+            Ok(())
+        } else {
+            Err(format!(
+                "{} of {} driver packages failed; first error: {}",
+                failures.len(),
+                total,
+                failures[0]
+            ))
+        }
     }
 
     fn delete(&self, id: &str) -> Result<(), String> {

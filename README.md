@@ -353,9 +353,8 @@ alone.
 
 Encrypted files:
 
-- `mock-state.json`: settings, driver inventory, restore points and component
-  state;
-- `installed-drivers.json`: the last driver scan cache.
+- `state.json`: settings, restore points and component state;
+- `installed-drivers.json`: the only persisted driver inventory.
 
 Legacy plaintext files are read once and rewritten in encrypted form. Writes use
 a temporary file plus rename to avoid truncated state after a crash.

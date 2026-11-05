@@ -99,10 +99,11 @@ pub async fn get_initial_data(state: State<'_, AppRepository>) -> Result<Initial
 #[tauri::command]
 pub async fn check_updates(state: State<'_, AppRepository>) -> Result<CheckUpdatesResult, String> {
     let repository = Arc::clone(&state.0);
-    let drivers = detect_drivers().await;
-    let updates = tauri::async_runtime::spawn_blocking(|| default_update_provider().find_updates())
-        .await
-        .map_err(|error| error.to_string())?;
+    let drivers_task = tauri::async_runtime::spawn_blocking(|| NativeDetector.detect());
+    let updates_task =
+        tauri::async_runtime::spawn_blocking(|| default_update_provider().find_updates());
+    let drivers = drivers_task.await.ok().flatten();
+    let updates = updates_task.await.map_err(|error| error.to_string())?;
     run_repository_handle(repository, move |repository| {
         repository.apply_check_result(drivers, updates)
     })

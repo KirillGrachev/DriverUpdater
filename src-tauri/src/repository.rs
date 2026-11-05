@@ -136,7 +136,6 @@ impl DriverRepository {
                         state.version
                     ));
                 } else {
-                    repo.drivers = state.drivers;
                     repo.restore_points = state.restore_points;
                     repo.settings = state.settings;
                     repo.settings.backup_path = repo.backup_dir.to_string_lossy().into_owned();
@@ -150,9 +149,6 @@ impl DriverRepository {
                         repo.installed_components.clear();
                         repo.settings.auto_check = false;
                         repo.settings.auto_restore_points = false;
-                        if !had_cache {
-                            repo.drivers.clear();
-                        }
                         repo.last_check = None;
                     }
                 }
@@ -173,7 +169,6 @@ impl DriverRepository {
     fn persist(&self) -> Result<(), String> {
         let state = PersistedState {
             version: SCHEMA_VERSION,
-            drivers: self.drivers.clone(),
             restore_points: self.restore_points.clone(),
             settings: self.settings.clone(),
             last_check: self.last_check.clone(),
@@ -333,6 +328,7 @@ impl DriverRepository {
         driver.recommended = false;
         driver.reboot_required = outcome.reboot_required;
         let installed = driver.clone();
+        self.cache.save(&self.drivers)?;
         self.persist()?;
         Ok(installed)
     }

@@ -64,8 +64,10 @@ General bugs without a security impact belong in the normal issue tracker.
   and restore-point period values.
 - Component installation accepts only ids from the Rust winget allowlist and
   validates version strings before spawning winget.
-- Persisted settings, driver inventory, restore points and component state are
+- Persisted settings, the driver cache, restore points and component state are
   sealed with Windows DPAPI (current-user scope) and application entropy.
+- Drivers have a single persisted source, `installed-drivers.json`; the state
+  document no longer duplicates the inventory.
 - The webview has devtools, drag-and-drop, zoom hotkeys and browser shortcuts
   disabled, and a restrictive CSP.
 - The installer embeds the WebView2 offline installer and links the MSVC runtime

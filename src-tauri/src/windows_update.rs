@@ -75,7 +75,7 @@ foreach ($update in $result.Updates) {
 $payload = [pscustomobject]@{ updates = @($items) }
 ConvertTo-Json -InputObject $payload -Compress -Depth 4
 "#;
-        let output = process::run_powershell(script, Duration::from_secs(90))?;
+        let output = process::run_powershell(script, Duration::from_secs(180))?;
         if !output.success {
             return Err(command_error(&output));
         }
