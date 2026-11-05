@@ -10,6 +10,7 @@ use std::fs;
 use std::path::{Path, PathBuf};
 #[cfg(target_os = "windows")]
 use std::sync::atomic::{AtomicU64, Ordering};
+#[cfg(target_os = "windows")]
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
 #[cfg(target_os = "windows")]
