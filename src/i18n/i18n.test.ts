@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import type { Dictionary } from './ru';
+import type { Dictionary } from './types';
 import { availableLocales, registerLocale, translate } from './index';
 
 describe('i18n', () => {

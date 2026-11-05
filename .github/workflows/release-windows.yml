@@ -60,7 +60,7 @@ jobs:
       - name: Package portable and symbols
         shell: pwsh
         run: ./scripts/package-windows.ps1 -Target ${{ matrix.target }} -Version ${{ github.ref_name }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: windows-${{ matrix.arch }}
           path: artifacts/windows-${{ matrix.arch }}
@@ -72,11 +72,11 @@ jobs:
     if: startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v8
         with:
           pattern: windows-*
           path: artifacts
-      - uses: softprops/action-gh-release@v2
+      - uses: softprops/action-gh-release@v3
         with:
           files: artifacts/**
           generate_release_notes: true

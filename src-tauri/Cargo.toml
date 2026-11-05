@@ -24,7 +24,7 @@ tauri-plugin-single-instance = "2"
 tauri-plugin-window-state = "2"
 sysinfo = "0.30"
 wait-timeout = "0.2"
-sha2 = "0.10"
+sha2 = "0.11"
 sys-locale = "0.3"
 
 [target.'cfg(windows)'.dependencies]

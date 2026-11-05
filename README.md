@@ -39,22 +39,22 @@
 
 <h2 align="center" id="contents">Contents</h2>
 
-<table align="center">
-  <tr><td align="right">1.</td><td align="left"><a href="#why">Why</a></td></tr>
-  <tr><td align="right">2.</td><td align="left"><a href="#features">Features</a></td></tr>
-  <tr><td align="right">3.</td><td align="left"><a href="#screenshots">Screenshots</a></td></tr>
-  <tr><td align="right">4.</td><td align="left"><a href="#requirements">Requirements</a></td></tr>
-  <tr><td align="right">5.</td><td align="left"><a href="#install">Install</a></td></tr>
-  <tr><td align="right">6.</td><td align="left"><a href="#build-from-source">Build from source</a></td></tr>
-  <tr><td align="right">7.</td><td align="left"><a href="#architecture">Architecture</a></td></tr>
-  <tr><td align="right">8.</td><td align="left"><a href="#languages">Languages</a></td></tr>
-  <tr><td align="right">9.</td><td align="left"><a href="#privacy">Privacy</a></td></tr>
-  <tr><td align="right">10.</td><td align="left"><a href="#tests">Tests</a></td></tr>
-  <tr><td align="right">11.</td><td align="left"><a href="#documentation">Documentation</a></td></tr>
-  <tr><td align="right">12.</td><td align="left"><a href="#contributing">Contributing</a></td></tr>
-  <tr><td align="right">13.</td><td align="left"><a href="#security">Security</a></td></tr>
-  <tr><td align="right">14.</td><td align="left"><a href="#license">License</a></td></tr>
-</table>
+<p align="center">
+  <a href="#why">Why</a><br>
+  <a href="#features">Features</a><br>
+  <a href="#screenshots">Screenshots</a><br>
+  <a href="#requirements">Requirements</a><br>
+  <a href="#install">Install</a><br>
+  <a href="#build-from-source">Build from source</a><br>
+  <a href="#architecture">Architecture</a><br>
+  <a href="#languages">Languages</a><br>
+  <a href="#privacy">Privacy</a><br>
+  <a href="#tests">Tests</a><br>
+  <a href="#documentation">Documentation</a><br>
+  <a href="#contributing">Contributing</a><br>
+  <a href="#security">Security</a><br>
+  <a href="#license">License</a>
+</p>
 
 ---
 

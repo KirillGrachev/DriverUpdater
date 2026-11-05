@@ -60,6 +60,10 @@ export function SettingsPage() {
     if (!data) return null;
 
     const settings = data.settings;
+    const displayBackupPath = settings.backupPath.replace(
+        /^[A-Za-z]:\\Users\\[^\\]+\\AppData\\Local/i,
+        '%LOCALAPPDATA%',
+    );
     const update = <K extends keyof Settings>(key: K, value: Settings[K]) => {
         void updateSettings({ [key]: value });
     };
@@ -164,7 +168,7 @@ export function SettingsPage() {
                 <Row icon={<ThemedIcon light={folderIcon} dark={folderDarkIcon} />} label={t('settings.backupPath')}>
                     <div className="path-control">
                         <div className="path-readonly path-value" title={settings.backupPath}>
-                            {settings.backupPath}
+                            {displayBackupPath}
                         </div>
                         <button
                             type="button"

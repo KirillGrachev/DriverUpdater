@@ -1,5 +1,6 @@
-import ru, { type Dictionary } from './ru';
-import en from './en';
+import en from './locales/en.json';
+import ru from './locales/ru.json';
+import type { Dictionary } from './types';
 
 export type LocaleCode = string;
 
