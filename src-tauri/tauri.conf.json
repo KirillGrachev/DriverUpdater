@@ -1,76 +1,67 @@
 {
-  "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Driver Updater",
-  "version": "1.0.6",
-  "identifier": "com.github.kirillgrachev.driverupdater",
-  "build": {
-    "beforeDevCommand": "npm run dev",
-    "devUrl": "http://127.0.0.1:5173",
-    "beforeBuildCommand": "npm run build",
-    "frontendDist": "../dist",
-    "windows": {
-      "staticVCRuntime": true
-    }
-  },
-  "app": {
-    "windows": [
-      {
-        "title": "Driver Updater",
-        "width": 1240,
-        "height": 860,
-        "minWidth": 1024,
-        "minHeight": 720,
-        "visible": false,
-        "center": true,
-        "resizable": true,
-        "decorations": false,
-        "transparent": false,
-        "devtools": false,
-        "dragDropEnabled": false,
-        "zoomHotkeysEnabled": false,
-        "shadow": false
-      }
-    ],
-    "security": {
-      "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'"
-    }
-  },
-  "bundle": {
-    "active": true,
-    "targets": "all",
-    "icon": [
-      "icons/32x32.png",
-      "icons/128x128.png",
-      "icons/128x128@2x.png",
-      "icons/icon.ico"
-    ],
-    "category": "Utility",
-    "shortDescription": "Free open-source driver manager",
-    "longDescription": "Driver Updater is a free open-source manager that keeps the drivers on your computer up to date.",
-    "windows": {
-      "webviewInstallMode": {
-        "type": "offlineInstaller",
-        "silent": true
-      },
-      "nsis": {
-        "installerIcon": "icons/icon.ico",
-        "uninstallerIcon": "icons/icon.ico",
-        "headerImage": "installer/header.bmp",
-        "sidebarImage": "installer/sidebar.bmp",
-        "uninstallerHeaderImage": "installer/header.bmp",
-        "languages": [
-          "English",
-          "Russian",
-          "Ukrainian"
-        ]
-      },
-      "wix": {
-        "bannerPath": "installer/wix-banner.bmp",
-        "dialogImagePath": "installer/wix-dialog.bmp",
-        "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8"
-      }
+    "$schema": "https://schema.tauri.app/config/2",
+    "productName": "Driver Updater",
+    "version": "1.0.6",
+    "identifier": "com.github.kirillgrachev.driverupdater",
+    "build": {
+        "beforeDevCommand": "npm run dev",
+        "devUrl": "http://127.0.0.1:5173",
+        "beforeBuildCommand": "npm run build",
+        "frontendDist": "../dist",
+        "windows": {
+            "staticVCRuntime": true
+        }
     },
-    "publisher": "Kirill Grachev",
-    "copyright": "Copyright © 2026 Kirill Grachev"
-  }
+    "app": {
+        "windows": [
+            {
+                "title": "Driver Updater",
+                "width": 1240,
+                "height": 860,
+                "minWidth": 1024,
+                "minHeight": 720,
+                "visible": false,
+                "center": true,
+                "resizable": true,
+                "decorations": false,
+                "transparent": false,
+                "devtools": false,
+                "dragDropEnabled": false,
+                "zoomHotkeysEnabled": false,
+                "shadow": false
+            }
+        ],
+        "security": {
+            "csp": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'; connect-src 'self' ipc: http://ipc.localhost; object-src 'none'; base-uri 'self'; frame-ancestors 'none'; form-action 'none'"
+        }
+    },
+    "bundle": {
+        "active": true,
+        "targets": "all",
+        "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.ico"],
+        "category": "Utility",
+        "shortDescription": "Free open-source driver manager",
+        "longDescription": "Driver Updater is a free open-source manager that keeps the drivers on your computer up to date.",
+        "windows": {
+            "webviewInstallMode": {
+                "type": "downloadBootstrapper",
+                "silent": true
+            },
+            "nsis": {
+                "installerIcon": "icons/icon.ico",
+                "uninstallerIcon": "icons/icon.ico",
+                "headerImage": "installer/header.bmp",
+                "sidebarImage": "installer/sidebar.bmp",
+                "uninstallerHeaderImage": "installer/header.bmp",
+                "languages": ["English", "Russian", "Ukrainian"]
+            },
+            "wix": {
+                "bannerPath": "installer/wix-banner.bmp",
+                "dialogImagePath": "installer/wix-dialog.bmp",
+                "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8"
+            }
+        },
+        "publisher": "Kirill Grachev",
+        "copyright": "Copyright © 2026 Kirill Grachev"
+    }
 }
