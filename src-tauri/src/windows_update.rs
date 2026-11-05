@@ -305,6 +305,7 @@ fn command_error(output: &process::ProcessOutput) -> String {
 mod tests {
     use super::*;
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn validates_update_identity() {
         assert!(valid_update_id("12345678-1234-1234-1234-123456789abc"));
