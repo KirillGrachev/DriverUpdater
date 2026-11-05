@@ -120,6 +120,11 @@ fn run_powershell(script: &str, timeout: Duration) -> Option<String> {
 
 #[cfg(target_os = "windows")]
 fn detect_installed_drivers() -> Option<Vec<Driver>> {
+    detect_installed_drivers_native().or_else(detect_installed_drivers_powershell)
+}
+
+#[cfg(target_os = "windows")]
+fn detect_installed_drivers_powershell() -> Option<Vec<Driver>> {
     let script = r#"[Console]::OutputEncoding=[Text.Encoding]::UTF8; Get-CimInstance Win32_PnPSignedDriver | Where-Object { $_.DeviceName -and $_.DriverVersion } | Select-Object DeviceName,DeviceClass,Manufacturer,DriverVersion,DriverDate,DeviceID,HardwareID,InfName | ConvertTo-Json -Compress"#;
     let stdout = run_powershell(script, Duration::from_secs(90))?;
     let value: serde_json::Value = serde_json::from_str(&stdout).ok()?;
@@ -221,6 +226,209 @@ fn detect_installed_drivers() -> Option<Vec<Driver>> {
             device_id,
             hardware_ids,
             inf_name: text(row, "InfName"),
+            update_id: None,
+            reboot_required: false,
+        });
+    }
+
+    if drivers.is_empty() {
+        None
+    } else {
+        drivers.sort_by_key(|driver| driver.name.to_lowercase());
+        Some(drivers)
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn detect_installed_drivers_native() -> Option<Vec<Driver>> {
+    use std::ptr::{null, null_mut};
+
+    use windows_sys::Win32::Devices::DeviceAndDriverInstallation::{
+        SetupDiDestroyDeviceInfoList, SetupDiEnumDeviceInfo, SetupDiGetClassDevsW,
+        SetupDiGetDeviceInstanceIdW, SetupDiGetDeviceRegistryPropertyW, DIGCF_ALLCLASSES,
+        DIGCF_PRESENT, SPDRP_CLASS, SPDRP_DEVICEDESC, SPDRP_DRIVER, SPDRP_FRIENDLYNAME,
+        SPDRP_HARDWAREID, SPDRP_MFG, SP_DEVINFO_DATA,
+    };
+
+    struct DeviceSet(windows_sys::Win32::Devices::DeviceAndDriverInstallation::HDEVINFO);
+
+    impl Drop for DeviceSet {
+        fn drop(&mut self) {
+            unsafe {
+                SetupDiDestroyDeviceInfoList(self.0);
+            }
+        }
+    }
+
+    fn property(
+        set: windows_sys::Win32::Devices::DeviceAndDriverInstallation::HDEVINFO,
+        info: &SP_DEVINFO_DATA,
+        property: u32,
+        multiple: bool,
+    ) -> Option<Vec<String>> {
+        let mut buffer = vec![0u8; 8192];
+        let mut required = 0u32;
+        let ok = unsafe {
+            SetupDiGetDeviceRegistryPropertyW(
+                set,
+                info,
+                property,
+                null_mut(),
+                buffer.as_mut_ptr(),
+                buffer.len() as u32,
+                &mut required,
+            )
+        };
+        if ok == 0 {
+            return None;
+        }
+        let size = (required as usize).min(buffer.len());
+        let wide: Vec<u16> = buffer[..size]
+            .chunks_exact(2)
+            .map(|chunk| u16::from_le_bytes([chunk[0], chunk[1]]))
+            .collect();
+        let values: Vec<String> = wide
+            .split(|unit| *unit == 0)
+            .filter(|part| !part.is_empty())
+            .filter_map(|part| String::from_utf16(part).ok())
+            .map(|value| value.trim().to_string())
+            .filter(|value| !value.is_empty())
+            .collect();
+        if values.is_empty() {
+            return None;
+        }
+        if multiple {
+            Some(values)
+        } else {
+            Some(vec![values.join(" ")])
+        }
+    }
+
+    fn driver_details(driver_key: &str) -> (String, String) {
+        use winreg::enums::{HKEY_LOCAL_MACHINE, KEY_READ};
+        use winreg::RegKey;
+
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+        let Ok(key) = hklm.open_subkey_with_flags(
+            format!("SYSTEM\\CurrentControlSet\\Control\\Class\\{driver_key}"),
+            KEY_READ,
+        ) else {
+            return (String::new(), String::new());
+        };
+        let version = key
+            .get_value::<String, _>("DriverVersion")
+            .unwrap_or_default();
+        let date = key.get_value::<String, _>("DriverDate").unwrap_or_default();
+        (version.trim().to_string(), date.trim().to_string())
+    }
+
+    let set = unsafe {
+        SetupDiGetClassDevsW(null(), null(), null_mut(), DIGCF_PRESENT | DIGCF_ALLCLASSES)
+    };
+    if set == 0 || set == -1 {
+        return None;
+    }
+    let set = DeviceSet(set);
+    let mut seen = HashSet::new();
+    let mut drivers = Vec::new();
+    let mut index = 0u32;
+    loop {
+        let mut info = SP_DEVINFO_DATA {
+            cbSize: std::mem::size_of::<SP_DEVINFO_DATA>() as u32,
+            ..Default::default()
+        };
+        if unsafe { SetupDiEnumDeviceInfo(set.0, index, &mut info) } == 0 {
+            break;
+        }
+        index += 1;
+
+        let mut instance = vec![0u16; 1024];
+        if unsafe {
+            SetupDiGetDeviceInstanceIdW(
+                set.0,
+                &info,
+                instance.as_mut_ptr(),
+                instance.len() as u32,
+                null_mut(),
+            )
+        } == 0
+        {
+            continue;
+        }
+        let device_id = String::from_utf16_lossy(&instance)
+            .trim_end_matches('\0')
+            .to_string();
+
+        let name = property(set.0, &info, SPDRP_FRIENDLYNAME, false)
+            .and_then(|values| values.into_iter().next())
+            .or_else(|| {
+                property(set.0, &info, SPDRP_DEVICEDESC, false).and_then(|v| v.into_iter().next())
+            })
+            .unwrap_or_default();
+        let driver_key = property(set.0, &info, SPDRP_DRIVER, false)
+            .and_then(|values| values.into_iter().next())
+            .unwrap_or_default();
+        let (version, released) = driver_details(&driver_key);
+        if name.is_empty() || version.is_empty() {
+            #[cfg(test)]
+            eprintln!("native skip name/version: {device_id} name={name:?} version={version:?}");
+            continue;
+        }
+        let hardware_ids = property(set.0, &info, SPDRP_HARDWAREID, true).unwrap_or_default();
+        if is_ignored_device(&device_id, &hardware_ids) {
+            #[cfg(test)]
+            eprintln!("native skip ignored: {device_id}");
+            continue;
+        }
+        let stable_key = device_id.to_ascii_lowercase();
+        if !seen.insert(stable_key.clone()) {
+            continue;
+        }
+        let class = property(set.0, &info, SPDRP_CLASS, false)
+            .and_then(|values| values.into_iter().next())
+            .unwrap_or_default()
+            .to_ascii_uppercase();
+        let manufacturer = property(set.0, &info, SPDRP_MFG, false)
+            .and_then(|values| values.into_iter().next())
+            .unwrap_or_default();
+        let (category, kind, color) = match class.as_str() {
+            "DISPLAY" => ("video", "gpu", "#76b900"),
+            "MEDIA" => ("audio", "audio", "#64748b"),
+            "NET" => ("network", "network", "#2563eb"),
+            "HIDCLASS" | "KEYBOARD" | "MOUSE" => ("input", "input", "#8b5cf6"),
+            _ => ("chipset", "chip", "#f59e0b"),
+        };
+        let digest = Sha256::digest(stable_key.as_bytes());
+        let id = format!(
+            "pnp-{}",
+            digest[..8]
+                .iter()
+                .map(|byte| format!("{byte:02x}"))
+                .collect::<String>()
+        );
+        drivers.push(Driver {
+            id,
+            name: name.clone(),
+            vendor: if manufacturer.is_empty() {
+                "Unknown".to_string()
+            } else {
+                manufacturer
+            },
+            category: category.to_string(),
+            icon: crate::models::DriverIcon {
+                kind: kind.to_string(),
+                color: color.to_string(),
+            },
+            current: version,
+            available: None,
+            status: "current".to_string(),
+            size_mb: 0,
+            recommended: false,
+            device: name,
+            released: normalize_driver_date(&released),
+            device_id,
+            hardware_ids,
+            inf_name: String::new(),
             update_id: None,
             reboot_required: false,
         });
@@ -686,5 +894,46 @@ mod tests {
     #[test]
     fn converts_unix_epoch_to_civil_date() {
         assert_eq!(days_to_civil(0), (1970, 1, 1));
+    }
+}
+
+#[cfg(all(test, target_os = "windows"))]
+mod windows_native_tests {
+    use super::*;
+
+    #[test]
+    #[ignore = "requires Windows devices"]
+    fn native_inventory_returns_devices() {
+        let native = detect_installed_drivers_native().expect("native inventory");
+        assert!(!native.is_empty());
+        let powershell = detect_installed_drivers_powershell().expect("powershell inventory");
+        println!("native={} powershell={}", native.len(), powershell.len());
+        println!(
+            "native resource names={} resource vendors={}",
+            native
+                .iter()
+                .filter(|driver| driver.name.starts_with('@'))
+                .count(),
+            native
+                .iter()
+                .filter(|driver| driver.vendor.starts_with('@'))
+                .count()
+        );
+        for driver in native.iter().take(5) {
+            println!("{} {} {}", driver.name, driver.current, driver.device_id);
+        }
+        let native_ids: std::collections::HashSet<&str> = native
+            .iter()
+            .map(|driver| driver.device_id.as_str())
+            .collect();
+        for driver in powershell
+            .iter()
+            .filter(|driver| !native_ids.contains(driver.device_id.as_str()))
+        {
+            println!(
+                "powershell-only: {} {} {}",
+                driver.name, driver.current, driver.device_id
+            );
+        }
     }
 }

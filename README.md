@@ -80,7 +80,7 @@ Driver Updater keeps the workflow visible:
 </table>
 
 The project is intentionally local-first. The driver scan reads Windows APIs
-through PowerShell/CIM, the UI never talks to a remote service, and no telemetry
+through native SetupAPI with a CIM fallback, the UI never talks to a remote service, and no telemetry
 is collected.
 
 ---
@@ -91,7 +91,7 @@ is collected.
   <tr>
     <td width="50%" valign="top">
       <h3>Real Windows inventory</h3>
-      <p><code>Win32_PnPSignedDriver</code> is queried through CIM, deduplicated by device instance id, cached to the app data directory, and rescanned on demand. A machine with 170+ raw driver records is reduced to a stable, readable list.</p>
+      <p>SetupAPI enumerates present devices, resolves their registry properties, deduplicates by device instance id, caches the result to the app data directory, and rescans on demand. CIM remains a fallback. A machine with 170+ raw driver records is reduced to a stable, readable list.</p>
       <p>Installed software is detected from the uninstall registry on any drive, including <code>InstallLocation</code> and <code>DisplayIcon</code>, so portable tools outside <code>C:\</code> are not lost.</p>
     </td>
     <td width="50%" align="center" valign="top">
@@ -285,7 +285,7 @@ src/
 src-tauri/src/
   commands.rs                typed Tauri commands, validation and blocking-pool boundary
   repository.rs              application service, locking and persistence
-  detection.rs               detector traits and native Windows CIM adapters
+  detection.rs               detector traits and native Windows detection adapters
   windows_update.rs          Windows Update driver discovery and installation
   restore.rs                 System Restore points through WMI
   backup.rs                  driver package export and restore through pnputil

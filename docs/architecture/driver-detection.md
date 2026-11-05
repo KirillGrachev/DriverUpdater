@@ -251,8 +251,8 @@ Known limitations are tracked explicitly:
   still the main security architecture task;
 - package cancellation cannot distinguish download from install with the
   current winget CLI, so an active MSI transaction is never cancelled;
-- the native detector still uses PowerShell/CIM; SetupAPI and COM are the next
-  performance and robustness step;
+- driver inventory is native SetupAPI with a CIM fallback, while Windows Update,
+  System Restore and DISM still go through their current providers;
 - 33 locales still fall back to English for some older keys, guarded by a
   baseline check so the gap cannot grow silently;
 - release signing is optional until a certificate is configured.
