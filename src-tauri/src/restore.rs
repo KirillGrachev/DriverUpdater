@@ -14,6 +14,55 @@ use crate::models::RestorePoint;
 #[cfg(target_os = "windows")]
 use crate::process;
 
+#[cfg(target_os = "windows")]
+const BEGIN_SYSTEM_CHANGE: u32 = 100;
+#[cfg(target_os = "windows")]
+const MODIFY_SETTINGS: u32 = 12;
+
+#[cfg(target_os = "windows")]
+#[repr(C)]
+struct RestorePointInfo {
+    event_type: u32,
+    restore_point_type: u32,
+    sequence_number: i64,
+    description: [u16; 256],
+}
+
+#[cfg(target_os = "windows")]
+#[repr(C)]
+struct StateManagerStatus {
+    status: u32,
+    sequence_number: i64,
+}
+
+#[cfg(target_os = "windows")]
+#[link(name = "srclient")]
+extern "system" {
+    fn SRSetRestorePointW(
+        restore_point: *const RestorePointInfo,
+        status: *mut StateManagerStatus,
+    ) -> i32;
+    fn SRRemoveRestorePoint(sequence_number: u32) -> u32;
+}
+
+#[cfg(target_os = "windows")]
+fn now_iso() -> String {
+    use std::time::{SystemTime, UNIX_EPOCH};
+    let seconds = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|value| value.as_secs())
+        .unwrap_or(0);
+    let days = seconds / 86_400;
+    let time = seconds % 86_400;
+    let (year, month, day) = crate::detection::days_to_civil(days);
+    format!(
+        "{year:04}-{month:02}-{day:02}T{:02}:{:02}:{:02}Z",
+        time / 3600,
+        (time % 3600) / 60,
+        time % 60
+    )
+}
+
 /// System Restore operations exposed to the repository.
 pub trait RestorePointProvider: Send + Sync {
     fn list(&self) -> Result<Vec<RestorePoint>, String>;
@@ -67,34 +116,36 @@ ConvertTo-Json -InputObject $payload -Compress -Depth 4
 
     fn create(&self, name: &str) -> Result<RestorePoint, String> {
         let description = name.trim();
-        let description = escape_ps(description);
-        let script = format!(
-            r#"
-$ErrorActionPreference='Stop'
-[Console]::OutputEncoding=[Text.Encoding]::UTF8
-$result = Invoke-CimMethod -Namespace root/default -ClassName SystemRestore -MethodName CreateRestorePoint -Arguments @{{ Description='{description}'; EventType=1; RestorePointType=10 }}
-if ($result.ReturnValue -ne 0) {{ throw "CreateRestorePoint failed with $($result.ReturnValue)" }}
-$point = Get-CimInstance -Namespace root/default -ClassName SystemRestore | Sort-Object SequenceNumber -Descending | Select-Object -First 1
-if (-not $point) {{ throw 'restore point was not created' }}
-[pscustomobject]@{{
-    sequenceNumber = [int]$point.SequenceNumber
-    description = [string]$point.Description
-    createdAt = if ($point.CreationTime) {{ $point.CreationTime.ToUniversalTime().ToString('o') }} else {{ '' }}
-    restorePointType = [int]$point.RestorePointType
-}} | ConvertTo-Json -Compress
-"#
-        );
-        let output = process::run_powershell(&script, Duration::from_secs(120))?;
-        if !output.success {
-            return Err(command_error(&output));
+        if description.is_empty() || description.chars().count() > 200 {
+            return Err("invalid restore point name".to_string());
         }
-        let point: Point =
-            serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
+        let mut wide: Vec<u16> = description.encode_utf16().take(255).collect();
+        wide.push(0);
+        let mut spec = RestorePointInfo {
+            event_type: BEGIN_SYSTEM_CHANGE,
+            restore_point_type: MODIFY_SETTINGS,
+            sequence_number: 0,
+            description: [0; 256],
+        };
+        for (slot, unit) in spec.description.iter_mut().zip(wide) {
+            *slot = unit;
+        }
+        let mut status = StateManagerStatus {
+            status: 1,
+            sequence_number: 0,
+        };
+        let ok = unsafe { SRSetRestorePointW(&spec, &mut status) };
+        if ok == 0 || status.status != 0 {
+            return Err(format!(
+                "System Restore failed with status {}",
+                status.status
+            ));
+        }
         Ok(RestorePoint {
-            id: format!("rp-{}", point.sequence_number),
-            name: point.description,
-            kind: kind_for(point.restore_point_type).to_string(),
-            created_at: point.created_at,
+            id: format!("rp-{}", status.sequence_number),
+            name: description.to_string(),
+            kind: "manual".to_string(),
+            created_at: now_iso(),
             size_mb: 0,
         })
     }
@@ -117,23 +168,11 @@ if ($result.ReturnValue -ne 0) {{ throw "System Restore failed with $($result.Re
     }
 
     fn delete(&self, id: &str) -> Result<(), String> {
-        let sequence = sequence_number(id)?;
-        let script = format!(
-            r#"
-$ErrorActionPreference='Stop'
-Add-Type -TypeDefinition @"
-using System.Runtime.InteropServices;
-public static class DriverUpdaterRestore {{
-    [DllImport("srclient.dll")] public static extern int SRRemoveRestorePoint(int sequence);
-}}
-"@
-$result = [DriverUpdaterRestore]::SRRemoveRestorePoint({sequence})
-if ($result -ne 0) {{ throw "SRRemoveRestorePoint failed with $result" }}
-"#
-        );
-        let output = process::run_powershell(&script, Duration::from_secs(120))?;
-        if !output.success {
-            return Err(command_error(&output));
+        let sequence = u32::try_from(sequence_number(id)?)
+            .map_err(|_| "invalid restore point id".to_string())?;
+        let result = unsafe { SRRemoveRestorePoint(sequence) };
+        if result != 0 {
+            return Err(format!("SRRemoveRestorePoint failed with {result}"));
         }
         Ok(())
     }
@@ -212,11 +251,6 @@ fn sequence_number(id: &str) -> Result<i64, String> {
     value
         .parse::<i64>()
         .map_err(|_| "invalid restore point id".to_string())
-}
-
-#[cfg(target_os = "windows")]
-fn escape_ps(value: &str) -> String {
-    value.replace('\'', "''").replace(['\r', '\n'], " ")
 }
 
 #[cfg(target_os = "windows")]
