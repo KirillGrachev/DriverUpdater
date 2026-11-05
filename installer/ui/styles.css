@@ -42,56 +42,6 @@ button {
     background: var(--background);
 }
 
-.titlebar {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 38px;
-    flex: 0 0 38px;
-    padding-left: 14px;
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
-    user-select: none;
-}
-
-.titlebar-brand {
-    display: flex;
-    align-items: center;
-    gap: 9px;
-    font-size: 13px;
-    font-weight: 600;
-}
-
-.titlebar-brand img {
-    width: 18px;
-    height: 18px;
-    object-fit: contain;
-}
-
-.window-controls {
-    display: flex;
-    height: 100%;
-}
-
-.window-controls button {
-    width: 46px;
-    height: 100%;
-    border: 0;
-    background: transparent;
-    color: #4b5563;
-    font-family: 'Segoe MDL2 Assets', sans-serif;
-    font-size: 10px;
-}
-
-.window-controls button:hover {
-    background: #eef2f8;
-}
-
-.window-controls button[data-action='close']:hover {
-    background: #e81123;
-    color: #fff;
-}
-
 .wizard {
     position: relative;
     flex: 1;

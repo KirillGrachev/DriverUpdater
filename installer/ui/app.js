@@ -90,15 +90,7 @@ document.addEventListener('click', async (event) => {
     const target = event.target.closest('button');
     if (!target) return;
     if (target.dataset.action === 'close') {
-        if (invoke) await invoke('close_setup');
-        return;
-    }
-    if (target.dataset.action === 'minimize') {
-        if (invoke) await invoke('minimize_setup');
-        return;
-    }
-    if (target.dataset.action === 'maximize') {
-        if (invoke) await invoke('toggle_maximize');
+        window.close();
         return;
     }
     if (target.dataset.next) {
