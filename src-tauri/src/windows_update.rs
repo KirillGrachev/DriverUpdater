@@ -23,8 +23,6 @@ pub struct DriverUpdate {
     #[serde(default)]
     pub hardware_ids: Vec<String>,
     #[serde(default)]
-    pub driver_model: String,
-    #[serde(default)]
     pub driver_date: String,
     #[serde(default)]
     pub max_download_size: u64,
@@ -211,20 +209,13 @@ pub fn merge_updates(drivers: &mut [Driver], updates: &[DriverUpdate]) -> usize 
                     .iter()
                     .any(|installed| installed == candidate)
             });
-            let fallback_match = !update.driver_model.is_empty()
-                && (driver.name.eq_ignore_ascii_case(&update.driver_model)
-                    || driver.device.eq_ignore_ascii_case(&update.driver_model));
-            if !hardware_match && !fallback_match {
+            if !hardware_match || version.is_empty() {
                 continue;
             }
-            if !version.is_empty() && !is_newer_version(&version, &driver.current) {
+            if !is_newer_version(&version, &driver.current) {
                 continue;
             }
-            driver.available = if version.is_empty() {
-                Some(update.title.clone())
-            } else {
-                Some(version.clone())
-            };
+            driver.available = Some(version.clone());
             driver.status = "update".to_string();
             driver.recommended = true;
             driver.update_id = Some(update.update_id.clone());
@@ -354,7 +345,6 @@ mod tests {
             update_id: "12345678-1234-1234-1234-123456789abc".to_string(),
             title: "Voice Clarity (2.0.0)".to_string(),
             hardware_ids: vec!["swc\\ven_msft&audio".to_string()],
-            driver_model: String::new(),
             driver_date: "2026-10-16T00:00:00Z".to_string(),
             max_download_size: 10 * 1024 * 1024,
         }];

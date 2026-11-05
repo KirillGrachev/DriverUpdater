@@ -255,10 +255,18 @@ impl DriverRepository {
         drivers: Option<Vec<Driver>>,
         updates: Result<Vec<DriverUpdate>, String>,
     ) -> Result<CheckUpdatesResult, String> {
-        let Some(mut drivers) = drivers.filter(|drivers| !drivers.is_empty()) else {
-            let error = "Windows driver scan returned no devices".to_string();
-            self.scan_error = Some(error.clone());
-            return Err(error);
+        let mut drivers = match drivers.filter(|drivers| !drivers.is_empty()) {
+            Some(drivers) => drivers,
+            None if !self.drivers.is_empty() => {
+                self.scan_error =
+                    Some("Windows driver scan failed; using the cached inventory".to_string());
+                self.drivers.clone()
+            }
+            None => {
+                let error = "Windows driver scan returned no devices".to_string();
+                self.scan_error = Some(error.clone());
+                return Err(error);
+            }
         };
         let updates = match updates {
             Ok(updates) => updates,
