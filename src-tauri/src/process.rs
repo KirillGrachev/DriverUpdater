@@ -92,10 +92,18 @@ fn read_pipe(pipe: Option<impl std::io::Read>) -> String {
 
 /// Returns an absolute executable path under `%SystemRoot%`.
 pub fn system_executable(name: &str) -> PathBuf {
-    let root = std::env::var_os("SystemRoot")
+    windows_directory().join("System32").join(name)
+}
+
+/// Returns an executable stored directly under `%SystemRoot%`, such as explorer.exe.
+pub fn windows_executable(name: &str) -> PathBuf {
+    windows_directory().join(name)
+}
+
+fn windows_directory() -> PathBuf {
+    std::env::var_os("SystemRoot")
         .map(PathBuf::from)
-        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"));
-    root.join("System32").join(name)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
 }
 
 /// Runs PowerShell with an absolute executable path and no profile.

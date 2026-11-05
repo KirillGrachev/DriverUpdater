@@ -245,7 +245,7 @@ pub async fn open_backup_folder(state: State<'_, AppRepository>) -> Result<(), S
 
 fn open_folder(path: &Path) -> Result<(), String> {
     let mut command = if cfg!(target_os = "windows") {
-        let mut cmd = Command::new(crate::process::system_executable("explorer.exe"));
+        let mut cmd = Command::new(crate::process::windows_executable("explorer.exe"));
         cmd.arg(path);
         cmd
     } else if cfg!(target_os = "macos") {
