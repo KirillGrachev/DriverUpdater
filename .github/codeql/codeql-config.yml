@@ -1,10 +1,4 @@
 name: Driver Updater CodeQL
 
-# Keep generated artifacts and the bundled runtime out of the database, but
-# scan every TypeScript, JavaScript and workflow source file.
-paths-ignore:
-    - '**/node_modules/**'
-    - '**/dist/**'
-    - '**/target/**'
-    - '**/artifacts/**'
-    - 'docs/screenshots/**'
+# Intentionally no paths or paths-ignore filters: every repository file is in
+# scope for the security scanner, including generated and vendored content.
