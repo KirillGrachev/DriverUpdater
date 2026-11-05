@@ -33,9 +33,11 @@ pub struct DriverUpdate {
 #[derive(Debug, Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct InstallOutcome {
+    #[cfg(target_os = "windows")]
     pub result_code: u32,
     #[serde(default)]
     pub reboot_required: bool,
+    #[cfg(target_os = "windows")]
     #[serde(default)]
     pub h_result: i64,
 }
