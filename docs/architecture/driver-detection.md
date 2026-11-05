@@ -12,18 +12,18 @@ payloads were not decrypted or redistributed.
 
 Observed artefacts:
 
-| Path | Observed role |
-|---|---|
-| `Database\sMarUpdateInfo.dbd` | Encrypted driver metadata index, about 1.2 MB |
-| `Database\Scan\initial.wlst` | Encrypted initial scan payload, about 1.9 MB |
-| `scan.dat`, `dev-pro.dat`, `cache-pro.dat` | Encrypted scan state and device cache |
-| `Config.ini [flag]` | Per-driver install state keyed by hardware id, date and version |
-| `Config.ini [UptodateOrder]` | Device instance ids mapped to a packed date value |
-| `Config.ini [F2P]` | Drivers offered to the user, keyed like the update order |
-| `Config.ini [OutlinkSize]` | Download size cache keyed by an opaque content id |
-| `LocalData\RqstFilter.ini` | Hardware id inclusion and exclusion rules |
-| `LocalData\Vendor.ini` | OEM name normalisation |
-| `LocalData\InstConf.ini` | Important device classes and Windows error ignore list |
+| Path                                       | Observed role                                                   |
+| ------------------------------------------ | --------------------------------------------------------------- |
+| `Database\sMarUpdateInfo.dbd`              | Encrypted driver metadata index, about 1.2 MB                   |
+| `Database\Scan\initial.wlst`               | Encrypted initial scan payload, about 1.9 MB                    |
+| `scan.dat`, `dev-pro.dat`, `cache-pro.dat` | Encrypted scan state and device cache                           |
+| `Config.ini [flag]`                        | Per-driver install state keyed by hardware id, date and version |
+| `Config.ini [UptodateOrder]`               | Device instance ids mapped to a packed date value               |
+| `Config.ini [F2P]`                         | Drivers offered to the user, keyed like the update order        |
+| `Config.ini [OutlinkSize]`                 | Download size cache keyed by an opaque content id               |
+| `LocalData\RqstFilter.ini`                 | Hardware id inclusion and exclusion rules                       |
+| `LocalData\Vendor.ini`                     | OEM name normalisation                                          |
+| `LocalData\InstConf.ini`                   | Important device classes and Windows error ignore list          |
 
 The useful information is in the shape of keys, matching rules and state
 transitions. The encrypted blobs are not a public schema and are not a source we
@@ -130,16 +130,16 @@ Our implementation gets the size directly from the Windows Update result through
 
 ## Differences from Driver Updater
 
-| Concern | Driver Booster | Driver Updater |
-|---|---|---|
-| Catalog | Vendor-maintained encrypted database | Windows Update driver catalog |
-| Discovery | PnP inventory joined with vendor index | PnP inventory joined with Windows Update results |
-| Matching | Hardware id precedence plus vendor rules | Hardware id equality and numeric version comparison |
-| Update source | Vendor packages and mirrors | Windows Update Agent |
-| Ranking | Vendor score, date and version | Version, then date and recommendation flag |
-| State | INI flags and opaque cache files | Versioned encrypted JSON state |
-| Restore | Built-in backup and restore points | Windows System Restore plus `pnputil` export |
-| Ads and bundles | Present in the consumer product | Not part of this application |
+| Concern         | Driver Booster                           | Driver Updater                                      |
+| --------------- | ---------------------------------------- | --------------------------------------------------- |
+| Catalog         | Vendor-maintained encrypted database     | Windows Update driver catalog                       |
+| Discovery       | PnP inventory joined with vendor index   | PnP inventory joined with Windows Update results    |
+| Matching        | Hardware id precedence plus vendor rules | Hardware id equality and numeric version comparison |
+| Update source   | Vendor packages and mirrors              | Windows Update Agent                                |
+| Ranking         | Vendor score, date and version           | Version, then date and recommendation flag          |
+| State           | INI flags and opaque cache files         | Versioned encrypted JSON state                      |
+| Restore         | Built-in backup and restore points       | Windows System Restore plus `pnputil` export        |
+| Ads and bundles | Present in the consumer product          | Not part of this application                        |
 
 The architectural decision is deliberate: Windows Update is the canonical source
 because it provides signed driver packages, rollback metadata and an install API
@@ -189,21 +189,21 @@ binary. Proposed schema:
 
 ```json
 {
-  "schemaVersion": 1,
-  "generatedAt": "2026-11-05T00:00:00Z",
-  "entries": [
-    {
-      "hardwareIds": ["PCI\\VEN_10DE&DEV_2F04"],
-      "vendor": "NVIDIA",
-      "name": "NVIDIA Graphics Driver",
-      "version": "32.0.16.1047",
-      "driverDate": "2026-05-19",
-      "sizeBytes": 968052256,
-      "downloadUrl": "https://vendor.example/driver.exe",
-      "sha256": "hex digest",
-      "signature": "base64 signature"
-    }
-  ]
+    "schemaVersion": 1,
+    "generatedAt": "2026-11-05T00:00:00Z",
+    "entries": [
+        {
+            "hardwareIds": ["PCI\\VEN_10DE&DEV_2F04"],
+            "vendor": "NVIDIA",
+            "name": "NVIDIA Graphics Driver",
+            "version": "32.0.16.1047",
+            "driverDate": "2026-05-19",
+            "sizeBytes": 968052256,
+            "downloadUrl": "https://vendor.example/driver.exe",
+            "sha256": "hex digest",
+            "signature": "base64 signature"
+        }
+    ]
 }
 ```
 
@@ -228,3 +228,31 @@ Requirements:
 
 This closes the research phase. A vendor database is now an optional extension,
 not a prerequisite for a working, honest driver updater.
+
+## Implementation status
+
+The production paths are now real Windows implementations:
+
+- inventory comes from the native Windows provider;
+- driver candidates come from Windows Update Agent;
+- restore points use System Restore through `srclient` and WMI;
+- driver backups use `pnputil`;
+- state and driver cache are separate, versioned and DPAPI-sealed;
+- UI data is never backed by production fixtures;
+- install, restore and backup operations run outside the repository lock;
+- long operations are guarded against closing the window;
+- install progress exposes restore, backup and install stages;
+- typed command errors carry stable codes;
+- runtime logs are written to the application log directory.
+
+Known limitations are tracked explicitly:
+
+- the UI still shares the elevated token, so the medium-integrity helper is
+  still the main security architecture task;
+- package cancellation cannot distinguish download from install with the
+  current winget CLI, so an active MSI transaction is never cancelled;
+- the native detector still uses PowerShell/CIM; SetupAPI and COM are the next
+  performance and robustness step;
+- 33 locales still fall back to English for some older keys, guarded by a
+  baseline check so the gap cannot grow silently;
+- release signing is optional until a certificate is configured.
