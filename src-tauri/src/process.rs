@@ -83,6 +83,7 @@ fn run_inner(
     let stderr = stderr_reader.join().map_err(|_| "stderr reader failed")?;
     Ok(ProcessOutput {
         success: status.success(),
+        #[cfg(target_os = "windows")]
         code: status.code(),
         stdout,
         stderr,
