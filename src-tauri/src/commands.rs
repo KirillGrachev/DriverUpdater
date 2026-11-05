@@ -3,8 +3,10 @@
 //! <p>Commands are thin async wrappers around the repository; validation and
 //! IPC input checks stay at this boundary.</p>
 
+use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex};
 
 use tauri::State;
@@ -15,12 +17,15 @@ use crate::models::{
     CheckUpdatesResult, Driver, InitialData, LocalizedText, RestorePoint, Settings, Summary,
     SystemInfo,
 };
-use crate::packages::PackageManager;
 use crate::repository::DriverRepository;
 use crate::restore::default_restore_provider;
 use crate::windows_update::default_update_provider;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
+
+/// Package installs that the UI can cancel by package id.
+#[derive(Default)]
+pub struct PackageJobs(pub Mutex<HashMap<String, Arc<AtomicBool>>>);
 
 /**
  * Runs a repository operation on the blocking pool.
@@ -452,10 +457,46 @@ pub async fn list_package_versions(package_id: String) -> Result<Vec<String>, St
 }
 
 #[tauri::command]
-pub async fn install_package(package_id: String, version: String) -> Result<(), String> {
-    tauri::async_runtime::spawn_blocking(move || {
-        crate::packages::WingetPackageManager.install(&package_id, &version)
+pub async fn install_package(
+    state: State<'_, PackageJobs>,
+    package_id: String,
+    version: String,
+) -> Result<(), String> {
+    let cancel = Arc::new(AtomicBool::new(false));
+    let job_key = package_id.clone();
+    {
+        let mut jobs = state.0.lock().map_err(|error| error.to_string())?;
+        if jobs.contains_key(&job_key) {
+            return Err("package is already installing".to_string());
+        }
+        jobs.insert(job_key.clone(), Arc::clone(&cancel));
+    }
+    let result = tauri::async_runtime::spawn_blocking(move || {
+        crate::packages::WingetPackageManager.install_cancellable(&package_id, &version, &cancel)
     })
     .await
-    .map_err(|error| error.to_string())?
+    .map_err(|error| error.to_string());
+    if let Ok(mut jobs) = state.0.lock() {
+        jobs.remove(&job_key);
+    }
+    result?
+}
+
+#[tauri::command]
+pub async fn cancel_package_install(
+    state: State<'_, PackageJobs>,
+    package_id: String,
+) -> Result<bool, String> {
+    let job = state
+        .0
+        .lock()
+        .map_err(|error| error.to_string())?
+        .get(&package_id)
+        .cloned();
+    if let Some(flag) = job {
+        flag.store(true, Ordering::SeqCst);
+        Ok(true)
+    } else {
+        Ok(false)
+    }
 }

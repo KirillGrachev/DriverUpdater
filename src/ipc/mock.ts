@@ -228,6 +228,10 @@ export class MockBackend implements Backend {
         await sleep(700);
     }
 
+    async cancelPackageInstall(): Promise<boolean> {
+        return false;
+    }
+
     async listDriverBackups(): Promise<DriverBackup[]> {
         return clone(this.state.driverBackups);
     }

@@ -79,6 +79,7 @@ pub fn run() {
             app.manage(AppRepository(std::sync::Arc::new(std::sync::Mutex::new(
                 repo,
             ))));
+            app.manage(commands::PackageJobs::default());
 
             // Keep the taskbar/window icon in sync with the bundled app icon.
             if let Some(window) = app.get_webview_window("main") {
@@ -112,6 +113,7 @@ pub fn run() {
             commands::delete_driver_backup,
             commands::list_package_versions,
             commands::install_package,
+            commands::cancel_package_install,
             commands::get_system_info,
             commands::compute_summary
         ])

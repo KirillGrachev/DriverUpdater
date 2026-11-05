@@ -108,7 +108,9 @@
     "version": "Version",
     "loading": "Loading…",
     "managed": "Driver-managed",
-    "openglNote": "Provided by your GPU driver"
+    "openglNote": "Provided by your GPU driver",
+    "cancelInstall": "Cancel install",
+    "cancelledToast": "Installation cancelled"
   },
   "updates": {
     "title": "Updates",

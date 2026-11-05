@@ -64,6 +64,7 @@ interface AppContextValue extends AppState {
     saveInstalledComponents: (ids: string[]) => Promise<void>;
     listPackageVersions: (packageId: string) => Promise<string[]>;
     installPackage: (packageId: string, version: string) => Promise<void>;
+    cancelPackageInstall: (packageId: string) => Promise<boolean>;
     listDriverBackups: () => Promise<DriverBackup[]>;
     createDriverBackup: () => Promise<DriverBackup>;
     restoreDriverBackup: (id: string) => Promise<void>;
@@ -586,6 +587,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
         }
     }, []);
 
+    const cancelPackageInstall = useCallback(async (packageId: string) => {
+        const backend = backendRef.current;
+        if (!backend) return false;
+        try {
+            return await backend.cancelPackageInstall(packageId);
+        } catch {
+            return false;
+        }
+    }, []);
+
     const listDriverBackups = useCallback(async () => {
         const backend = backendRef.current;
         if (!backend) return [];
@@ -713,6 +724,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             saveInstalledComponents,
             listPackageVersions,
             installPackage,
+            cancelPackageInstall,
             listDriverBackups,
             createDriverBackup,
             restoreDriverBackup,
@@ -743,6 +755,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             saveInstalledComponents,
             listPackageVersions,
             installPackage,
+            cancelPackageInstall,
             listDriverBackups,
             createDriverBackup,
             restoreDriverBackup,

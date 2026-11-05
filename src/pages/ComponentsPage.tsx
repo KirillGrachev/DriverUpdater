@@ -36,6 +36,7 @@ export function ComponentsPage() {
         saveInstalledComponents,
         listPackageVersions,
         installPackage,
+        cancelPackageInstall,
         packageInstalling,
         openModal,
         closeModal,
@@ -122,6 +123,11 @@ export function ComponentsPage() {
             }
             pushToast(t('components.installedToast', { name: item.name }), 'success');
         } catch (error) {
+            const message = typeof error === 'string' ? error : error instanceof Error ? error.message : '';
+            if (/cancelled|canceled/i.test(message)) {
+                pushToast(t('components.cancelledToast'), 'info');
+                return;
+            }
             console.error('component install failed', error);
             pushToast(t('toasts.error'), 'error');
         }
@@ -245,17 +251,24 @@ export function ComponentsPage() {
                                                         >
                                                             {t('components.installed')}
                                                         </Button>
+                                                    ) : isInstalling ? (
+                                                        <Button
+                                                            variant="secondary"
+                                                            size="sm"
+                                                            onClick={() => {
+                                                                void cancelPackageInstall(item.wingetId ?? '');
+                                                            }}
+                                                        >
+                                                            {t('components.cancelInstall')}
+                                                        </Button>
                                                     ) : (
                                                         <Button
                                                             variant="outline"
                                                             size="sm"
                                                             icon={<IconDownload size={15} />}
-                                                            loading={isInstalling}
                                                             onClick={() => requestInstall(item)}
                                                         >
-                                                            {isInstalling
-                                                                ? t('components.installing')
-                                                                : t('components.install')}
+                                                            {t('components.install')}
                                                         </Button>
                                                     )}
                                                 </li>

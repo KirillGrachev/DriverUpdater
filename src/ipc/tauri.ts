@@ -74,6 +74,10 @@ export class TauriBackend implements Backend {
         return invoke<void>('install_package', { packageId, version });
     }
 
+    cancelPackageInstall(packageId: string): Promise<boolean> {
+        return invoke<boolean>('cancel_package_install', { packageId });
+    }
+
     listDriverBackups(): Promise<DriverBackup[]> {
         return invoke<DriverBackup[]>('list_driver_backups');
     }

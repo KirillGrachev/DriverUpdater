@@ -5,6 +5,7 @@
 //! a shell, and versions are checked before they reach winget.</p>
 
 use std::process::Command;
+use std::sync::atomic::AtomicBool;
 use std::time::Duration;
 
 use crate::process;
@@ -42,18 +43,12 @@ pub const ALLOWED_PACKAGES: &[&str] = &[
     "7zip.7zip",
 ];
 
-/// Package manager port used by the IPC layer.
-pub trait PackageManager: Send + Sync {
-    fn versions(&self, package_id: &str) -> Result<Vec<String>, String>;
-    fn install(&self, package_id: &str, version: &str) -> Result<(), String>;
-}
-
 /// Windows Package Manager implementation.
 #[derive(Default)]
 pub struct WingetPackageManager;
 
-impl PackageManager for WingetPackageManager {
-    fn versions(&self, package_id: &str) -> Result<Vec<String>, String> {
+impl WingetPackageManager {
+    pub fn versions(&self, package_id: &str) -> Result<Vec<String>, String> {
         validate_package_id(package_id)?;
         if package_id == "Microsoft.WindowsFeature.NetFx3" {
             return Ok(vec!["3.5 SP1".to_string()]);
@@ -76,13 +71,30 @@ impl PackageManager for WingetPackageManager {
         }
         Ok(parse_versions(&output.stdout))
     }
+}
 
-    fn install(&self, package_id: &str, version: &str) -> Result<(), String> {
+impl WingetPackageManager {
+    /// Installs a package and stops the child process when `cancel` is set.
+    pub fn install_cancellable(
+        &self,
+        package_id: &str,
+        version: &str,
+        cancel: &AtomicBool,
+    ) -> Result<(), String> {
+        self.install_inner(package_id, version, Some(cancel))
+    }
+
+    fn install_inner(
+        &self,
+        package_id: &str,
+        version: &str,
+        cancel: Option<&AtomicBool>,
+    ) -> Result<(), String> {
         validate_package_id(package_id)?;
         validate_version(version)?;
 
         if package_id == "Microsoft.WindowsFeature.NetFx3" {
-            return install_netfx3();
+            return install_netfx3(cancel);
         }
 
         let mut command = Command::new(winget_executable());
@@ -100,7 +112,7 @@ impl PackageManager for WingetPackageManager {
             "--accept-source-agreements",
             "--disable-interactivity",
         ]);
-        let output = process::run(command, Duration::from_secs(45 * 60))?;
+        let output = run_command(command, Duration::from_secs(45 * 60), cancel)?;
         if output.success
             || output.stdout.contains("already installed")
             || output.stderr.contains("already installed")
@@ -108,6 +120,17 @@ impl PackageManager for WingetPackageManager {
             return Ok(());
         }
         Err(command_error(&output))
+    }
+}
+
+fn run_command(
+    command: Command,
+    timeout: Duration,
+    cancel: Option<&AtomicBool>,
+) -> Result<process::ProcessOutput, String> {
+    match cancel {
+        Some(flag) => process::run_cancellable(command, timeout, flag),
+        None => process::run(command, timeout),
     }
 }
 
@@ -181,7 +204,7 @@ fn command_error(output: &process::ProcessOutput) -> String {
 }
 
 #[cfg(target_os = "windows")]
-fn install_netfx3() -> Result<(), String> {
+fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
     let mut command = Command::new(process::system_executable("dism.exe"));
     command.args([
         "/Online",
@@ -190,7 +213,7 @@ fn install_netfx3() -> Result<(), String> {
         "/All",
         "/NoRestart",
     ]);
-    let output = process::run(command, Duration::from_secs(20 * 60))?;
+    let output = run_command(command, Duration::from_secs(20 * 60), cancel)?;
     if output.success || output.code == Some(3010) {
         return Ok(());
     }
@@ -201,7 +224,7 @@ fn install_netfx3() -> Result<(), String> {
 }
 
 #[cfg(not(target_os = "windows"))]
-fn install_netfx3() -> Result<(), String> {
+fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
     Err(".NET Framework 3.5 is available only on Windows".to_string())
 }
 

@@ -36,6 +36,7 @@ export interface Backend {
     saveInstalledComponents(ids: string[]): Promise<string[]>;
     listPackageVersions(packageId: string): Promise<string[]>;
     installPackage(packageId: string, version: string): Promise<void>;
+    cancelPackageInstall(packageId: string): Promise<boolean>;
     listDriverBackups(): Promise<DriverBackup[]>;
     createDriverBackup(): Promise<DriverBackup>;
     restoreDriverBackup(id: string): Promise<void>;

@@ -7,9 +7,8 @@
 #[cfg(target_os = "windows")]
 use std::path::PathBuf;
 use std::process::{Command, Stdio};
-use std::time::Duration;
-
-use wait_timeout::ChildExt;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::time::{Duration, Instant};
 
 const MAX_CAPTURED_OUTPUT: usize = 4 * 1024 * 1024;
 
@@ -28,6 +27,23 @@ pub struct ProcessOutput {
 /// @param timeout maximum wall-clock time for the child process
 /// @returns captured output, or an error for spawn/timeout/non-UTF8 output
 pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, String> {
+    run_inner(&mut command, timeout, None)
+}
+
+/// Runs a command and checks a cancellation flag while it is running.
+pub fn run_cancellable(
+    mut command: Command,
+    timeout: Duration,
+    cancel: &AtomicBool,
+) -> Result<ProcessOutput, String> {
+    run_inner(&mut command, timeout, Some(cancel))
+}
+
+fn run_inner(
+    command: &mut Command,
+    timeout: Duration,
+    cancel: Option<&AtomicBool>,
+) -> Result<ProcessOutput, String> {
     #[cfg(target_os = "windows")]
     {
         use std::os::windows::process::CommandExt;
@@ -47,18 +63,19 @@ pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, Str
     let stderr_reader = std::thread::spawn(move || read_pipe(stderr));
 
     let pid = child.id();
-    let status = match child
-        .wait_timeout(timeout)
-        .map_err(|error| error.to_string())?
-    {
-        Some(status) => status,
-        None => {
-            kill_process_tree(pid);
-            let _ = child.kill();
-            let _ = child.wait();
-            let _ = stdout_reader.join();
-            let _ = stderr_reader.join();
-            return Err("process timed out".to_string());
+    let started = Instant::now();
+    let status = loop {
+        if cancel.is_some_and(|flag| flag.load(Ordering::Relaxed)) {
+            stop_child(&mut child, pid);
+            return Err("process cancelled".to_string());
+        }
+        match child.try_wait().map_err(|error| error.to_string())? {
+            Some(status) => break status,
+            None if started.elapsed() >= timeout => {
+                stop_child(&mut child, pid);
+                return Err("process timed out".to_string());
+            }
+            None => std::thread::sleep(Duration::from_millis(100)),
         }
     };
 
@@ -66,13 +83,17 @@ pub fn run(mut command: Command, timeout: Duration) -> Result<ProcessOutput, Str
     let stderr = stderr_reader.join().map_err(|_| "stderr reader failed")?;
     Ok(ProcessOutput {
         success: status.success(),
-        #[cfg(target_os = "windows")]
         code: status.code(),
         stdout,
         stderr,
     })
 }
 
+fn stop_child(child: &mut std::process::Child, pid: u32) {
+    kill_process_tree(pid);
+    let _ = child.kill();
+    let _ = child.wait();
+}
 fn read_pipe(pipe: Option<impl std::io::Read>) -> String {
     let mut buffer = Vec::new();
     if let Some(mut pipe) = pipe {
@@ -137,3 +158,38 @@ fn kill_process_tree(pid: u32) {
 
 #[cfg(not(target_os = "windows"))]
 fn kill_process_tree(_pid: u32) {}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::process::Command;
+    use std::sync::Arc;
+
+    #[test]
+    fn cancellation_stops_a_running_child() {
+        #[cfg(target_os = "windows")]
+        let command = {
+            let mut command = Command::new(system_executable("cmd.exe"));
+            command.args(["/C", "ping -n 20 127.0.0.1 >nul"]);
+            command
+        };
+        #[cfg(not(target_os = "windows"))]
+        let command = {
+            let mut command = Command::new("sh");
+            command.args(["-c", "sleep 20"]);
+            command
+        };
+
+        let cancel = Arc::new(AtomicBool::new(false));
+        let signal = Arc::clone(&cancel);
+        std::thread::spawn(move || {
+            std::thread::sleep(Duration::from_millis(200));
+            signal.store(true, Ordering::SeqCst);
+        });
+
+        match run_cancellable(command, Duration::from_secs(10), &cancel) {
+            Err(error) => assert!(error.contains("cancelled")),
+            Ok(_) => panic!("the child should have been cancelled"),
+        }
+    }
+}
