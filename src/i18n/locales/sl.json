@@ -213,6 +213,7 @@
     "error": "Opravilo ni uspelo"
   },
   "components": {
-    "cancelTooLate": "Namestitveni program se je že zagnal. Trenutna namestitev bo dokončana."
+    "cancelTooLate": "Namestitveni program se je že zagnal. Trenutna namestitev bo dokončana.",
+    "sdks": "SDKs"
   }
 }

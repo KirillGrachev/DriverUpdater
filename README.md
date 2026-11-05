@@ -103,7 +103,7 @@ is collected.
   <tr>
     <td width="50%" align="center" valign="top">
       <h3>Components without a scavenger hunt</h3>
-      <p>A version-aware catalogue of runtimes and tools: .NET Framework 3.5/4.x, .NET Desktop Runtime 6/8/9, Visual C++, DirectX, Visual Studio 2022 editions, Python 3.10-3.13, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.4, Git, CMake and 7-Zip.</p>
+      <p>A version-aware catalogue split into runtimes, languages, SDKs and tools: .NET Framework, .NET Desktop 6-10, ASP.NET Core 8-10, Visual C++ including ARM64, DirectX, WebView2, XNA, Vulkan, OpenAL, PhysX and CUDA; Python 3.10-3.14, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.5, Ruby, Dart, Perl, R, Bun, Deno and Swift; .NET SDK 10, Windows SDK, Vulkan SDK and LLVM; Visual Studio 2022, Build Tools, VS Code, Docker, Ninja, PowerShell, WSL, GitHub CLI, Windows Terminal, NASM, PostgreSQL, MySQL, SQLite, Chocolatey, Git, CMake and 7-Zip.</p>
       <p>Each row exposes the versions available from winget. Installed versions are detected from the registry; chosen versions are installed through the Windows Package Manager.</p>
     </td>
     <td width="50%" align="center" valign="top">

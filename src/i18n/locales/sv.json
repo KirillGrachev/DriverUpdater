@@ -207,6 +207,7 @@
     "error": "Åtgärden misslyckades"
   },
   "components": {
-    "cancelTooLate": "Installationsprogrammet har redan startat. Den pågående installationen slutförs."
+    "cancelTooLate": "Installationsprogrammet har redan startat. Den pågående installationen slutförs.",
+    "sdks": "SDKs"
   }
 }

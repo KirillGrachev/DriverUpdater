@@ -207,6 +207,7 @@
     "error": "Toiminto epäonnistui"
   },
   "components": {
-    "cancelTooLate": "Asennusohjelma on jo käynnistynyt. Nykyinen asennus suoritetaan loppuun."
+    "cancelTooLate": "Asennusohjelma on jo käynnistynyt. Nykyinen asennus suoritetaan loppuun.",
+    "sdks": "SDKs"
   }
 }

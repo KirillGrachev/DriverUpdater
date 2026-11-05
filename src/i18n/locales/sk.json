@@ -213,6 +213,7 @@
     "error": "Operácia zlyhala"
   },
   "components": {
-    "cancelTooLate": "Inštalátor už beží. Aktuálna inštalácia sa dokončí."
+    "cancelTooLate": "Inštalátor už beží. Aktuálna inštalácia sa dokončí.",
+    "sdks": "SDKs"
   }
 }

@@ -213,6 +213,7 @@
     "error": "Operacja nie powiodła się"
   },
   "components": {
-    "cancelTooLate": "Instalator został już uruchomiony. Bieżąca instalacja zostanie dokończona."
+    "cancelTooLate": "Instalator został już uruchomiony. Bieżąca instalacja zostanie dokończona.",
+    "sdks": "SDKs"
   }
 }

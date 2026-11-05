@@ -479,6 +479,112 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
     let major = parts.first().copied().unwrap_or(0);
     let minor = parts.get(1).copied().unwrap_or(0);
 
+    if name.contains("visual studio code") && publisher_matches("microsoft") {
+        return Some("vs-code");
+    }
+    if (name.contains("buildtools") || name.contains("build tools"))
+        && publisher_matches("microsoft")
+    {
+        return Some("vs-buildtools-2022");
+    }
+    if (name.contains("windows software development kit") || name.contains("windows sdk"))
+        && publisher_matches("microsoft")
+    {
+        return Some("windows-sdk");
+    }
+    if name.contains("vulkan sdk") {
+        return Some("vulkan-sdk");
+    }
+    if name.contains("vulkan") {
+        return Some("vulkan-runtime");
+    }
+    if name.contains("webview2") && publisher_matches("microsoft") {
+        return Some("webview2");
+    }
+    if name.contains("xna") && publisher_matches("microsoft") {
+        return Some("xna");
+    }
+    if name.contains("physx") && publisher_matches("nvidia") {
+        return Some("physx");
+    }
+    if name.contains("cuda") && publisher_matches("nvidia") {
+        return Some("cuda");
+    }
+    if name.contains("openal") {
+        return Some("openal");
+    }
+    if name == "ruby" || name.starts_with("ruby ") {
+        return Some("ruby");
+    }
+    if name.contains("dart sdk") {
+        return Some("dart");
+    }
+    if name.contains("strawberry perl") || name == "perl" || name.starts_with("perl ") {
+        return Some("perl");
+    }
+    if name.starts_with("r for windows") || name == "r" {
+        return Some("r");
+    }
+    if name == "bun" || name.starts_with("bun ") {
+        return Some("bun");
+    }
+    if name == "deno" || name.starts_with("deno ") {
+        return Some("deno");
+    }
+    if name == "swift" || name.starts_with("swift ") {
+        return Some("swift");
+    }
+    if name.contains("llvm") {
+        return Some("llvm");
+    }
+    if name.contains("docker desktop") {
+        return Some("docker");
+    }
+    if name == "ninja" || name.starts_with("ninja ") {
+        return Some("ninja");
+    }
+    if name.contains("powershell 7") {
+        return Some("powershell");
+    }
+    if name.contains("windows subsystem for linux") {
+        return Some("wsl");
+    }
+    if name.contains("github cli") {
+        return Some("github-cli");
+    }
+    if name.contains("windows terminal") {
+        return Some("windows-terminal");
+    }
+    if name == "nasm" || name.starts_with("nasm ") {
+        return Some("nasm");
+    }
+    if name.starts_with("postgresql") {
+        return Some("postgresql");
+    }
+    if name.starts_with("mysql") {
+        return Some("mysql");
+    }
+    if name.starts_with("sqlite") {
+        return Some("sqlite");
+    }
+    if name.starts_with("chocolatey") {
+        return Some("chocolatey");
+    }
+    if name.contains("asp.net core") {
+        return match major {
+            8 => Some("aspnetcore-8"),
+            9 => Some("aspnetcore-9"),
+            10 => Some("aspnetcore-10"),
+            _ => None,
+        };
+    }
+    if name.contains("dotnet sdk") || name.contains(".net sdk") {
+        return match major {
+            10 => Some("dotnet-sdk-10"),
+            _ => None,
+        };
+    }
+
     if name.contains("7-zip") && publisher_matches("igor pavlov") {
         Some("seven-zip")
     } else if name.contains("python")
@@ -490,6 +596,7 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
             (3, 11) => Some("python-3-11"),
             (3, 12) => Some("python-3-12"),
             (3, 13) => Some("python-3-13"),
+            (3, 14) => Some("python-3-14"),
             _ => None,
         }
     } else if name.contains("node.js") && publisher_matches("openjs") {
@@ -514,6 +621,7 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
             6 => Some("dotnet-desktop-6"),
             8 => Some("dotnet-desktop-8"),
             9 => Some("dotnet-desktop-9"),
+            10 => Some("dotnet-desktop-10"),
             _ => None,
         }
     } else if name.contains("go programming language") || name == "go" {
@@ -525,6 +633,7 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
             (8, 2) => Some("php-8-2"),
             (8, 3) => Some("php-8-3"),
             (8, 4) => Some("php-8-4"),
+            (8, 5) => Some("php-8-5"),
             _ => None,
         }
     } else if name == "git"
@@ -538,7 +647,9 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
         && name.contains("redistributable")
         && publisher_matches("microsoft")
     {
-        if name.contains("x86") {
+        if name.contains("arm64") {
+            Some("vcredist-arm64")
+        } else if name.contains("x86") {
             Some("vcredist-x86")
         } else {
             Some("vcredist-x64")
@@ -868,6 +979,82 @@ mod tests {
                 "Microsoft Corporation"
             ),
             Some("vcredist-x64")
+        );
+        assert_eq!(
+            component_id_for(
+                "Microsoft .NET Desktop Runtime 10.0.14",
+                "10.0.14",
+                "Microsoft Corporation"
+            ),
+            Some("dotnet-desktop-10")
+        );
+        assert_eq!(
+            component_id_for(
+                "Microsoft ASP.NET Core 10.0.14 - Shared Framework",
+                "10.0.14",
+                "Microsoft Corporation"
+            ),
+            Some("aspnetcore-10")
+        );
+        assert_eq!(
+            component_id_for(
+                "Python 3.14.10 (64-bit)",
+                "3.14.10",
+                "Python Software Foundation"
+            ),
+            Some("python-3-14")
+        );
+        assert_eq!(
+            component_id_for("PHP 8.5.12", "8.5.12", "The PHP Group"),
+            Some("php-8-5")
+        );
+        assert_eq!(
+            component_id_for(
+                "Microsoft Edge WebView2 Runtime",
+                "156.0.4314.58",
+                "Microsoft Corporation"
+            ),
+            Some("webview2")
+        );
+        assert_eq!(
+            component_id_for("Vulkan SDK 1.4.363.0", "1.4.363.0", "Khronos Group"),
+            Some("vulkan-sdk")
+        );
+        assert_eq!(
+            component_id_for(
+                "Vulkan Run Time Libraries 1.4.363.0",
+                "1.4.363.0",
+                "Khronos Group"
+            ),
+            Some("vulkan-runtime")
+        );
+        assert_eq!(
+            component_id_for(
+                "Microsoft Visual C++ 2022 Redistributable (Arm64)",
+                "14.51.36247.0",
+                "Microsoft Corporation"
+            ),
+            Some("vcredist-arm64")
+        );
+        assert_eq!(
+            component_id_for(
+                "Microsoft Visual Studio Code (User)",
+                "1.143.1",
+                "Microsoft Corporation"
+            ),
+            Some("vs-code")
+        );
+        assert_eq!(
+            component_id_for(
+                "Visual Studio Build Tools 2022",
+                "17.14.44",
+                "Microsoft Corporation"
+            ),
+            Some("vs-buildtools-2022")
+        );
+        assert_eq!(
+            component_id_for("Docker Desktop", "4.98.0", "Docker Inc."),
+            Some("docker")
         );
         assert_eq!(component_id_for("Unrelated Tool", "1.0.0", "Acme"), None);
         assert_eq!(component_id_for("Git LFS", "3.6.0", "Git LFS"), None);

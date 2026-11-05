@@ -207,6 +207,7 @@
     "error": "Amal başa barmady"
   },
   "components": {
-    "cancelTooLate": "Gurnama programu eýýäm başlady. Häzirki gurnama tamamlanar."
+    "cancelTooLate": "Gurnama programu eýýäm başlady. Häzirki gurnama tamamlanar.",
+    "sdks": "SDKs"
   }
 }

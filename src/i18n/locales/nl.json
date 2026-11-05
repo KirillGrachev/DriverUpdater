@@ -207,6 +207,7 @@
     "error": "Bewerking mislukt"
   },
   "components": {
-    "cancelTooLate": "Het installatieprogramma is al gestart. De huidige installatie wordt voltooid."
+    "cancelTooLate": "Het installatieprogramma is al gestart. De huidige installatie wordt voltooid.",
+    "sdks": "SDKs"
   }
 }

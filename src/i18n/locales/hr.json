@@ -213,6 +213,7 @@
     "error": "Radnja nije uspjela"
   },
   "components": {
-    "cancelTooLate": "Instalacijski program je već pokrenut. Trenutna instalacija će se dovršiti."
+    "cancelTooLate": "Instalacijski program je već pokrenut. Trenutna instalacija će se dovršiti.",
+    "sdks": "SDKs"
   }
 }

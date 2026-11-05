@@ -207,6 +207,7 @@
     "error": "Vorgang fehlgeschlagen"
   },
   "components": {
-    "cancelTooLate": "Das Installationsprogramm läuft bereits. Die aktuelle Installation wird abgeschlossen."
+    "cancelTooLate": "Das Installationsprogramm läuft bereits. Die aktuelle Installation wird abgeschlossen.",
+    "sdks": "SDKs"
   }
 }

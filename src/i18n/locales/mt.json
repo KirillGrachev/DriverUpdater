@@ -216,6 +216,7 @@
     "error": "L-operazzjoni falliet"
   },
   "components": {
-    "cancelTooLate": "Il-programm tal-installazzjoni diġà beda. L-installazzjoni attwali se titlesta."
+    "cancelTooLate": "Il-programm tal-installazzjoni diġà beda. L-installazzjoni attwali se titlesta.",
+    "sdks": "SDKs"
   }
 }

@@ -213,6 +213,7 @@
     "error": "Operațiunea a eșuat"
   },
   "components": {
-    "cancelTooLate": "Programul de instalare a pornit deja. Instalarea curentă se va finaliza."
+    "cancelTooLate": "Programul de instalare a pornit deja. Instalarea curentă se va finaliza.",
+    "sdks": "SDKs"
   }
 }

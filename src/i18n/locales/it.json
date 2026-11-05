@@ -210,6 +210,7 @@
     "error": "Operazione non riuscita"
   },
   "components": {
-    "cancelTooLate": "Il programma di installazione è già avviato. L’installazione corrente verrà completata."
+    "cancelTooLate": "Il programma di installazione è già avviato. L’installazione corrente verrà completata.",
+    "sdks": "SDKs"
   }
 }

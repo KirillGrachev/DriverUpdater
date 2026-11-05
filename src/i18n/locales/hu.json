@@ -207,6 +207,7 @@
     "error": "A művelet nem sikerült"
   },
   "components": {
-    "cancelTooLate": "A telepítő már elindult. A jelenlegi telepítés befejeződik."
+    "cancelTooLate": "A telepítő már elindult. A jelenlegi telepítés befejeződik.",
+    "sdks": "SDKs"
   }
 }

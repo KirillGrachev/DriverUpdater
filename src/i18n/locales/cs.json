@@ -213,6 +213,7 @@
     "error": "Operace se nezdařila"
   },
   "components": {
-    "cancelTooLate": "Instalátor již běží. Aktuální instalace bude dokončena."
+    "cancelTooLate": "Instalátor již běží. Aktuální instalace bude dokončena.",
+    "sdks": "SDKs"
   }
 }

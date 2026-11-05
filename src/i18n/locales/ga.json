@@ -216,6 +216,7 @@
     "error": "Theip ar an oibríocht"
   },
   "components": {
-    "cancelTooLate": "Tá an suiteálaí tosaithe cheana. Críochnófar an tsuiteáil reatha."
+    "cancelTooLate": "Tá an suiteálaí tosaithe cheana. Críochnófar an tsuiteáil reatha.",
+    "sdks": "SDKs"
   }
 }

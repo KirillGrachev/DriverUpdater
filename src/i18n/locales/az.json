@@ -207,6 +207,7 @@
     "error": "Əməliyyat uğursuz oldu"
   },
   "components": {
-    "cancelTooLate": "Quraşdırıcı artıq işə düşüb. Cari quraşdırma tamamlanacaq."
+    "cancelTooLate": "Quraşdırıcı artıq işə düşüb. Cari quraşdırma tamamlanacaq.",
+    "sdks": "SDKs"
   }
 }

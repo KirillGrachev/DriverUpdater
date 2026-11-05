@@ -213,6 +213,7 @@
     "error": "Operacija nepavyko"
   },
   "components": {
-    "cancelTooLate": "Diegimo programa jau paleista. Dabartinis diegimas bus baigtas."
+    "cancelTooLate": "Diegimo programa jau paleista. Dabartinis diegimas bus baigtas.",
+    "sdks": "SDKs"
   }
 }

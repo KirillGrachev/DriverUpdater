@@ -18,6 +18,7 @@ const RUNTIME_SUBGROUPS: { id: ComponentSubgroup; titleKey: string }[] = [
 const GROUPS: { id: ComponentGroup; titleKey: string }[] = [
     { id: 'runtime', titleKey: 'components.runtimes' },
     { id: 'language', titleKey: 'components.languages' },
+    { id: 'sdk', titleKey: 'components.sdks' },
     { id: 'tool', titleKey: 'components.tools' },
 ];
 
@@ -83,7 +84,7 @@ export function ComponentsPage() {
                     }
                 }
             };
-            await Promise.all(Array.from({ length: Math.min(4, items.length) }, () => worker()));
+            await Promise.all(Array.from({ length: Math.min(8, items.length) }, () => worker()));
             if (!cancelled) {
                 setVersions((prev) => ({ ...prev, ...loaded }));
             }

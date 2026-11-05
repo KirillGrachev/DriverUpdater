@@ -210,6 +210,7 @@
     "error": "Échec de l'opération"
   },
   "components": {
-    "cancelTooLate": "Le programme d’installation a déjà démarré. L’installation en cours va se terminer."
+    "cancelTooLate": "Le programme d’installation a déjà démarré. L’installation en cours va se terminer.",
+    "sdks": "SDKs"
   }
 }

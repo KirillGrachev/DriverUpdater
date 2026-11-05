@@ -213,6 +213,7 @@
     "error": "Darbība neizdevās"
   },
   "components": {
-    "cancelTooLate": "Instalētājs jau ir palaists. Pašreizējā instalācija tiks pabeigta."
+    "cancelTooLate": "Instalētājs jau ir palaists. Pašreizējā instalācija tiks pabeigta.",
+    "sdks": "SDKs"
   }
 }
