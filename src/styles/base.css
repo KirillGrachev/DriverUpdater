@@ -283,10 +283,15 @@ a {
     visibility: hidden;
 }
 
+.app-window.is-loading .titlebar,
+.app-window.is-loading .bottom-dock {
+    visibility: hidden;
+}
+
 .loading-screen {
     position: absolute;
     inset: 0;
-    z-index: 60;
+    z-index: 80;
     display: grid;
     place-items: center;
     background: var(--c-bg);

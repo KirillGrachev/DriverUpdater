@@ -61,8 +61,8 @@ function CurrentPage() {
 
 export function App() {
     const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
-    const scanningWithoutData = scanning && !data?.summary.lastCheck;
-    const loading = loadingCount > 0 || scanningWithoutData;
+    const pageScanning = scanning && (route === 'home' || route === 'drivers');
+    const loading = loadingCount > 0 || pageScanning;
 
     useEffect(() => {
         if (!('__TAURI_INTERNALS__' in window)) return undefined;
@@ -125,12 +125,11 @@ export function App() {
     }
 
     return (
-        <div className="app-window">
+        <div className={`app-window ${loading ? 'is-loading' : ''}`}>
             <RouteTransition />
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
-                    <LoadingScreen visible={loading} />
                     <div className={`app-content ${loading ? 'is-loading' : ''}`}>
                         {data?.scanError ? (
                             <div className="notice-bar notice-error scan-error" role="alert">
@@ -155,6 +154,7 @@ export function App() {
             <BottomDock />
             <ToastHost />
             <ModalHost />
+            <LoadingScreen visible={loading} />
         </div>
     );
 }
