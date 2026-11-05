@@ -56,8 +56,20 @@ export function TitleBar() {
     }, [api]);
 
     useEffect(() => {
-        void refreshMaximized();
-    }, [refreshMaximized]);
+        let cancelled = false;
+        if (!api) return undefined;
+        void api
+            .isMaximized()
+            .then((value) => {
+                if (!cancelled) setMaximized(value);
+            })
+            .catch(() => {
+                if (!cancelled) setMaximized(false);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [api]);
 
     useEffect(() => {
         const onChange = () => void refreshMaximized();

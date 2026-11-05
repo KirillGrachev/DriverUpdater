@@ -772,7 +772,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             void scan();
         }, interval);
         return () => window.clearInterval(timer);
-    }, [state.data?.settings, scan]);
+    }, [state.data?.settings, state.data?.summary.lastCheck, scan]);
 
     useEffect(() => {
         const settings = state.data?.settings;

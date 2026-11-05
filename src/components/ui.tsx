@@ -271,6 +271,7 @@ export function Select<T extends string>({
             <button
                 type="button"
                 className="select-trigger"
+                role="combobox"
                 aria-haspopup="listbox"
                 aria-expanded={open}
                 aria-controls={open ? listId : undefined}
@@ -297,6 +298,12 @@ export function Select<T extends string>({
                             }`}
                             onMouseEnter={() => setActiveIndex(index)}
                             onClick={() => choose(index)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter' || event.key === ' ') {
+                                    event.preventDefault();
+                                    choose(index);
+                                }
+                            }}
                         >
                             {option.icon ? <span className="select-icon">{option.icon}</span> : null}
                             <span>{option.label}</span>
