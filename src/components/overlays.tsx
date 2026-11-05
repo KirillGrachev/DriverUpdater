@@ -42,6 +42,7 @@ export function ModalHost() {
     const { modal, closeModal } = useApp();
     const modalRef = useRef<HTMLDivElement>(null);
     const [busy, setBusy] = useState(false);
+    const busyRef = useRef(false);
 
     useEffect(() => {
         if (!modal) return undefined;
@@ -51,7 +52,7 @@ export function ModalHost() {
         const onKeyDown = (event: KeyboardEvent) => {
             if (event.key === 'Escape') {
                 event.preventDefault();
-                closeModal();
+                if (!busyRef.current) closeModal();
                 return;
             }
             if (event.key !== 'Tab' || !modalRef.current) return;
@@ -76,17 +77,24 @@ export function ModalHost() {
 
     const confirm = async () => {
         if (!modal || busy) return;
+        busyRef.current = true;
         setBusy(true);
         try {
             await modal.onConfirm();
         } finally {
+            busyRef.current = false;
             setBusy(false);
         }
     };
 
     if (!modal) return null;
     return (
-        <div className="modal-backdrop" onClick={closeModal}>
+        <div
+            className="modal-backdrop"
+            onClick={() => {
+                if (!busyRef.current) closeModal();
+            }}
+        >
             <div
                 ref={modalRef}
                 className="modal"
@@ -98,7 +106,7 @@ export function ModalHost() {
                 <h3 className="modal-title">{modal.title}</h3>
                 <p className="modal-text">{modal.text}</p>
                 <div className="modal-actions">
-                    <Button variant="ghost" onClick={closeModal}>
+                    <Button variant="ghost" disabled={busy} onClick={closeModal}>
                         {modal.cancelLabel}
                     </Button>
                     <Button

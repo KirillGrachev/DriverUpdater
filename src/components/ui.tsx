@@ -287,22 +287,20 @@ export function Select<T extends string>({
             {open ? (
                 <ul className="select-menu" role="listbox" aria-label={ariaLabel} id={listId}>
                     {options.map((option, index) => (
-                        <li key={option.value}>
-                            <button
-                                type="button"
-                                role="option"
-                                id={`${listId}-option-${index}`}
-                                aria-selected={option.value === value}
-                                className={`select-option ${option.value === value ? 'active' : ''} ${
-                                    index === activeIndex ? 'keyboard-active' : ''
-                                }`}
-                                onMouseEnter={() => setActiveIndex(index)}
-                                onClick={() => choose(index)}
-                            >
-                                {option.icon ? <span className="select-icon">{option.icon}</span> : null}
-                                <span>{option.label}</span>
-                                {option.value === value ? <IconCheck size={14} className="select-check" /> : null}
-                            </button>
+                        <li
+                            key={option.value}
+                            role="option"
+                            id={`${listId}-option-${index}`}
+                            aria-selected={option.value === value}
+                            className={`select-option ${option.value === value ? 'active' : ''} ${
+                                index === activeIndex ? 'keyboard-active' : ''
+                            }`}
+                            onMouseEnter={() => setActiveIndex(index)}
+                            onClick={() => choose(index)}
+                        >
+                            {option.icon ? <span className="select-icon">{option.icon}</span> : null}
+                            <span>{option.label}</span>
+                            {option.value === value ? <IconCheck size={14} className="select-check" /> : null}
                         </li>
                     ))}
                 </ul>

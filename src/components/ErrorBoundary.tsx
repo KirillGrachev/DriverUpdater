@@ -2,6 +2,9 @@ import { Component, type ErrorInfo, type ReactNode } from 'react';
 
 interface Props {
     children: ReactNode;
+    title?: string;
+    message?: string;
+    reloadLabel?: string;
 }
 
 interface State {
@@ -42,10 +45,10 @@ export class ErrorBoundary extends Component<Props, State> {
         if (!this.state.error) return this.props.children;
         return (
             <section className="card boot-failure-card page-render-error" role="alert">
-                <h1>Something went wrong</h1>
-                <p>The page could not be loaded. Reload the app to continue.</p>
+                <h1>{this.props.title ?? 'Something went wrong'}</h1>
+                <p>{this.props.message ?? 'The page could not be loaded. Reload the app to continue.'}</p>
                 <button type="button" className="btn btn-primary btn-md" onClick={() => window.location.reload()}>
-                    Reload
+                    {this.props.reloadLabel ?? 'Reload'}
                 </button>
             </section>
         );

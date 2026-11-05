@@ -244,6 +244,8 @@
 
 .select-option {
     display: flex;
+    list-style: none;
+    cursor: pointer;
     align-items: center;
     gap: 9px;
     width: 100%;

@@ -91,7 +91,11 @@ export function App() {
                             </div>
                         </div>
                     ) : null}
-                    <ErrorBoundary>
+                    <ErrorBoundary
+                        title={t('boot.errorTitle')}
+                        message={t('boot.errorSub')}
+                        reloadLabel={t('boot.retry')}
+                    >
                         <Suspense
                             fallback={
                                 <div className="page-loading">
