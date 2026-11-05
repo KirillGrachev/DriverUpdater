@@ -41,15 +41,13 @@ jobs:
   audit:
     name: Rust dependency audit
     runs-on: ubuntu-24.04
-    permissions:
-      contents: read
-      checks: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: rustsec/audit-check@69366f33c96575abad1ee0dba8212993eecbe998 # v2.0.0
+      - uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          working-directory: src-tauri
+          tool: cargo-audit
+      - name: Cargo audit
+        run: cargo audit --file src-tauri/Cargo.lock
 
   core-linux:
     name: Tauri core (cargo check, Linux)
