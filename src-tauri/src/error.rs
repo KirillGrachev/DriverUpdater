@@ -33,3 +33,28 @@ impl CommandError {
         Self::new(code, message)
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn serializes_a_stable_error_code() {
+        let value =
+            serde_json::to_value(CommandError::new("restorePoint", "failed")).expect("json");
+        assert_eq!(value["code"], "restorePoint");
+        assert_eq!(value["message"], "failed");
+    }
+
+    #[test]
+    fn classifies_legacy_error_messages() {
+        assert_eq!(
+            CommandError::from_message("E_RESTORE_POINT: disabled".to_string()).code,
+            "restorePoint"
+        );
+        assert_eq!(
+            CommandError::from_message("E_PACKAGE_CANCELLED".to_string()).code,
+            "packageCancelled"
+        );
+    }
+}

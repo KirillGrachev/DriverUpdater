@@ -354,6 +354,75 @@ mod tests {
     }
 
     #[test]
+    fn ignores_update_without_matching_hardware_id() {
+        let mut drivers = vec![Driver {
+            id: "pnp-1".to_string(),
+            name: "Realtek Audio".to_string(),
+            vendor: "Realtek".to_string(),
+            category: "audio".to_string(),
+            icon: crate::models::DriverIcon {
+                kind: "audio".to_string(),
+                color: "#000".to_string(),
+            },
+            current: "1.0.0".to_string(),
+            available: None,
+            status: "current".to_string(),
+            size_mb: 0,
+            recommended: false,
+            device: "Realtek Audio".to_string(),
+            released: String::new(),
+            device_id: "HDAUDIO\\DEVICE".to_string(),
+            hardware_ids: vec!["HDAUDIO\\VEN_10EC&DEV_0897".to_string()],
+            inf_name: String::new(),
+            update_id: None,
+            reboot_required: false,
+        }];
+        let updates = vec![DriverUpdate {
+            update_id: "12345678-1234-1234-1234-123456789abc".to_string(),
+            title: "Wrong vendor driver (2.0.0)".to_string(),
+            hardware_ids: vec!["PCI\\VEN_10DE&DEV_2F04".to_string()],
+            driver_date: String::new(),
+            max_download_size: 0,
+        }];
+        assert_eq!(merge_updates(&mut drivers, &updates), 0);
+        assert_eq!(drivers[0].status, "current");
+    }
+
+    #[test]
+    fn ignores_update_without_a_numeric_version() {
+        let mut drivers = vec![Driver {
+            id: "pnp-1".to_string(),
+            name: "Voice Clarity".to_string(),
+            vendor: "Microsoft".to_string(),
+            category: "audio".to_string(),
+            icon: crate::models::DriverIcon {
+                kind: "audio".to_string(),
+                color: "#000".to_string(),
+            },
+            current: "1.0.0".to_string(),
+            available: None,
+            status: "current".to_string(),
+            size_mb: 0,
+            recommended: false,
+            device: "Voice Clarity".to_string(),
+            released: String::new(),
+            device_id: "SWD\\DEVICE".to_string(),
+            hardware_ids: vec!["SWC\\VEN_MSFT&AUDIO".to_string()],
+            inf_name: String::new(),
+            update_id: None,
+            reboot_required: false,
+        }];
+        let updates = vec![DriverUpdate {
+            update_id: "12345678-1234-1234-1234-123456789abc".to_string(),
+            title: "Voice Clarity (beta)".to_string(),
+            hardware_ids: vec!["SWC\\VEN_MSFT&AUDIO".to_string()],
+            driver_date: String::new(),
+            max_download_size: 0,
+        }];
+        assert_eq!(merge_updates(&mut drivers, &updates), 0);
+    }
+
+    #[test]
     fn ignores_older_windows_update_candidates() {
         assert!(is_newer_version("2.0.0", "1.0.0"));
         assert!(is_newer_version("1.0.4.55794", "1.0.4.7057"));
