@@ -1,34 +1,57 @@
 version: 2
 
 updates:
-  - package-ecosystem: npm
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    groups:
-      frontend:
-        patterns:
-          - '*'
+    - package-ecosystem: npm
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 5
+      commit-message:
+          prefix: deps(frontend)
+      groups:
+          frontend:
+              patterns:
+                  - '*'
 
-  - package-ecosystem: cargo
-    directory: /src-tauri
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
-    ignore:
-      - dependency-name: sysinfo
-        update-types: ["version-update:semver-major"]
-    groups:
-      rust:
-        patterns:
-          - '*'
+    - package-ecosystem: cargo
+      directory: /src-tauri
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 5
+      commit-message:
+          prefix: deps(rust)
+      ignore:
+          - dependency-name: sysinfo
+            update-types: ['version-update:semver-major']
+      groups:
+          rust:
+              patterns:
+                  - '*'
 
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-      day: monday
-    open-pull-requests-limit: 5
+    - package-ecosystem: cargo
+      directory: /installer/src-tauri
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 3
+      commit-message:
+          prefix: deps(setup)
+      groups:
+          setup-rust:
+              patterns:
+                  - '*'
+
+    - package-ecosystem: github-actions
+      directory: /
+      schedule:
+          interval: weekly
+          day: monday
+      open-pull-requests-limit: 5
+      commit-message:
+          prefix: deps(ci)
+      groups:
+          actions:
+              patterns:
+                  - '*'
