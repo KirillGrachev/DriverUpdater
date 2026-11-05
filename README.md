@@ -287,7 +287,7 @@ src-tauri/src/
   repository.rs              application service, locking and persistence
   detection.rs               detector traits and native Windows detection adapters
   windows_update.rs          Windows Update driver discovery and installation
-  restore.rs                 System Restore points through WMI
+  restore.rs                 System Restore points through srclient and WMI
   backup.rs                  driver package export and restore through pnputil
   storage.rs                 versioned encrypted state and driver cache
   security.rs                DPAPI sealing for files at rest
