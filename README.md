@@ -94,19 +94,19 @@ is collected.
       <p>SetupAPI enumerates present devices, resolves their registry properties, deduplicates by device instance id, caches the result to the app data directory, and rescans on demand. CIM remains a fallback. A machine with 170+ raw driver records is reduced to a stable, readable list.</p>
       <p>Installed software is detected from the uninstall registry on any drive, including <code>InstallLocation</code> and <code>DisplayIcon</code>, so portable tools outside <code>C:\</code> are not lost.</p>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <h3>Restore points and backups</h3>
       <p>Create a restore point manually or automatically before a driver install. Restore points and driver backups are listed with date, origin and known size when Windows exposes one, and can be restored or deleted from the same screen.</p>
       <p>Empty states, animated list resizing and confirmation dialogs make destructive actions explicit instead of silent.</p>
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <h3>Components without a scavenger hunt</h3>
       <p>A version-aware catalogue split into runtimes, languages, SDKs and tools: .NET Framework, .NET Desktop 6-10, ASP.NET Core 8-10, Visual C++ including ARM64, DirectX, WebView2, XNA, Vulkan, OpenAL, PhysX and CUDA; Python 3.10-3.14, Node.js 20/22, OpenJDK 17/21/25, Go, Rust, PHP 8.2-8.5, Ruby, Dart, Perl, R, Bun, Deno and Swift; .NET SDK 10, Windows SDK, Vulkan SDK and LLVM; Visual Studio 2022, Build Tools, VS Code, Docker, Ninja, PowerShell, WSL, GitHub CLI, Windows Terminal, NASM, PostgreSQL, MySQL, SQLite, Chocolatey, Git, CMake and 7-Zip.</p>
       <p>Each row exposes the versions available from winget. Installed versions are detected from the registry; chosen versions are installed through the Windows Package Manager.</p>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <h3>Desktop behaviour, not a website</h3>
       <p>Custom frameless titlebar, a floating bottom dock, no text selection, no permanent scrollbar, no context menu, no devtools shortcuts. Light, dark and system themes are applied before the first paint; the native window is shown on the first React commit with a themed boot splash while the blocking scan finishes.</p>
     </td>
@@ -141,24 +141,24 @@ failure instead of pretending the package was installed.
 
 <table align="center">
   <tr>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/drivers-light.png" alt="Driver list with search, category filter, update badges and per-driver actions" width="100%">
       <br>
       <sub>Drivers: search, category filter, list/categories views and expandable details.</sub>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/backups-light.png" alt="Restore points list with create, restore and delete actions" width="100%">
       <br>
       <sub>Backups: restore points, sizes and automatic creation settings.</sub>
     </td>
   </tr>
   <tr>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/settings-dark.png" alt="Settings screen in dark theme" width="100%">
       <br>
       <sub>Settings: theme, language, automatic checks, restore points and backup path.</sub>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/home-dark.png" alt="Home screen in dark theme" width="100%">
       <br>
       <sub>The same home screen in dark theme. Theme is persisted and restored on launch.</sub>
@@ -205,12 +205,12 @@ MSI, portable ZIP and symbol ZIP variants are published for each architecture.
 
 <table align="center">
   <tr>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/installer-nsis.png" alt="Branded NSIS setup wizard with Driver Updater sidebar" width="100%">
       <br>
       <sub>NSIS installer: branded sidebar, header and app icon.</sub>
     </td>
-    <td width="50%" align="center" valign="top">
+    <td width="50%" valign="top">
       <img src="docs/screenshots/installer-msi.png" alt="Branded MSI setup wizard with Driver Updater banner" width="100%">
       <br>
       <sub>MSI installer: branded WiX banner and welcome dialog.</sub>
