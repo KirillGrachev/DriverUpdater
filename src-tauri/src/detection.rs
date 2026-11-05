@@ -392,12 +392,7 @@ if ($item) {{ $item.DriverVersion }}"#
     );
     let value = run_powershell(&script, Duration::from_secs(30))?;
     let version = value.trim();
-    (!version.is_empty()
-        && version.chars().next().is_some_and(|c| c.is_ascii_digit())
-        && version
-            .chars()
-            .all(|c| c.is_ascii_alphanumeric() || ".-_+".contains(c)))
-    .then(|| version.to_string())
+    valid_driver_version(version).then(|| version.to_string())
 }
 
 #[cfg(target_os = "windows")]
@@ -439,16 +434,16 @@ fn version_from_device_key(hklm: &winreg::RegKey, device: &winreg::RegKey) -> Op
         .ok()?;
     let version: String = class_key.get_value("DriverVersion").ok()?;
     let version = version.trim();
-    if !version.is_empty()
+    valid_driver_version(version).then(|| version.to_string())
+}
+
+#[cfg(target_os = "windows")]
+fn valid_driver_version(version: &str) -> bool {
+    !version.is_empty()
         && version.chars().next().is_some_and(|c| c.is_ascii_digit())
         && version
             .chars()
             .all(|c| c.is_ascii_alphanumeric() || ".-_+".contains(c))
-    {
-        Some(version.to_string())
-    } else {
-        None
-    }
 }
 
 #[cfg(not(target_os = "windows"))]

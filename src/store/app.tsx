@@ -776,9 +776,12 @@ export function AppProvider({ children }: { children: ReactNode }) {
         if (!lastCheck || Date.now() - new Date(lastCheck).getTime() >= interval) {
             void scan();
         }
+        // Spread automatic checks by up to ten percent so machines that
+        // started together do not query Windows Update in lockstep.
+        const jitter = Math.round(interval * 0.1 * (Math.random() * 2 - 1));
         const timer = window.setInterval(() => {
             void scan();
-        }, interval);
+        }, interval + jitter);
         return () => window.clearInterval(timer);
     }, [state.data?.settings, state.data?.summary.lastCheck, scan]);
 
