@@ -14,8 +14,8 @@ use tauri::State;
 use crate::backup::default_backup_provider;
 use crate::detection::{detect_system_info, DriverDetector, NativeDetector};
 use crate::models::{
-    CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, LocalizedText,
-    RestorePoint, Settings, Summary, SystemInfo,
+    CheckUpdatesResult, Driver, InitialData, InstallFailure, InstallReport, RestorePoint, Settings,
+    Summary, SystemInfo,
 };
 use crate::repository::DriverRepository;
 use crate::restore::default_restore_provider;
@@ -113,12 +113,35 @@ async fn install_one(
     repository: Arc<Mutex<DriverRepository>>,
     id: String,
     create_backup: bool,
+    restore_point_name: Option<String>,
+    create_restore: bool,
 ) -> Result<Driver, String> {
     let plan = run_repository_handle(Arc::clone(&repository), {
         let id = id.clone();
         move |repository| repository.prepare_install(&id)
     })
     .await?;
+
+    if create_restore && plan.restore_before_install {
+        let name = restore_point_name
+            .filter(|name| !name.trim().is_empty() && name.chars().count() <= 200)
+            .ok_or_else(|| "E_RESTORE_POINT: a restore point name is required".to_string())?;
+        let point =
+            tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
+                .await
+                .map_err(|error| error.to_string())?
+                .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+        let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+        let _ = point;
+        run_repository_handle(Arc::clone(&repository), move |repository| {
+            repository.set_restore_points(points);
+            Ok(())
+        })
+        .await?;
+    }
 
     if create_backup && plan.keep_backups {
         let backup_dir = plan.backup_dir.clone();
@@ -141,20 +164,44 @@ async fn install_one(
 }
 
 #[tauri::command]
-pub async fn install_driver(state: State<'_, AppRepository>, id: String) -> Result<Driver, String> {
-    install_one(Arc::clone(&state.0), id, true).await
+pub async fn install_driver(
+    state: State<'_, AppRepository>,
+    id: String,
+    restore_point_name: String,
+) -> Result<Driver, String> {
+    install_one(
+        Arc::clone(&state.0),
+        id,
+        true,
+        Some(restore_point_name),
+        true,
+    )
+    .await
 }
 
 #[tauri::command]
 pub async fn install_updates(
     state: State<'_, AppRepository>,
     ids: Vec<String>,
+    restore_point_name: String,
 ) -> Result<InstallReport, String> {
     let repository = Arc::clone(&state.0);
-    let (keep_backups, backup_dir) = run_repository_handle(Arc::clone(&repository), |repository| {
-        Ok(repository.backup_policy())
-    })
-    .await?;
+    let (restore_before_install, keep_backups, backup_dir) =
+        run_repository_handle(Arc::clone(&repository), |repository| {
+            let (keep_backups, backup_dir) = repository.backup_policy();
+            Ok((repository.restore_policy(), keep_backups, backup_dir))
+        })
+        .await?;
+    if restore_before_install {
+        if restore_point_name.trim().is_empty() || restore_point_name.chars().count() > 200 {
+            return Err("E_RESTORE_POINT: a restore point name is required".to_string());
+        }
+        let name = restore_point_name;
+        tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
+            .await
+            .map_err(|error| error.to_string())?
+            .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+    }
     if keep_backups {
         tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
             .await
@@ -163,7 +210,7 @@ pub async fn install_updates(
     }
     let mut report = InstallReport::default();
     for id in ids {
-        match install_one(Arc::clone(&repository), id.clone(), false).await {
+        match install_one(Arc::clone(&repository), id.clone(), false, None, false).await {
             Ok(driver) => report.succeeded.push(driver),
             Err(message) => report.failed.push(InstallFailure { id, message }),
         }
@@ -189,8 +236,11 @@ pub async fn list_restore_points(
 #[tauri::command]
 pub async fn create_restore_point(
     state: State<'_, AppRepository>,
-    name: LocalizedText,
+    name: String,
 ) -> Result<RestorePoint, String> {
+    if name.trim().is_empty() || name.chars().count() > 200 {
+        return Err("invalid restore point name".to_string());
+    }
     let point =
         tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
             .await
@@ -422,7 +472,10 @@ pub async fn install_package(
     let cancel = Arc::new(AtomicBool::new(false));
     let job_key = package_id.clone();
     {
-        let mut jobs = state.0.lock().map_err(|error| error.to_string())?;
+        let mut jobs = state
+            .0
+            .lock()
+            .unwrap_or_else(|poisoned| poisoned.into_inner());
         if jobs.contains_key(&job_key) {
             return Err("package is already installing".to_string());
         }
@@ -433,9 +486,11 @@ pub async fn install_package(
     })
     .await
     .map_err(|error| error.to_string());
-    if let Ok(mut jobs) = state.0.lock() {
-        jobs.remove(&job_key);
-    }
+    state
+        .0
+        .lock()
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
+        .remove(&job_key);
     result?
 }
 
@@ -447,7 +502,7 @@ pub async fn cancel_package_install(
     let job = state
         .0
         .lock()
-        .map_err(|error| error.to_string())?
+        .unwrap_or_else(|poisoned| poisoned.into_inner())
         .get(&package_id)
         .cloned();
     if let Some(flag) = job {

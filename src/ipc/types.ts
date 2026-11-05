@@ -6,7 +6,7 @@
  * so the UI can be developed without the native shell.</p>
  */
 
-export type LocalizedText = { ru: string; en: string };
+export const PACKAGE_CANCELLED_ERROR = 'E_PACKAGE_CANCELLED';
 
 export type DriverCategory = 'video' | 'audio' | 'chipset' | 'network' | 'input';
 
@@ -52,7 +52,7 @@ export type RestorePointKind = 'auto' | 'schedule' | 'manual';
 
 export interface RestorePoint {
     id: string;
-    name: LocalizedText;
+    name: string;
     kind: RestorePointKind;
     createdAt: string;
     sizeMb: number;

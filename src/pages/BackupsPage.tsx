@@ -94,7 +94,7 @@ export function BackupsPage() {
         void createRestorePoint().finally(() => setCreating(false));
     };
 
-    const pointName = (point: (typeof data.restorePoints)[number]) => point.name[locale === 'ru' ? 'ru' : 'en'];
+    const pointName = (point: (typeof data.restorePoints)[number]) => point.name;
 
     const createBackup = async () => {
         setCreatingBackup(true);

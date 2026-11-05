@@ -86,8 +86,7 @@
       "chipset": "System devices",
       "network": "Network adapters",
       "input": "Input devices"
-    },
-    "description": "Installed device driver for {name}."
+    }
   },
   "components": {
     "title": "Components",
@@ -108,9 +107,7 @@
     "version": "Version",
     "loading": "Loading…",
     "managed": "Driver-managed",
-    "openglNote": "Provided by your GPU driver",
-    "cancelInstall": "Cancel install",
-    "cancelledToast": "Installation cancelled"
+    "openglNote": "Provided by your GPU driver"
   },
   "updates": {
     "title": "Updates",
@@ -183,9 +180,7 @@
       "weekly": "Weekly",
       "monthly": "Monthly"
     },
-    "newName": "Manual restore point",
-    "beforeInstallName": "Driver Updater: before updating {name}",
-    "batchName": "Driver Updater: before updating drivers"
+    "newName": "Manual restore point"
   },
   "settings": {
     "title": "Settings",

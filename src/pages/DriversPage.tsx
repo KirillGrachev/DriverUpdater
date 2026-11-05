@@ -105,7 +105,6 @@ function DriverRow({ driver }: { driver: Driver }) {
                             </span>
                         </div>
                     </div>
-                    <p className="detail-desc">{t('drivers.description', { name: driver.name })}</p>
                 </div>
             </Collapse>
         </li>

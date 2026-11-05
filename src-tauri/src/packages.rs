@@ -114,7 +114,14 @@ impl WingetPackageManager {
             "--accept-source-agreements",
             "--disable-interactivity",
         ]);
-        let output = run_command(command, Duration::from_secs(45 * 60), cancel)?;
+        let output =
+            run_command(command, Duration::from_secs(45 * 60), cancel).map_err(|error| {
+                if error == "process cancelled" {
+                    "E_PACKAGE_CANCELLED".to_string()
+                } else {
+                    error
+                }
+            })?;
         if winget_success(&output) {
             return Ok(());
         }
@@ -216,7 +223,11 @@ fn command_error(output: &process::ProcessOutput) -> String {
         output.stdout.trim()
     };
     let last_line = details.lines().last().unwrap_or("winget failed");
-    last_line.chars().take(300).collect()
+    let suffix = output
+        .code
+        .map(|code| format!(" (exit code {code})"))
+        .unwrap_or_default();
+    format!("{last_line}{suffix}").chars().take(300).collect()
 }
 
 #[cfg(not(target_os = "windows"))]
@@ -226,13 +237,12 @@ fn command_error(output: &process::ProcessOutput) -> String {
     } else {
         output.stdout.trim()
     };
-    details
-        .lines()
-        .last()
-        .unwrap_or("winget failed")
-        .chars()
-        .take(300)
-        .collect()
+    let last_line = details.lines().last().unwrap_or("winget failed");
+    let suffix = output
+        .code
+        .map(|code| format!(" (exit code {code})"))
+        .unwrap_or_default();
+    format!("{last_line}{suffix}").chars().take(300).collect()
 }
 
 #[cfg(target_os = "windows")]
@@ -245,7 +255,13 @@ fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<(), String> {
         "/All",
         "/NoRestart",
     ]);
-    let output = run_command(command, Duration::from_secs(20 * 60), cancel)?;
+    let output = run_command(command, Duration::from_secs(20 * 60), cancel).map_err(|error| {
+        if error == "process cancelled" {
+            "E_PACKAGE_CANCELLED".to_string()
+        } else {
+            error
+        }
+    })?;
     if output.success || output.code == Some(3010) {
         return Ok(());
     }

@@ -503,25 +503,29 @@ fn detect_os() -> String {
     std::env::consts::OS.to_string()
 }
 
-#[cfg(all(test, target_os = "windows"))]
+#[cfg(test)]
 mod tests {
     use super::*;
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn normalizes_dotnet_dates() {
         assert_eq!(normalize_driver_date("/Date(1735689600000)/"), "2025-01-01");
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn normalizes_slash_dates() {
         assert_eq!(normalize_driver_date("10/15/2024"), "2024-10-15");
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn normalizes_compact_dates() {
         assert_eq!(normalize_driver_date("20240704"), "2024-07-04");
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn rejects_invalid_dates() {
         assert_eq!(normalize_driver_date("not a date"), "");
@@ -537,6 +541,7 @@ mod tests {
         ));
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn maps_known_components() {
         assert_eq!(
@@ -557,6 +562,7 @@ mod tests {
         assert_eq!(component_id_for("Unrelated Tool", "1.0.0"), None);
     }
 
+    #[cfg(target_os = "windows")]
     #[test]
     fn extracts_trailing_versions() {
         assert_eq!(

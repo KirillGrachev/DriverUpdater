@@ -273,15 +273,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
             if (!backend || !base) return;
             setState((prev) => ({ ...prev, installingIds: [...prev.installingIds, id] }));
             try {
-                const driver = base.drivers.find((item) => item.id === id);
-                if (base.settings.restorePointBeforeInstall && driver) {
-                    const created = await createRestorePoint({
-                        silentSuccess: true,
-                        name: translate(locale, 'backups.beforeInstallName', { name: driver.name }),
-                    });
-                    if (!created) return;
-                }
-                const updated = await backend.installDriver(id);
+                const restorePointName = translate(locale, 'backups.newName');
+                const updated = await backend.installDriver(id, restorePointName);
                 const latest = dataRef.current ?? base;
                 const drivers = latest.drivers.map((d) => (d.id === id ? updated : d));
                 dataRef.current = { ...latest, drivers };
@@ -291,8 +284,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 if (updated.rebootRequired) {
                     pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
                 }
-            } catch {
-                pushToast(translate(locale, 'toasts.error'), 'error');
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                pushToast(
+                    message.startsWith('E_RESTORE_POINT')
+                        ? translate(locale, 'toasts.error')
+                        : translate(locale, 'toasts.error'),
+                    'error',
+                );
             } finally {
                 setState((prev) => ({
                     ...prev,
@@ -313,14 +312,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 installingIds: [...prev.installingIds, ...ids],
             }));
             try {
-                if (base.settings.restorePointBeforeInstall) {
-                    const created = await createRestorePoint({
-                        silentSuccess: true,
-                        name: translate(locale, 'backups.batchName'),
-                    });
-                    if (!created) return;
-                }
-                const report = await backend.installUpdates(ids);
+                const report = await backend.installUpdates(ids, translate(locale, 'backups.newName'));
                 const updatedList = report.succeeded;
                 const updatedById = new Map(updatedList.map((d) => [d.id, d]));
                 const latest = dataRef.current ?? base;
@@ -337,8 +329,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 if (updatedList.some((driver) => driver.rebootRequired)) {
                     pushToast(translate(locale, 'toasts.rebootRequired'), 'info');
                 }
-            } catch {
-                pushToast(translate(locale, 'toasts.error'), 'error');
+            } catch (error) {
+                const message = error instanceof Error ? error.message : String(error);
+                pushToast(
+                    message.startsWith('E_RESTORE_POINT')
+                        ? translate(locale, 'toasts.error')
+                        : translate(locale, 'toasts.error'),
+                    'error',
+                );
             } finally {
                 setState((prev) => ({
                     ...prev,
@@ -355,8 +353,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
             const base = dataRef.current;
             if (!backend || !base) return false;
             try {
-                const description = options?.name ?? translate(locale, 'backups.newName');
-                const name = { ru: description, en: description };
+                const name = options?.name ?? translate(locale, 'backups.newName');
                 const point = await backend.createRestorePoint(name);
                 const latest = dataRef.current ?? base;
                 const next = { ...latest, restorePoints: [point, ...latest.restorePoints] };

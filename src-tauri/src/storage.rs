@@ -9,7 +9,7 @@ use std::io::Write;
 use std::path::{Path, PathBuf};
 
 use serde::de::DeserializeOwned;
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::{Driver, RestorePoint, Settings};
 use crate::security;
@@ -103,6 +103,22 @@ pub struct DriverCache {
     store: EncryptedStore,
 }
 
+/// Bump when the driver filter or cache contract changes.
+const DRIVER_CACHE_VERSION: u32 = 2;
+
+#[derive(Serialize, Deserialize)]
+struct CachedDrivers {
+    cache_version: u32,
+    drivers: Vec<Driver>,
+}
+
+#[derive(Serialize, Deserialize)]
+#[serde(untagged)]
+enum CachePayload {
+    Versioned(CachedDrivers),
+    Legacy(Vec<Driver>),
+}
+
 impl DriverCache {
     /// Creates a cache next to the persisted application state.
     pub fn new(state_file: Option<&Path>) -> Self {
@@ -116,15 +132,24 @@ impl DriverCache {
 
     /// Loads a non-empty cached driver list.
     pub fn load(&self) -> Result<Option<Vec<Driver>>, String> {
-        let Some(drivers) = self.store.load::<Vec<Driver>>()? else {
+        let Some(payload) = self.store.load::<CachePayload>()? else {
             return Ok(None);
+        };
+        let drivers = match payload {
+            CachePayload::Versioned(cache) if cache.cache_version == DRIVER_CACHE_VERSION => {
+                cache.drivers
+            }
+            CachePayload::Versioned(_) | CachePayload::Legacy(_) => return Ok(None),
         };
         Ok((!drivers.is_empty()).then_some(drivers))
     }
 
     /// Replaces the cache with the latest scan.
     pub fn save(&self, drivers: &[Driver]) -> Result<(), String> {
-        self.store.save(&drivers)
+        self.store.save(&CachedDrivers {
+            cache_version: DRIVER_CACHE_VERSION,
+            drivers: drivers.to_vec(),
+        })
     }
 }
 

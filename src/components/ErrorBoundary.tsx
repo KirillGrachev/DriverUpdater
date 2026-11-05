@@ -21,11 +21,20 @@ export class ErrorBoundary extends Component<Props, State> {
         const isChunkFailure = /dynamically imported module|Importing a module script failed|Failed to fetch/i.test(
             error.message,
         );
-        if (isChunkFailure && !sessionStorage.getItem('driver-updater-chunk-reload')) {
-            // A stale lazy chunk usually means the app was updated while the
-            // webview was open. Reload once instead of showing a developer error.
-            sessionStorage.setItem('driver-updater-chunk-reload', '1');
-            window.location.reload();
+        if (isChunkFailure) {
+            let alreadyReloaded = false;
+            try {
+                alreadyReloaded = sessionStorage.getItem('driver-updater-chunk-reload') === '1';
+                sessionStorage.setItem('driver-updater-chunk-reload', '1');
+            } catch {
+                // Storage can be unavailable in a hardened webview; never turn
+                // the original render failure into a second exception.
+            }
+            if (!alreadyReloaded) {
+                // A stale lazy chunk usually means the app was updated while the
+                // webview was open. Reload once instead of showing a developer error.
+                window.location.reload();
+            }
         }
     }
 

@@ -2,7 +2,7 @@ import { useEffect, useState, Fragment } from 'react';
 import { IconCheck, IconDownload, IconPackage } from '../components/icons';
 import { Button, Select, Spinner } from '../components/ui';
 import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup, type ComponentSubgroup } from '../data/components';
-import type { InstalledComponent } from '../ipc/types';
+import { PACKAGE_CANCELLED_ERROR, type InstalledComponent } from '../ipc/types';
 import { useApp } from '../store/app';
 
 const remoteVersionCache = new Map<string, string[]>();
@@ -124,8 +124,8 @@ export function ComponentsPage() {
             pushToast(t('components.installedToast', { name: item.name }), 'success');
         } catch (error) {
             const message = typeof error === 'string' ? error : error instanceof Error ? error.message : '';
-            if (/cancelled|canceled/i.test(message)) {
-                pushToast(t('components.cancelledToast'), 'info');
+            if (message === PACKAGE_CANCELLED_ERROR) {
+                pushToast(t('toasts.error'), 'info');
                 return;
             }
             console.error('component install failed', error);
@@ -259,7 +259,7 @@ export function ComponentsPage() {
                                                                 void cancelPackageInstall(item.wingetId ?? '');
                                                             }}
                                                         >
-                                                            {t('components.cancelInstall')}
+                                                            {t('backups.confirmCancel')}
                                                         </Button>
                                                     ) : (
                                                         <Button

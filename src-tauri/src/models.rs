@@ -5,13 +5,6 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
-pub struct LocalizedText {
-    pub ru: String,
-    pub en: String,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(rename_all = "camelCase")]
 pub struct DriverIcon {
     pub kind: String,
     pub color: String,
@@ -44,11 +37,29 @@ pub struct Driver {
     pub reboot_required: bool,
 }
 
+fn deserialize_restore_name<'de, D>(deserializer: D) -> Result<String, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    #[derive(Deserialize)]
+    #[serde(untagged)]
+    enum StoredName {
+        Text(String),
+        Legacy { ru: String, en: String },
+    }
+    Ok(match StoredName::deserialize(deserializer)? {
+        StoredName::Text(name) => name,
+        StoredName::Legacy { ru: _, en } if !en.trim().is_empty() => en,
+        StoredName::Legacy { ru, .. } => ru,
+    })
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RestorePoint {
     pub id: String,
-    pub name: LocalizedText,
+    #[serde(deserialize_with = "deserialize_restore_name")]
+    pub name: String,
     pub kind: String,
     pub created_at: String,
     pub size_mb: u32,

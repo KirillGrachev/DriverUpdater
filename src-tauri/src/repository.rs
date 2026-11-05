@@ -17,6 +17,7 @@ use crate::windows_update::{merge_updates, DriverUpdate};
 
 pub struct InstallPlan {
     pub update_id: String,
+    pub restore_before_install: bool,
     pub keep_backups: bool,
     pub backup_dir: PathBuf,
 }
@@ -141,7 +142,7 @@ impl DriverRepository {
                     repo.settings.backup_path = repo.backup_dir.to_string_lossy().into_owned();
                     repo.last_check = state.last_check;
                     repo.installed_components = state.installed_components;
-                    if state.version < 4 {
+                    if state.version == 2 {
                         // v2 could still contain fixture restore points loaded
                         // before the real provider was introduced. Keep user
                         // settings but discard the demo data once.
@@ -293,6 +294,10 @@ impl DriverRepository {
         (self.settings.keep_backups, self.backup_dir.clone())
     }
 
+    pub fn restore_policy(&self) -> bool {
+        self.settings.restore_point_before_install
+    }
+
     pub fn prepare_install(&self, id: &str) -> Result<InstallPlan, String> {
         let driver = self
             .drivers
@@ -304,6 +309,7 @@ impl DriverRepository {
         })?;
         Ok(InstallPlan {
             update_id,
+            restore_before_install: self.settings.restore_point_before_install,
             keep_backups: self.settings.keep_backups,
             backup_dir: self.backup_dir.clone(),
         })

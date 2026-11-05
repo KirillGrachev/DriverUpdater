@@ -10,14 +10,14 @@ use std::time::Duration;
 #[cfg(target_os = "windows")]
 use serde::Deserialize;
 
-use crate::models::{LocalizedText, RestorePoint};
+use crate::models::RestorePoint;
 #[cfg(target_os = "windows")]
 use crate::process;
 
 /// System Restore operations exposed to the repository.
 pub trait RestorePointProvider: Send + Sync {
     fn list(&self) -> Result<Vec<RestorePoint>, String>;
-    fn create(&self, name: &LocalizedText) -> Result<RestorePoint, String>;
+    fn create(&self, name: &str) -> Result<RestorePoint, String>;
     fn restore(&self, id: &str) -> Result<(), String>;
     fn delete(&self, id: &str) -> Result<(), String>;
 }
@@ -57,10 +57,7 @@ ConvertTo-Json -InputObject $payload -Compress -Depth 4
             .into_iter()
             .map(|point| RestorePoint {
                 id: format!("rp-{}", point.sequence_number),
-                name: LocalizedText {
-                    ru: point.description.clone(),
-                    en: point.description,
-                },
+                name: point.description,
                 kind: kind_for(point.restore_point_type).to_string(),
                 created_at: point.created_at,
                 size_mb: 0,
@@ -68,12 +65,8 @@ ConvertTo-Json -InputObject $payload -Compress -Depth 4
             .collect())
     }
 
-    fn create(&self, name: &LocalizedText) -> Result<RestorePoint, String> {
-        let description = if name.en.trim().is_empty() {
-            name.ru.trim()
-        } else {
-            name.en.trim()
-        };
+    fn create(&self, name: &str) -> Result<RestorePoint, String> {
+        let description = name.trim();
         let description = escape_ps(description);
         let script = format!(
             r#"
@@ -99,10 +92,7 @@ if (-not $point) {{ throw 'restore point was not created' }}
             serde_json::from_str(&output.stdout).map_err(|error| error.to_string())?;
         Ok(RestorePoint {
             id: format!("rp-{}", point.sequence_number),
-            name: LocalizedText {
-                ru: point.description.clone(),
-                en: point.description,
-            },
+            name: point.description,
             kind: kind_for(point.restore_point_type).to_string(),
             created_at: point.created_at,
             size_mb: 0,
@@ -160,7 +150,7 @@ impl RestorePointProvider for UnsupportedRestorePoints {
         Err("System Restore is available only on Windows".to_string())
     }
 
-    fn create(&self, _name: &LocalizedText) -> Result<RestorePoint, String> {
+    fn create(&self, _name: &str) -> Result<RestorePoint, String> {
         Err("System Restore is available only on Windows".to_string())
     }
 

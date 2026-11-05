@@ -24,10 +24,10 @@ import type {
 export interface Backend {
     getInitialData(): Promise<InitialData>;
     checkUpdates(): Promise<CheckUpdatesResult>;
-    installDriver(id: string): Promise<Driver>;
-    installUpdates(ids: string[]): Promise<InstallReport>;
+    installDriver(id: string, restorePointName: string): Promise<Driver>;
+    installUpdates(ids: string[], restorePointName: string): Promise<InstallReport>;
     listRestorePoints(): Promise<RestorePoint[]>;
-    createRestorePoint(name: { ru: string; en: string }): Promise<RestorePoint>;
+    createRestorePoint(name: string): Promise<RestorePoint>;
     deleteRestorePoint(id: string): Promise<void>;
     restoreFromPoint(id: string): Promise<void>;
     saveSettings(settings: Settings): Promise<Settings>;

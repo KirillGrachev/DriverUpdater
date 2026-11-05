@@ -14,8 +14,7 @@ jobs:
     name: Windows ${{ matrix.arch }}
     runs-on: ${{ matrix.runner }}
     env:
-      WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
-      WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
+      HAS_SIGNING_CERT: ${{ secrets.WINDOWS_CERTIFICATE != '' }}
     strategy:
       fail-fast: false
       matrix:
@@ -59,18 +58,23 @@ jobs:
       - name: Install dependencies
         run: npm ci
       - name: Configure Authenticode signing
-        if: env.WINDOWS_CERTIFICATE != ''
+        if: env.HAS_SIGNING_CERT == 'true'
         shell: pwsh
+        env:
+          WINDOWS_CERTIFICATE: ${{ secrets.WINDOWS_CERTIFICATE }}
+          WINDOWS_CERTIFICATE_PASSWORD: ${{ secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         run: |
           $pfx = Join-Path $env:RUNNER_TEMP "driver-updater.pfx"
-          [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
-          $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
-          Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password | Out-Null
-          $certificate = Get-ChildItem Cert:\CurrentUser\My |
-            Where-Object { $_.HasPrivateKey } |
-            Sort-Object NotAfter -Descending |
-            Select-Object -First 1
-          if (-not $certificate) { throw "No signing certificate with a private key was imported" }
+          try {
+            [IO.File]::WriteAllBytes($pfx, [Convert]::FromBase64String($env:WINDOWS_CERTIFICATE))
+            $password = ConvertTo-SecureString $env:WINDOWS_CERTIFICATE_PASSWORD -AsPlainText -Force
+            $certificate = Import-PfxCertificate -FilePath $pfx -CertStoreLocation Cert:\CurrentUser\My -Password $password
+          } finally {
+            Remove-Item -LiteralPath $pfx -Force -ErrorAction SilentlyContinue
+          }
+          if (-not $certificate -or -not $certificate.HasPrivateKey) {
+            throw "The imported certificate does not contain a private key"
+          }
           @{
             bundle = @{
               windows = @{
