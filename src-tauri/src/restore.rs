@@ -99,6 +99,16 @@ fn srclient() -> Result<&'static SrClient, String> {
         .map_err(Clone::clone)
 }
 
+#[cfg(all(test, target_os = "windows"))]
+#[test]
+#[ignore = "requires the Windows client System Restore component"]
+fn resolves_srclient_entry_points() {
+    assert!(
+        srclient().is_ok(),
+        "srclient.dll must expose both restore entry points"
+    );
+}
+
 #[cfg(target_os = "windows")]
 fn now_iso() -> String {
     let seconds = std::time::SystemTime::now()
