@@ -1,96 +1,96 @@
 name: CI
 
 on:
-  push:
-    branches: [main]
-  pull_request:
+    push:
+        branches: [main]
+    pull_request:
 
 concurrency:
-  group: ci-${{ github.ref }}
-  cancel-in-progress: true
+    group: ci-${{ github.ref }}
+    cancel-in-progress: true
 
 jobs:
-  frontend:
-    name: Frontend (typecheck, tests, build)
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
-        with:
-          node-version: 22
-          cache: npm
-      - name: Install dependencies
-        run: npm ci
-      - name: Format check
-        run: npm run format:check
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Lint
-        run: npm run lint
-      - name: Unit tests
-        run: npm test
-      - name: Locale coverage
-        run: npm run check:locales
-      - name: Version consistency
-        run: node scripts/check-version.mjs
-      - name: Production dependency audit
-        run: npm audit --omit=dev --audit-level=high
-      - name: Build
-        run: npm run build
+    frontend:
+        name: Frontend (typecheck, tests, build)
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+            - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7
+              with:
+                  node-version: 22
+                  cache: npm
+            - name: Install dependencies
+              run: npm ci
+            - name: Format check
+              run: npm run format:check
+            - name: Typecheck
+              run: npm run typecheck
+            - name: Lint
+              run: npm run lint
+            - name: Unit tests
+              run: npm test
+            - name: Locale coverage
+              run: npm run check:locales
+            - name: Version consistency
+              run: node scripts/check-version.mjs
+            - name: Production dependency audit
+              run: npm audit --omit=dev --audit-level=high
+            - name: Build
+              run: npm run build
 
-  audit:
-    name: Rust dependency audit
-    runs-on: ubuntu-24.04
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2
-        with:
-          tool: cargo-audit
-      - name: Cargo audit
-        run: cargo audit --file src-tauri/Cargo.lock
+    audit:
+        name: Rust dependency audit
+        runs-on: ubuntu-24.04
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+            - uses: taiki-e/install-action@c509219cf42fba86913069efd0ade2458c59337b # v2
+              with:
+                  tool: cargo-audit
+            - name: Cargo audit
+              run: cargo audit --file src-tauri/Cargo.lock
 
-  core-linux:
-    name: Tauri core (cargo check, Linux)
-    runs-on: ubuntu-24.04
-    env:
-      DEBIAN_FRONTEND: noninteractive
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - name: Install Tauri system dependencies
-        run: |
-          sudo apt-get update -o Acquire::Retries=3
-          sudo apt-get install -y --no-install-recommends \
-            -o Dpkg::Options::=--force-confdef \
-            -o Dpkg::Options::=--force-confold \
-            libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev \
-            libayatana-appindicator3-dev librsvg2-dev libssl-dev pkg-config
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-      - uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
-        with:
-          workspaces: src-tauri
-      - name: Cargo check
-        run: cargo check --manifest-path src-tauri/Cargo.toml
-      - name: Cargo clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-      - name: Cargo format
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-      - name: Cargo tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+    core-linux:
+        name: Tauri core (cargo check, Linux)
+        runs-on: ubuntu-24.04
+        env:
+            DEBIAN_FRONTEND: noninteractive
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+            - name: Install Tauri system dependencies
+              run: |
+                  sudo apt-get update -o Acquire::Retries=3
+                  sudo apt-get install -y --no-install-recommends \
+                    -o Dpkg::Options::=--force-confdef \
+                    -o Dpkg::Options::=--force-confold \
+                    libwebkit2gtk-4.1-dev libgtk-3-dev libxdo-dev \
+                    libayatana-appindicator3-dev librsvg2-dev libssl-dev pkg-config
+            - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+            - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+              with:
+                  workspaces: src-tauri
+            - name: Cargo check
+              run: cargo check --manifest-path src-tauri/Cargo.toml
+            - name: Cargo clippy
+              run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+            - name: Cargo format
+              run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+            - name: Cargo tests
+              run: cargo test --manifest-path src-tauri/Cargo.toml
 
-  core-windows:
-    name: Tauri core (cargo check, Windows/MSVC)
-    runs-on: windows-latest
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-      - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
-      - uses: Swatinem/rust-cache@e9d7b9f1e587218970671bac74e5511ed9506e6a # v2
-        with:
-          workspaces: src-tauri
-      - name: Cargo check
-        run: cargo check --manifest-path src-tauri/Cargo.toml
-      - name: Cargo clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
-      - name: Cargo format
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-      - name: Cargo tests
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+    core-windows:
+        name: Tauri core (cargo check, Windows/MSVC)
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+            - uses: dtolnay/rust-toolchain@b725eda525362e7cf34af9a7243cac1e3f01a7ec # stable
+            - uses: Swatinem/rust-cache@d1527c8f67ef9af357290475d4af4b0fab8f12e0 # v2
+              with:
+                  workspaces: src-tauri
+            - name: Cargo check
+              run: cargo check --manifest-path src-tauri/Cargo.toml
+            - name: Cargo clippy
+              run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+            - name: Cargo format
+              run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+            - name: Cargo tests
+              run: cargo test --manifest-path src-tauri/Cargo.toml
