@@ -49,6 +49,7 @@ export function ComponentsPage() {
     const [selected, setSelected] = useState<Record<string, string>>(defaultSelection);
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
+    const [activeGroup, setActiveGroup] = useState<ComponentGroup>('runtime');
 
     useEffect(() => {
         let cancelled = false;
@@ -203,7 +204,26 @@ export function ComponentsPage() {
                 </div>
             </section>
 
-            {GROUPS.map((group) => {
+            <div className="component-tabs" role="tablist" aria-label={t('components.title')}>
+                {GROUPS.map((group) => {
+                    const count = COMPONENT_CATALOG.filter((item) => item.group === group.id).length;
+                    return (
+                        <button
+                            key={group.id}
+                            type="button"
+                            role="tab"
+                            aria-selected={activeGroup === group.id}
+                            className={`component-tab${activeGroup === group.id ? ' is-active' : ''}`}
+                            onClick={() => setActiveGroup(group.id)}
+                        >
+                            {t(group.titleKey)}
+                            <span>{count}</span>
+                        </button>
+                    );
+                })}
+            </div>
+
+            {GROUPS.filter((group) => group.id === activeGroup).map((group) => {
                 const items = COMPONENT_CATALOG.filter((item) => item.group === group.id);
                 return (
                     <section className="card components-card" key={group.id}>
