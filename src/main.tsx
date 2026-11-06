@@ -94,12 +94,3 @@ createRoot(document.getElementById('root')!).render(
         </AppProvider>
     </StrictMode>,
 );
-
-requestAnimationFrame(() => {
-    requestAnimationFrame(() => {
-        const boot = document.getElementById('boot-static');
-        if (!boot) return;
-        boot.classList.add('is-leaving');
-        window.setTimeout(() => boot.remove(), 240);
-    });
-});
