@@ -112,7 +112,7 @@ for (const commit of commits) {
 const lines = [
     '## Install',
     '',
-    `Normal users: use \`DriverUpdaterSetup-${to}-<arch>.zip\`. It contains the unified wizard and the MSI/NSIS payloads; raw payload installers are not published as separate assets.`,
+    `Normal users: use \`DriverUpdaterSetup-<arch>.exe\`. The \`DriverUpdaterSetup-${to}-<arch>.zip\` archive is the fallback and contains the MSI/NSIS payloads.`,
     '',
     '## What changed',
     '',

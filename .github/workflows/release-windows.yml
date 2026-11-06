@@ -206,7 +206,7 @@ jobs:
               run: |
                   # Raw MSI/NSIS payloads are already inside the setup ZIP. Do
                   # not publish their native UIs as separate user-facing assets.
-                  find artifacts -type f \( -name '*.msi' -o -name '*-setup.exe' \) -delete
+                  find artifacts -type f \( -name '*.msi' -o -name '*-setup.exe' -o -name 'payload.exe' -o -name 'DriverUpdaterSetup.exe' \) -delete
                   find artifacts -type f -name 'SHA256SUMS*' -delete
             - name: Regenerate checksums
               shell: bash
