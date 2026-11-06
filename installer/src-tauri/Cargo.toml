@@ -1,6 +1,6 @@
 [package]
 name = "driver-updater-setup"
-version = "1.1.1"
+version = "1.1.2"
 description = "Driver Updater unified setup wizard"
 edition = "2021"
 rust-version = "1.77"
