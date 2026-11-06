@@ -11,12 +11,14 @@
 use std::mem::ManuallyDrop;
 
 #[cfg(target_os = "windows")]
-use windows::core::{BSTR, GUID};
+use windows::core::{s, w, BSTR, GUID};
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Com::{
     CoCreateInstance, CoInitializeEx, CoTaskMemFree, CoUninitialize, IDispatch,
     CLSCTX_INPROC_SERVER, COINIT_MULTITHREADED,
 };
+#[cfg(target_os = "windows")]
+use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Variant::{
     VariantChangeType, VariantToStringAlloc, VARIANT, VARIANT_NOVALUEPROP, VT_BSTR, VT_DATE, VT_I4,
@@ -53,13 +55,48 @@ struct StateManagerStatus {
 }
 
 #[cfg(target_os = "windows")]
-#[link(name = "srclient")]
-extern "system" {
-    fn SRSetRestorePointW(
-        restore_point: *const RestorePointInfo,
-        status: *mut StateManagerStatus,
-    ) -> i32;
-    fn SRRemoveRestorePoint(sequence_number: u32) -> u32;
+type SrSetRestorePoint = unsafe extern "system" fn(
+    restore_point: *const RestorePointInfo,
+    status: *mut StateManagerStatus,
+) -> i32;
+#[cfg(target_os = "windows")]
+type SrRemoveRestorePointFn = unsafe extern "system" fn(sequence_number: u32) -> u32;
+
+#[cfg(target_os = "windows")]
+struct SrClient {
+    set_restore_point: SrSetRestorePoint,
+    remove_restore_point: SrRemoveRestorePointFn,
+}
+
+#[cfg(target_os = "windows")]
+fn srclient() -> Result<&'static SrClient, String> {
+    use std::sync::OnceLock;
+
+    static CLIENT: OnceLock<Result<SrClient, String>> = OnceLock::new();
+    CLIENT
+        .get_or_init(|| {
+            // Resolve the restore APIs at runtime. The MSVC import library is
+            // not linkable with every dependency combination, while the DLL is
+            // present on every supported Windows release.
+            let module = unsafe { LoadLibraryW(w!("srclient.dll")) }
+                .map_err(|error| format!("srclient.dll could not be loaded: {error}"))?;
+            let set_restore_point = unsafe { GetProcAddress(module, s!("SRSetRestorePointW")) }
+                .ok_or_else(|| "SRSetRestorePointW is missing from srclient.dll".to_string())?;
+            let remove_restore_point = unsafe {
+                GetProcAddress(module, s!("SRRemoveRestorePoint"))
+            }
+            .ok_or_else(|| "SRRemoveRestorePoint is missing from srclient.dll".to_string())?;
+            let set_restore_point: SrSetRestorePoint =
+                unsafe { std::mem::transmute(set_restore_point) };
+            let remove_restore_point: SrRemoveRestorePointFn =
+                unsafe { std::mem::transmute(remove_restore_point) };
+            Ok(SrClient {
+                set_restore_point,
+                remove_restore_point,
+            })
+        })
+        .as_ref()
+        .map_err(Clone::clone)
 }
 
 #[cfg(target_os = "windows")]
@@ -156,7 +193,8 @@ impl RestorePointProvider for WindowsRestorePoints {
             status: 1,
             sequence_number: 0,
         };
-        let ok = unsafe { SRSetRestorePointW(&spec, &mut status) };
+        let client = srclient()?;
+        let ok = unsafe { (client.set_restore_point)(&spec, &mut status) };
         if ok == 0 || status.status != 0 {
             return Err(format!(
                 "System Restore failed with status {}",
@@ -221,7 +259,8 @@ impl RestorePointProvider for WindowsRestorePoints {
     fn delete(&self, id: &str) -> Result<(), String> {
         let sequence = u32::try_from(sequence_number(id)?)
             .map_err(|_| "invalid restore point id".to_string())?;
-        let result = unsafe { SRRemoveRestorePoint(sequence) };
+        let client = srclient()?;
+        let result = unsafe { (client.remove_restore_point)(sequence) };
         if result != 0 {
             return Err(format!("SRRemoveRestorePoint failed with {result}"));
         }
