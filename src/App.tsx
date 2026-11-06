@@ -122,7 +122,7 @@ export function App() {
                     <div className="card boot-failure-card">
                         <h1>{t('boot.errorTitle')}</h1>
                         <p>{t('boot.errorSub')}</p>
-                        {import.meta.env.DEV && bootError ? <pre className="boot-error-detail">{bootError}</pre> : null}
+                        {import.meta.env.DEV ? <pre className="boot-error-detail">{bootError}</pre> : null}
                         <Button variant="primary" onClick={() => window.location.reload()}>
                             {t('boot.retry')}
                         </Button>
