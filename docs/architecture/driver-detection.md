@@ -227,7 +227,9 @@ Requirements:
 - Add vendor catalogs only through the signed metadata contract above.
 
 This closes the research phase. A vendor database is now an optional extension,
-not a prerequisite for a working, honest driver updater.
+not a prerequisite for a working, honest driver updater. The accepted
+architecture and the remaining security migration are recorded in
+[decisions.md](decisions.md).
 
 ## Implementation status
 
