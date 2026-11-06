@@ -201,9 +201,10 @@ Download the installer for your architecture from
   <tr><td>Windows 10 x86</td><td><code>DriverUpdaterSetup-&lt;version&gt;-x86.zip</code></td></tr>
 </table>
 
-The ZIP contains the unified setup wizard and its MSI/NSIS payload. Direct MSI,
-NSIS, portable and symbol archives remain published for managed deployment and
-architecture-specific automation.
+The ZIP contains the unified setup wizard and its MSI/NSIS payload. Raw MSI and
+NSIS payloads are not published as separate assets because they show the native
+Windows Installer UI. Portable and symbol archives remain available for
+managed deployment and architecture-specific automation.
 
 <table align="center">
   <tr>
