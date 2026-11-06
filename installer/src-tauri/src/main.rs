@@ -143,39 +143,19 @@ fn payload_command(payload: &Path) -> PathBuf {
 }
 
 fn find_payload() -> Result<PathBuf, String> {
-    let mut directories = Vec::new();
-    let current_executable = std::env::current_exe().ok();
-    if let Some(current) = current_executable.as_ref() {
-        if let Some(parent) = current.parent() {
-            directories.push(parent.join("payload"));
-            directories.push(parent.join("resources").join("payload"));
-            directories.push(parent.join("..").join("payload"));
-            directories.push(parent.to_path_buf());
-        }
-    }
-    if let Ok(configured) = std::env::var("DRIVER_UPDATER_PAYLOAD") {
-        let candidate = PathBuf::from(configured);
-        if candidate.exists() {
+    let current = std::env::current_exe().map_err(|error| error.to_string())?;
+    let parent = current
+        .parent()
+        .ok_or_else(|| "The setup executable has no parent directory.".to_string())?;
+    let candidates = [
+        parent.join("payload").join("payload.exe"),
+        parent.join("payload").join("payload.msi"),
+        parent.join("resources").join("payload").join("payload.exe"),
+        parent.join("resources").join("payload").join("payload.msi"),
+    ];
+    for candidate in candidates {
+        if candidate.is_file() && candidate != current {
             return Ok(candidate);
-        }
-    }
-    for directory in directories {
-        let Ok(entries) = std::fs::read_dir(directory) else {
-            continue;
-        };
-        for entry in entries.flatten() {
-            let path = entry.path();
-            let name = path
-                .file_name()
-                .and_then(|value| value.to_str())
-                .unwrap_or_default()
-                .to_ascii_lowercase();
-            let is_payload = name.ends_with(".msi")
-                || (name.ends_with(".exe")
-                    && (name.contains("setup") || name.contains("installer")));
-            if is_payload {
-                return Ok(path);
-            }
         }
     }
     Err("Installer payload not found next to the setup executable.".to_string())

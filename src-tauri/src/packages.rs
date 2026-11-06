@@ -290,21 +290,6 @@ fn command_error(output: &process::ProcessOutput) -> String {
     format!("{last_line}{suffix}").chars().take(300).collect()
 }
 
-#[cfg(not(target_os = "windows"))]
-fn command_error(output: &process::ProcessOutput) -> String {
-    let details = if !output.stderr.trim().is_empty() {
-        output.stderr.trim()
-    } else {
-        output.stdout.trim()
-    };
-    let last_line = details.lines().last().unwrap_or("winget failed");
-    let suffix = output
-        .code
-        .map(|code| format!(" (exit code {code})"))
-        .unwrap_or_default();
-    format!("{last_line}{suffix}").chars().take(300).collect()
-}
-
 #[cfg(target_os = "windows")]
 fn install_netfx3(cancel: Option<&AtomicBool>) -> Result<PackageInstallResult, String> {
     let mut command = Command::new(process::system_executable("dism.exe"));

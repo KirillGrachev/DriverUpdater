@@ -50,7 +50,9 @@ jobs:
               with:
                   tool: cargo-audit
             - name: Cargo audit
-              run: cargo audit --file src-tauri/Cargo.lock
+              run: |
+                  cargo audit --file src-tauri/Cargo.lock
+                  cargo audit --file installer/src-tauri/Cargo.lock
 
     core-linux:
         name: Tauri core (cargo check, Linux)

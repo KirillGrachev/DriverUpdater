@@ -190,7 +190,7 @@ async fn install_one(
     if create_restore && plan.restore_before_install {
         emit_install_progress(&app, &id, current, total, "restore");
         let name = restore_point_name
-            .filter(|name| !name.trim().is_empty() && name.chars().count() <= 200)
+            .filter(|name| !name.trim().is_empty() && name.chars().count() <= 63)
             .ok_or_else(|| "E_RESTORE_POINT: a restore point name is required".to_string())?;
         let created =
             tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
@@ -297,7 +297,7 @@ pub async fn install_updates(
         .await?;
     if restore_before_install {
         emit_install_progress(&app, "", 0, 0, "restore");
-        if restore_point_name.trim().is_empty() || restore_point_name.chars().count() > 200 {
+        if restore_point_name.trim().is_empty() || restore_point_name.chars().count() > 63 {
             return Err("E_RESTORE_POINT: a restore point name is required"
                 .to_string()
                 .into());
@@ -370,7 +370,7 @@ pub async fn create_restore_point(
     name: String,
 ) -> Result<RestorePoint, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
-    if name.trim().is_empty() || name.chars().count() > 200 {
+    if name.trim().is_empty() || name.chars().count() > 63 {
         return Err("invalid restore point name".to_string().into());
     }
     let point =
