@@ -24,7 +24,6 @@
                 <section class="screen is-active" data-screen="welcome">
                     <div class="welcome-layout">
                         <div class="welcome-copy">
-                            <div class="brand-mark"><img src="assets/logo.png" alt="" /></div>
                             <h1>Welcome to<br />Driver Updater</h1>
                             <p>Keep your drivers up to date for better performance and stability.</p>
                             <button type="button" class="btn btn-primary btn-wide" data-next="language">
@@ -32,35 +31,8 @@
                             </button>
                             <button type="button" class="btn btn-secondary btn-wide" data-action="close">Exit</button>
                         </div>
-                        <div class="welcome-art" aria-hidden="true">
-                            <div class="art-orbit"></div>
-                            <svg viewBox="0 0 360 280" role="presentation">
-                                <rect
-                                    x="70"
-                                    y="55"
-                                    width="210"
-                                    height="136"
-                                    rx="13"
-                                    fill="#edf3ff"
-                                    stroke="#c9dcff"
-                                    stroke-width="4"
-                                />
-                                <rect x="86" y="71" width="178" height="104" rx="7" fill="#dce9ff" />
-                                <rect x="120" y="93" width="52" height="49" rx="6" fill="#4b88ef" />
-                                <rect x="181" y="93" width="52" height="23" rx="5" fill="#4b88ef" />
-                                <rect x="181" y="121" width="52" height="23" rx="5" fill="#4b88ef" />
-                                <path d="M40 197h274l18 33H22z" fill="#c8dbff" />
-                                <path d="M22 230h292" stroke="#9fc0fa" stroke-width="4" />
-                                <circle cx="270" cy="172" r="47" fill="#2f6fed" />
-                                <path
-                                    d="m250 173 14 14 28-31"
-                                    fill="none"
-                                    stroke="#fff"
-                                    stroke-width="9"
-                                    stroke-linecap="round"
-                                    stroke-linejoin="round"
-                                />
-                            </svg>
+                        <div class="welcome-logo" aria-hidden="true">
+                            <img src="assets/logo.png" alt="" />
                         </div>
                     </div>
                     <footer class="screen-footer"><div class="dots" data-dots="0"></div></footer>
@@ -207,6 +179,7 @@
                 </section>
             </main>
         </div>
+        <script src="languages.js"></script>
         <script src="app.js"></script>
     </body>
 </html>

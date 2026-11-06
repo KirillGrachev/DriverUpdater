@@ -1,3 +1,35 @@
+@font-face {
+    font-family: 'Montserrat';
+    src: url('assets/fonts/montserrat-400.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('assets/fonts/montserrat-500.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('assets/fonts/montserrat-600.ttf') format('truetype');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Montserrat';
+    src: url('assets/fonts/montserrat-700.ttf') format('truetype');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+
 :root {
     --blue: #2f6fed;
     --blue-strong: #1e5edc;
@@ -21,7 +53,7 @@ body {
     overflow: hidden;
     background: var(--background);
     color: var(--text);
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: 'Montserrat', 'Segoe UI', system-ui, sans-serif;
     font-size: 14px;
 }
 
@@ -223,21 +255,6 @@ p {
     gap: 18px;
 }
 
-.brand-mark {
-    display: grid;
-    place-items: center;
-    width: 82px;
-    height: 82px;
-    border-radius: 20px;
-    background: #eaf1ff;
-}
-
-.brand-mark img {
-    width: 58px;
-    height: 58px;
-    object-fit: contain;
-}
-
 .welcome-copy h1 {
     font-size: 34px;
 }
@@ -247,26 +264,16 @@ p {
     font-size: 14px;
 }
 
-.welcome-art {
-    position: relative;
+.welcome-logo {
     display: grid;
     place-items: center;
     min-height: 330px;
 }
 
-.art-orbit {
-    position: absolute;
-    width: 330px;
-    height: 330px;
-    border: 1px solid #e1eafb;
-    border-radius: 50%;
-    background: radial-gradient(circle, #eef4ff 0%, rgba(238, 244, 255, 0) 70%);
-}
-
-.welcome-art svg {
-    position: relative;
-    width: 100%;
-    max-width: 360px;
+.welcome-logo img {
+    width: 230px;
+    height: 230px;
+    object-fit: contain;
 }
 
 /* Language */
@@ -334,52 +341,13 @@ p {
 }
 
 .language-row .flag {
-    position: relative;
+    display: block;
     flex: 0 0 auto;
     width: 26px;
-    height: 18px;
-    overflow: hidden;
+    height: 19px;
+    object-fit: cover;
     border-radius: 3px;
     box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.12);
-}
-
-.flag-en {
-    background: #012169;
-}
-
-.flag-en::before,
-.flag-en::after {
-    position: absolute;
-    content: '';
-    inset: 0;
-}
-
-.flag-en::before {
-    background:
-        linear-gradient(45deg, transparent 44%, #fff 44% 56%, transparent 56%),
-        linear-gradient(-45deg, transparent 44%, #fff 44% 56%, transparent 56%),
-        linear-gradient(90deg, transparent 38%, #fff 38% 62%, transparent 62%),
-        linear-gradient(0deg, transparent 32%, #fff 32% 68%, transparent 68%);
-}
-
-.flag-en::after {
-    background:
-        linear-gradient(45deg, transparent 47%, #c8102e 47% 53%, transparent 53%),
-        linear-gradient(-45deg, transparent 47%, #c8102e 47% 53%, transparent 53%),
-        linear-gradient(90deg, transparent 44%, #c8102e 44% 56%, transparent 56%),
-        linear-gradient(0deg, transparent 40%, #c8102e 40% 60%, transparent 60%);
-}
-
-.flag-de {
-    background: linear-gradient(#000 0 33%, #dd0000 33% 66%, #ffce00 66% 100%);
-}
-
-.flag-ru {
-    background: linear-gradient(#fff 0 33%, #0039a6 33% 66%, #d52b1e 66% 100%);
-}
-
-.flag-fr {
-    background: linear-gradient(90deg, #0055a4 0 33%, #fff 33% 66%, #ef4135 66% 100%);
 }
 
 .language-row .language-name {
@@ -732,7 +700,7 @@ p {
         grid-template-columns: 1fr;
     }
 
-    .welcome-art {
+    .welcome-logo {
         display: none;
     }
 

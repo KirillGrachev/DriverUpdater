@@ -2,12 +2,7 @@ const tauri = window.__TAURI__;
 const invoke = tauri?.core?.invoke;
 const listen = tauri?.event?.listen;
 
-const languages = [
-    { code: 'en', label: 'English' },
-    { code: 'de', label: 'Deutsch' },
-    { code: 'ru', label: 'Русский' },
-    { code: 'fr', label: 'Français' },
-];
+const languages = Array.isArray(window.SETUP_LANGUAGES) ? window.SETUP_LANGUAGES : [];
 
 const state = {
     screen: 'welcome',
@@ -56,7 +51,15 @@ function renderLanguages() {
         row.type = 'button';
         row.className = `language-row${state.language === language.code ? ' is-selected' : ''}`;
         row.innerHTML = `
-            <span class="flag flag-${language.code}" aria-hidden="true"></span>
+            <img
+                class="flag"
+                src="assets/flags/${language.code}.svg"
+                width="26"
+                height="19"
+                alt=""
+                aria-hidden="true"
+                draggable="false"
+            />
             <span class="language-name">${language.label}</span>
             <span class="radio" aria-hidden="true"></span>
         `;
