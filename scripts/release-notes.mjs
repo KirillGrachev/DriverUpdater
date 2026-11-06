@@ -109,7 +109,14 @@ for (const commit of commits) {
     );
 }
 
-const lines = ['## What changed', ''];
+const lines = [
+    '## Install',
+    '',
+    `Normal users: use \`DriverUpdaterSetup-${to}-<arch>.zip\`. The raw MSI and NSIS files are enterprise payloads and show the native Windows Installer UI.`,
+    '',
+    '## What changed',
+    '',
+];
 for (const section of sections) {
     if (grouped[section.key].length === 0) continue;
     lines.push(`### ${section.title}`, '');
