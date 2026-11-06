@@ -112,7 +112,7 @@ for (const commit of commits) {
 const lines = [
     '## Install',
     '',
-    `Normal users: use \`DriverUpdaterSetup-${to}-<arch>.zip\`. The raw MSI and NSIS files are enterprise payloads and show the native Windows Installer UI.`,
+    `Normal users: use \`DriverUpdaterSetup-${to}-<arch>.zip\`. It contains the unified wizard and the MSI/NSIS payloads; raw payload installers are not published as separate assets.`,
     '',
     '## What changed',
     '',
