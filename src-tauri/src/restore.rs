@@ -109,7 +109,7 @@ fn resolves_srclient_entry_points() {
     );
 }
 
-#[cfg(target_os = "windows")]
+#[cfg(all(test, target_os = "windows"))]
 fn now_iso() -> String {
     let seconds = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -203,6 +203,12 @@ impl RestorePointProvider for WindowsRestorePoints {
             status: 1,
             sequence_number: 0,
         };
+        let before: std::collections::HashSet<String> = self
+            .list()
+            .unwrap_or_default()
+            .into_iter()
+            .map(|point| point.id)
+            .collect();
         let client = srclient()?;
         let ok = unsafe { (client.set_restore_point)(&spec, &mut status) };
         if ok == 0 || status.status != 0 {
@@ -211,13 +217,26 @@ impl RestorePointProvider for WindowsRestorePoints {
                 status.status
             ));
         }
-        Ok(RestorePoint {
-            id: format!("rp-{}", status.sequence_number),
-            name: description.to_string(),
-            kind: "manual".to_string(),
-            created_at: now_iso(),
-            size_mb: 0,
-        })
+        /*
+         * SRSetRestorePointW reports success before System Restore has
+         * committed the point. Poll the provider so the returned id is the
+         * sequence number that delete and restore can actually use.
+         */
+        let deadline = std::time::Instant::now() + std::time::Duration::from_secs(20);
+        loop {
+            if let Ok(points) = self.list() {
+                if let Some(point) = points
+                    .into_iter()
+                    .find(|point| point.name == description && !before.contains(&point.id))
+                {
+                    return Ok(point);
+                }
+            }
+            if std::time::Instant::now() >= deadline {
+                return Err("System Restore did not report the new restore point".to_string());
+            }
+            std::thread::sleep(std::time::Duration::from_millis(500));
+        }
     }
 
     fn restore(&self, id: &str) -> Result<(), String> {
@@ -485,6 +504,19 @@ mod tests {
         assert_eq!(sequence_number("rp-42").expect("id"), 42);
         assert!(sequence_number("42").is_err());
         assert!(sequence_number("rp-nope").is_err());
+    }
+
+    #[test]
+    #[ignore = "creates and removes a real restore point; run elevated"]
+    fn creates_and_removes_a_restore_point() {
+        let provider = WindowsRestorePoints;
+        let point = provider
+            .create("Driver Updater verification")
+            .expect("create restore point");
+        assert!(point.id.starts_with("rp-"), "unexpected id {}", point.id);
+        provider
+            .delete(&point.id)
+            .expect("delete verification restore point");
     }
 
     #[test]
