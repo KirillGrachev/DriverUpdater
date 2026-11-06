@@ -93,7 +93,8 @@ document.addEventListener('click', async (event) => {
     const target = event.target.closest('button');
     if (!target) return;
     if (target.dataset.action === 'close') {
-        window.close();
+        if (invoke) await invoke('close_setup');
+        else window.close();
         return;
     }
     if (target.dataset.action === 'minimize') {
@@ -137,10 +138,17 @@ document.getElementById('desktop-shortcut').addEventListener('change', (event) =
     state.desktopShortcut = event.target.checked;
 });
 
+document.getElementById('install-retry').addEventListener('click', () => {
+    installError.textContent = '';
+    document.getElementById('install-retry').hidden = true;
+    showScreen('location');
+});
+
 installButton.addEventListener('click', async () => {
     setBusy(true);
     installError.textContent = '';
     locationError.textContent = '';
+    document.getElementById('install-retry').hidden = true;
     setProgress(2, 'Preparing installation files...');
     showScreen('installing');
 
@@ -178,8 +186,9 @@ installButton.addEventListener('click', async () => {
         await new Promise((resolve) => setTimeout(resolve, 350));
         showScreen('complete');
     } catch (error) {
-        locationError.textContent = String(error);
-        showScreen('location');
+        installError.textContent = String(error);
+        document.getElementById('install-retry').hidden = false;
+        showScreen('installing');
     } finally {
         unlisten?.();
         setBusy(false);

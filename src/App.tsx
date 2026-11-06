@@ -59,10 +59,8 @@ function CurrentPage() {
 }
 
 export function App() {
-    const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
-    const pageScanning = scanning && (route === 'home' || route === 'drivers');
-    const loading = loadingCount > 0 || pageScanning;
-    const smoothLoading = useDelayedLoading(loading);
+    const { booting, bootError, loadingCount, route, t, data, pushToast } = useApp();
+    const smoothLoading = useDelayedLoading(loadingCount > 0);
     const smoothBoot = useDelayedLoading(booting, 0, 500);
 
     useEffect(() => {

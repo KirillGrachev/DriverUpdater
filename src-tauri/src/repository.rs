@@ -10,9 +10,7 @@
 use std::path::PathBuf;
 use std::time::{SystemTime, UNIX_EPOCH};
 
-use crate::detection::{
-    days_to_civil, is_ignored_device, ComponentDetector, NativeDetector, SystemInfoProvider,
-};
+use crate::detection::{days_to_civil, ComponentDetector, NativeDetector, SystemInfoProvider};
 use crate::models::{CheckUpdatesResult, Driver, InitialData, RestorePoint, Settings, Summary};
 use crate::storage::{DriverCache, EncryptedStore, PersistedState, SCHEMA_VERSION};
 use crate::windows_update::{merge_updates, DriverUpdate};
@@ -124,15 +122,6 @@ impl DriverRepository {
         let cache = DriverCache::new(store.path());
         let mut scan_error = None;
         let cached = match cache.load() {
-            Ok(Some(drivers))
-                if drivers.iter().any(|driver| {
-                    driver.device_id.is_empty()
-                        || is_ignored_device(&driver.device_id, &driver.hardware_ids)
-                }) =>
-            {
-                scan_error = Some("driver cache contains obsolete devices; rescanning".to_string());
-                None
-            }
             Ok(cached) => cached,
             Err(error) => {
                 scan_error = Some(format!("driver cache could not be read: {error}"));

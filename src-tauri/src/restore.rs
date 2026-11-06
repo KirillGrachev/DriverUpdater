@@ -21,8 +21,8 @@ use windows::Win32::System::Com::{
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryW};
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Variant::{
-    VariantChangeType, VariantToStringAlloc, VARIANT, VARIANT_NOVALUEPROP, VT_BSTR, VT_DATE, VT_I4,
-    VT_I8, VT_UI4,
+    VariantChangeType, VariantClear, VariantToStringAlloc, VARIANT, VARIANT_NOVALUEPROP, VT_BSTR,
+    VT_DATE, VT_I4, VT_I8, VT_UI4,
 };
 #[cfg(target_os = "windows")]
 use windows::Win32::System::Wmi::{ISWbemLocator, ISWbemPropertySet, ISWbemServices};
@@ -33,6 +33,8 @@ use crate::models::RestorePoint;
 const BEGIN_SYSTEM_CHANGE: u32 = 100;
 #[cfg(target_os = "windows")]
 const MODIFY_SETTINGS: u32 = 12;
+#[cfg(target_os = "windows")]
+const MAX_DESCRIPTION: usize = 63;
 #[cfg(target_os = "windows")]
 const CLSID_SWBM_LOCATOR: GUID = GUID::from_u128(0x76a64158_cb41_11d1_8b02_00600806d9b6);
 #[cfg(target_os = "windows")]
@@ -185,10 +187,10 @@ impl RestorePointProvider for WindowsRestorePoints {
 
     fn create(&self, name: &str) -> Result<RestorePoint, String> {
         let description = name.trim();
-        if description.is_empty() || description.chars().count() > 200 {
+        if description.is_empty() || description.chars().count() > MAX_DESCRIPTION {
             return Err("invalid restore point name".to_string());
         }
-        let mut wide: Vec<u16> = description.encode_utf16().take(255).collect();
+        let mut wide: Vec<u16> = description.encode_utf16().take(MAX_DESCRIPTION).collect();
         wide.push(0);
         let mut spec = RestorePointInfo {
             event_type: BEGIN_SYSTEM_CHANGE,
@@ -258,13 +260,14 @@ impl RestorePointProvider for WindowsRestorePoints {
                 .map_err(|error| format!("WMI parameters failed: {error}"))?;
             let properties = unsafe { parameters.Properties_() }
                 .map_err(|error| format!("WMI parameters properties failed: {error}"))?;
-            let value = bstr_variant(&sequence.to_string());
-            unsafe {
+            let mut value = bstr_variant(&sequence.to_string());
+            let parameter = unsafe {
                 properties
                     .Item(&BSTR::from("SequenceNumber"), 0)
                     .and_then(|property| property.SetValue(&value))
-            }
-            .map_err(|error| format!("WMI parameter write failed: {error}"))?;
+            };
+            let _ = unsafe { VariantClear(&mut value) };
+            parameter.map_err(|error| format!("WMI parameter write failed: {error}"))?;
             let output = unsafe {
                 services.ExecMethod(
                     &BSTR::from("SystemRestore"),
@@ -381,29 +384,36 @@ fn with_wmi<T>(operation: impl FnOnce(&ISWbemServices) -> Result<T, String>) -> 
 
 #[cfg(target_os = "windows")]
 fn property_i64(properties: &ISWbemPropertySet, name: &str) -> Result<i64, String> {
-    let value = unsafe { properties.Item(&BSTR::from(name), 0) }
+    let mut value = unsafe { properties.Item(&BSTR::from(name), 0) }
         .and_then(|property| unsafe { property.Value() })
         .map_err(|error| format!("WMI {name} failed: {error}"))?;
-    variant_i64(&value)
+    let result = variant_i64(&value);
+    let _ = unsafe { VariantClear(&mut value) };
+    result
 }
 
 #[cfg(target_os = "windows")]
 fn property_string(properties: &ISWbemPropertySet, name: &str) -> Result<String, String> {
-    let value = unsafe { properties.Item(&BSTR::from(name), 0) }
+    let mut value = unsafe { properties.Item(&BSTR::from(name), 0) }
         .and_then(|property| unsafe { property.Value() })
         .map_err(|error| format!("WMI {name} failed: {error}"))?;
-    variant_string(&value)
+    let result = variant_string(&value);
+    let _ = unsafe { VariantClear(&mut value) };
+    result
 }
 
 #[cfg(target_os = "windows")]
 fn property_date(properties: &ISWbemPropertySet, name: &str) -> Result<String, String> {
-    let value = unsafe { properties.Item(&BSTR::from(name), 0) }
+    let mut value = unsafe { properties.Item(&BSTR::from(name), 0) }
         .and_then(|property| unsafe { property.Value() })
         .map_err(|error| format!("WMI {name} failed: {error}"))?;
-    if let Some(date) = variant_date(&value) {
-        return Ok(ole_date_iso(date));
-    }
-    variant_string(&value)
+    let result = if let Some(date) = variant_date(&value) {
+        Ok(ole_date_iso(date))
+    } else {
+        variant_string(&value).map(|text| cim_datetime_iso(&text).unwrap_or(text))
+    };
+    let _ = unsafe { VariantClear(&mut value) };
+    result
 }
 
 #[cfg(target_os = "windows")]
@@ -429,7 +439,7 @@ fn variant_string(value: &VARIANT) -> Result<String, String> {
         return Ok(unsafe { inner.Anonymous.bstrVal.to_string() });
     }
     let mut converted = VARIANT::default();
-    unsafe {
+    let result = (|| unsafe {
         VariantChangeType(&mut converted, value, VARIANT_NOVALUEPROP, VT_BSTR)
             .map_err(|error| format!("WMI value conversion failed: {error}"))?;
         let text = VariantToStringAlloc(&converted)
@@ -437,7 +447,9 @@ fn variant_string(value: &VARIANT) -> Result<String, String> {
         let result = text.to_string().map_err(|error| error.to_string())?;
         CoTaskMemFree(Some(text.0 as _));
         Ok(result)
-    }
+    })();
+    let _ = unsafe { VariantClear(&mut converted) };
+    result
 }
 
 #[cfg(target_os = "windows")]
@@ -454,6 +466,57 @@ fn variant_date(value: &VARIANT) -> Option<f64> {
 fn ole_date_iso(date: f64) -> String {
     let seconds = ((date - 25_569.0) * 86_400.0).round() as i64;
     unix_seconds_iso(seconds)
+}
+
+#[cfg(target_os = "windows")]
+fn cim_datetime_iso(value: &str) -> Option<String> {
+    // WMI returns CIM_DATETIME, for example 20261105183046.857643-000.
+    if value.len() < 14 || !value.as_bytes()[..14].iter().all(u8::is_ascii_digit) {
+        return None;
+    }
+    let number = |range: std::ops::Range<usize>| value[range].parse::<i64>().ok();
+    let year = number(0..4)?;
+    let month = number(4..6)?;
+    let day = number(6..8)?;
+    let hour = number(8..10)?;
+    let minute = number(10..12)?;
+    let second = number(12..14)?;
+    if !(1..=12).contains(&month)
+        || !(1..=31).contains(&day)
+        || hour > 23
+        || minute > 59
+        || second > 59
+    {
+        return None;
+    }
+    let mut end = 14;
+    if value.as_bytes().get(end) == Some(&b'.') {
+        end += 1;
+        while value.as_bytes().get(end).is_some_and(u8::is_ascii_digit) {
+            end += 1;
+        }
+    }
+    let mut offset_minutes = 0i64;
+    if let Some(sign) = value.as_bytes().get(end) {
+        if (*sign == b'+' || *sign == b'-') && value[end + 1..].len() >= 3 {
+            let minutes = value[end + 1..end + 4].parse::<i64>().ok()?;
+            offset_minutes = if *sign == b'-' { -minutes } else { minutes };
+        }
+    }
+    let days = days_from_civil(year, month, day);
+    let seconds = days * 86_400 + hour * 3_600 + minute * 60 + second - offset_minutes * 60;
+    Some(unix_seconds_iso(seconds))
+}
+
+#[cfg(target_os = "windows")]
+fn days_from_civil(year: i64, month: i64, day: i64) -> i64 {
+    let year = year - i64::from(month <= 2);
+    let era = if year >= 0 { year } else { year - 399 } / 400;
+    let year_of_era = year - era * 400;
+    let month_prime = (month + 9) % 12;
+    let day_of_year = (153 * month_prime + 2) / 5 + day - 1;
+    let day_of_era = year_of_era * 365 + year_of_era / 4 - year_of_era / 100 + day_of_year;
+    era * 146_097 + day_of_era - 719_468
 }
 
 #[cfg(target_os = "windows")]
@@ -489,6 +552,15 @@ fn sequence_number(id: &str) -> Result<i64, String> {
 #[cfg(all(test, target_os = "windows"))]
 mod tests {
     use super::*;
+
+    #[test]
+    fn parses_cim_datetime_to_utc_iso() {
+        assert_eq!(
+            cim_datetime_iso("20261105183046.857643-000").as_deref(),
+            Some("2026-11-05T18:30:46Z")
+        );
+        assert!(cim_datetime_iso("not-a-date").is_none());
+    }
 
     #[test]
     fn formats_the_current_time_as_utc_iso() {

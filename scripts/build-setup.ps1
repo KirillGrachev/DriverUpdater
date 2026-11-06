@@ -68,16 +68,12 @@ if (Test-Path $output) {
 $payloadDir = Join-Path $output 'payload'
 New-Item -ItemType Directory -Path $payloadDir -Force | Out-Null
 Copy-Item $setupExe (Join-Path $output 'DriverUpdaterSetup.exe') -Force
-$payloads = @()
-if ($msi.Count -gt 0) {
-    $payloads += $msi[0]
+if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
+    throw "No installer payload was available for $arch"
 }
-if ($nsis.Count -gt 0) {
-    $payloads += $nsis[0]
-}
-foreach ($payload in $payloads) {
-    Copy-Item $payload.FullName (Join-Path $payloadDir $payload.Name) -Force
-}
+$payload = if ($nsis.Count -gt 0) { $nsis[0] } else { $msi[0] }
+$payloadName = "payload$($payload.Extension.ToLowerInvariant())"
+Copy-Item $payload.FullName (Join-Path $payloadDir $payloadName) -Force
 
 $archive = Join-Path $root "artifacts/setup/DriverUpdaterSetup-$Version-$arch.zip"
 if (Test-Path $archive) {

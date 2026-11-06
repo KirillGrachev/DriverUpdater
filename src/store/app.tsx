@@ -824,22 +824,27 @@ export function AppProvider({ children }: { children: ReactNode }) {
                 : settings.restorePointPeriod === 'monthly'
                   ? 30 * 24 * 60 * 60 * 1000
                   : 7 * 24 * 60 * 60 * 1000;
-        const latest = state.data?.restorePoints[0]?.createdAt;
-        const due = !latest || Date.now() - new Date(latest).getTime() >= period;
-        if (due) {
-            void createRestorePoint({ silentSuccess: true });
-        }
-        const timer = window.setInterval(
-            () => {
-                const current = dataRef.current?.restorePoints[0]?.createdAt;
-                if (!current || Date.now() - new Date(current).getTime() >= period) {
-                    void createRestorePoint({ silentSuccess: true });
-                }
-            },
-            60 * 60 * 1000,
-        );
-        return () => window.clearInterval(timer);
-    }, [state.data?.settings, state.data?.restorePoints, createRestorePoint]);
+        /**
+         * Initial data no longer carries restore points. Load them before
+         * deciding whether an automatic point is due, otherwise every launch
+         * looks like the first one.
+         */
+        let cancelled = false;
+        const check = async () => {
+            await refreshRestorePoints();
+            if (cancelled) return;
+            const latest = dataRef.current?.restorePoints[0]?.createdAt;
+            if (!latest || Date.now() - new Date(latest).getTime() >= period) {
+                await createRestorePoint({ silentSuccess: true });
+            }
+        };
+        void check();
+        const timer = window.setInterval(() => void check(), 60 * 60 * 1000);
+        return () => {
+            cancelled = true;
+            window.clearInterval(timer);
+        };
+    }, [state.data?.settings, createRestorePoint, refreshRestorePoints]);
 
     const beginLoading = useCallback(() => {
         setState((prev) => ({ ...prev, loadingCount: prev.loadingCount + 1 }));

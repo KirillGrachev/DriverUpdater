@@ -261,6 +261,7 @@ fn detect_installed_drivers_native() -> Option<Vec<Driver>> {
         DIGCF_PRESENT, SPDRP_CLASS, SPDRP_DEVICEDESC, SPDRP_DRIVER, SPDRP_FRIENDLYNAME,
         SPDRP_HARDWAREID, SPDRP_MFG, SP_DEVINFO_DATA,
     };
+    use windows_sys::Win32::Foundation::{GetLastError, ERROR_INSUFFICIENT_BUFFER};
 
     struct DeviceSet(windows_sys::Win32::Devices::DeviceAndDriverInstallation::HDEVINFO);
 
@@ -280,19 +281,28 @@ fn detect_installed_drivers_native() -> Option<Vec<Driver>> {
     ) -> Option<Vec<String>> {
         let mut buffer = vec![0u8; 8192];
         let mut required = 0u32;
-        let ok = unsafe {
-            SetupDiGetDeviceRegistryPropertyW(
-                set,
-                info,
-                property,
-                null_mut(),
-                buffer.as_mut_ptr(),
-                buffer.len() as u32,
-                &mut required,
-            )
-        };
-        if ok == 0 {
-            return None;
+        loop {
+            let ok = unsafe {
+                SetupDiGetDeviceRegistryPropertyW(
+                    set,
+                    info,
+                    property,
+                    null_mut(),
+                    buffer.as_mut_ptr(),
+                    buffer.len() as u32,
+                    &mut required,
+                )
+            };
+            if ok != 0 {
+                break;
+            }
+            // Multi-string hardware ids can exceed the initial 8 KiB buffer.
+            if unsafe { GetLastError() } != ERROR_INSUFFICIENT_BUFFER
+                || required as usize <= buffer.len()
+            {
+                return None;
+            }
+            buffer.resize(required as usize, 0);
         }
         let size = (required as usize).min(buffer.len());
         let wide: Vec<u16> = buffer[..size]
@@ -718,7 +728,7 @@ pub fn detect_driver_version(device_id: &str) -> Option<String> {
     if let Some(version) = registry_driver_version(device_id) {
         return Some(version);
     }
-    let escaped = device_id.replace('\'', "''");
+    let escaped = device_id.replace('\\', "\\\\").replace('\'', "''");
     let script = format!(
         r#"$ErrorActionPreference='Stop'
 [Console]::OutputEncoding=[Text.Encoding]::UTF8
