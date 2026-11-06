@@ -213,12 +213,19 @@ architecture-specific automation.
     <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/setup-welcome.png" alt="Unified Driver Updater setup wizard welcome page" width="100%">
       <br>
-      <sub>Unified setup: branded welcome, language and appearance steps.</sub>
+      <sub>Unified setup: branded welcome, language, appearance and location steps.</sub>
     </td>
     <td width="50%" align="center" valign="top">
       <img src="docs/screenshots/setup-language.png" alt="Unified setup language selection" width="100%">
       <br>
       <sub>The same wizard is used for x64, ARM64 and x86 builds.</sub>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="2" align="center" valign="top">
+      <img src="docs/screenshots/setup-location.png" alt="Unified setup installation location step" width="100%">
+      <br>
+      <sub>Choose the install folder and whether to create a desktop shortcut before installing.</sub>
     </td>
   </tr>
 </table>
