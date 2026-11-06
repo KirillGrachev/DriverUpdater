@@ -56,7 +56,6 @@ export function LoadingScreen({ visible, label }: { visible: boolean; label?: st
                 </div>
                 <div className="loading-screen-copy">
                     <strong>Driver Updater</strong>
-                    <span>{label ?? 'Loading...'}</span>
                 </div>
                 <div className="loading-screen-bar" aria-hidden="true">
                     <i />
