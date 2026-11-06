@@ -9,6 +9,10 @@ updates:
       open-pull-requests-limit: 5
       commit-message:
           prefix: deps(frontend)
+      ignore:
+          # typescript-eslint does not support TypeScript 7 yet.
+          - dependency-name: typescript
+            update-types: ['version-update:semver-major']
       groups:
           frontend:
               patterns:

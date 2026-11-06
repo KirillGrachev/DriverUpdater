@@ -1,7 +1,7 @@
 /// <reference types="vitest/config" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
-import packageJson from './package.json';
+import packageJson from './package.json' with { type: 'json' };
 
 // Tauri expects a fixed dev-server port on the loopback interface.
 const TAURI_DEV_HOST = '127.0.0.1';
