@@ -49,35 +49,25 @@ export function BackupsPage() {
         openModal,
         closeModal,
         pushToast,
-        beginLoading,
-        endLoading,
     } = useApp();
     const [creating, setCreating] = useState(false);
     const [backups, setBackups] = useState<DriverBackup[]>(() => backupsCache ?? []);
     const [creatingBackup, setCreatingBackup] = useState(false);
     const [busyBackup, setBusyBackup] = useState<string | null>(null);
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         let cancelled = false;
-        let finished = false;
-        beginLoading();
-        const finish = () => {
-            if (finished) return;
-            finished = true;
-            endLoading();
-        };
         void Promise.allSettled([
             refreshRestorePoints(),
             listDriverBackups().then((items) => {
                 backupsCache = items;
                 if (!cancelled) setBackups(items);
             }),
-        ]).then(finish);
+        ]);
         return () => {
             cancelled = true;
-            finish();
         };
-    }, [beginLoading, endLoading, listDriverBackups, refreshRestorePoints]);
+    }, [listDriverBackups, refreshRestorePoints]);
 
     if (!data) return null;
 
