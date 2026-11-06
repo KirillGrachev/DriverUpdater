@@ -36,7 +36,7 @@
 }
 
 .components-card {
-    overflow: hidden;
+    overflow: visible;
 }
 
 .components-head {
