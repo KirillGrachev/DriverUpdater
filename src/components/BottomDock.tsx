@@ -1,3 +1,4 @@
+import type { JSX } from 'react';
 import { useApp, type Route } from '../store/app';
 import {
     IconInfoFilled,
