@@ -95,4 +95,11 @@ createRoot(document.getElementById('root')!).render(
     </StrictMode>,
 );
 
-document.getElementById('boot-static')?.remove();
+requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+        const boot = document.getElementById('boot-static');
+        if (!boot) return;
+        boot.classList.add('is-leaving');
+        window.setTimeout(() => boot.remove(), 240);
+    });
+});
