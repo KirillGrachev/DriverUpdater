@@ -39,6 +39,56 @@
     overflow: visible;
 }
 
+.component-tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.component-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 36px;
+    padding: 0 14px;
+    border: 1px solid var(--c-border);
+    border-radius: 10px;
+    background: var(--c-card);
+    color: var(--c-text-2);
+    font-size: 13px;
+    font-weight: 600;
+    transition:
+        color 0.15s,
+        border-color 0.15s,
+        background 0.15s;
+}
+
+.component-tab span {
+    min-width: 20px;
+    padding: 1px 6px;
+    border-radius: 99px;
+    background: var(--c-border-2);
+    color: var(--c-text-3);
+    font-size: 11px;
+    text-align: center;
+}
+
+.component-tab:hover {
+    border-color: var(--c-border-2);
+    color: var(--c-text);
+}
+
+.component-tab.is-active {
+    border-color: var(--c-primary);
+    background: var(--c-primary-soft);
+    color: var(--c-primary);
+}
+
+.component-tab.is-active span {
+    background: color-mix(in srgb, var(--c-primary) 16%, transparent);
+    color: var(--c-primary);
+}
+
 .components-head {
     display: flex;
     align-items: center;
