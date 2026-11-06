@@ -1,6 +1,6 @@
 [package]
 name = "driver-updater"
-version = "1.1.0"
+version = "1.1.1"
 description = "Driver Updater - free open-source driver manager (Tauri core)"
 authors = ["Kirill Grachev <https://github.com/KirillGrachev>"]
 license = "MIT"
