@@ -1,7 +1,7 @@
 import { lazy, Suspense, useEffect, useLayoutEffect } from 'react';
 import { getCurrentWindow } from '@tauri-apps/api/window';
 import { BottomDock } from './components/BottomDock';
-import { LoadingScreen } from './components/LoadingScreen';
+import { LoadingScreen, useDelayedLoading } from './components/LoadingScreen';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { TitleBar } from './components/TitleBar';
 import { ModalHost, ToastHost } from './components/overlays';
@@ -57,6 +57,8 @@ export function App() {
     const { booting, bootError, loadingCount, route, scanning, t, data, pushToast } = useApp();
     const pageScanning = scanning && (route === 'home' || route === 'drivers');
     const loading = loadingCount > 0 || pageScanning;
+    const smoothLoading = useDelayedLoading(loading);
+    const smoothBoot = useDelayedLoading(booting, 0, 500);
 
     useEffect(() => {
         for (const load of PAGE_LOADERS) {
@@ -104,7 +106,7 @@ export function App() {
         }
     }, []);
 
-    if (booting) {
+    if (booting || smoothBoot) {
         return (
             <div className="app-window boot-window">
                 <LoadingScreen visible label={t('components.loading')} />
@@ -131,12 +133,12 @@ export function App() {
     }
 
     return (
-        <div className={`app-window ${loading ? 'is-loading' : ''}`}>
+        <div className={`app-window ${smoothLoading ? 'is-loading' : ''}`}>
             <RouteScrollReset />
             <TitleBar />
             <div className="app-body">
                 <main className="app-main">
-                    <div className={`app-content ${loading ? 'is-loading' : ''}`}>
+                    <div className={`app-content ${smoothLoading ? 'is-loading' : ''}`}>
                         {data?.scanError ? (
                             <div className="notice-bar notice-error scan-error" role="alert">
                                 <div>
@@ -160,7 +162,7 @@ export function App() {
             <BottomDock />
             <ToastHost />
             <ModalHost />
-            <LoadingScreen visible={loading} label={t('components.loading')} />
+            <LoadingScreen visible={smoothLoading} label={t('components.loading')} />
         </div>
     );
 }
