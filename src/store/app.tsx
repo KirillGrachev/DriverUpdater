@@ -12,6 +12,7 @@ import type {
     SystemInfo,
     ThemeMode,
 } from '../ipc/types';
+import { autoCheckInterval, shouldAutoCheck } from './autoCheck';
 
 export type Route = 'home' | 'drivers' | 'components' | 'backups' | 'settings' | 'about';
 
@@ -794,14 +795,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     useEffect(() => {
         const settings = state.data?.settings;
         if (!settings?.autoCheck) return undefined;
-        const interval =
-            settings.checkInterval === 'hourly'
-                ? 60 * 60 * 1000
-                : settings.checkInterval === 'weekly'
-                  ? 7 * 24 * 60 * 60 * 1000
-                  : 24 * 60 * 60 * 1000;
-        const lastCheck = state.data?.summary.lastCheck;
-        if (!lastCheck || Date.now() - new Date(lastCheck).getTime() >= interval) {
+        const interval = autoCheckInterval(settings.checkInterval);
+        if (shouldAutoCheck(settings, state.data?.summary.lastCheck)) {
             void scan();
         }
         /*
