@@ -153,6 +153,9 @@ jobs:
             - name: Build the unified setup wizard
               shell: pwsh
               run: ./scripts/build-setup.ps1 -Target ${{ matrix.target }} -BundleRoot "artifacts/windows-${{ matrix.arch }}" -Version "${{ github.ref_name }}"
+            - name: Name the architecture setup executable
+              shell: pwsh
+              run: Copy-Item 'artifacts/setup/DriverUpdaterSetup.exe' "artifacts/setup/DriverUpdaterSetup-${{ matrix.arch }}.exe"
             - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
               with:
                   name: setup-${{ matrix.arch }}

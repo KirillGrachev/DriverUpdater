@@ -196,15 +196,17 @@ Download the installer for your architecture from
     <th align="left">Architecture</th>
     <th align="left">Recommended asset</th>
   </tr>
-  <tr><td>Windows x64</td><td><code>DriverUpdaterSetup-&lt;version&gt;-x64.zip</code></td></tr>
-  <tr><td>Windows ARM64</td><td><code>DriverUpdaterSetup-&lt;version&gt;-arm64.zip</code></td></tr>
-  <tr><td>Windows 10 x86</td><td><code>DriverUpdaterSetup-&lt;version&gt;-x86.zip</code></td></tr>
+  <tr><td>Windows x64</td><td><code>DriverUpdaterSetup-x64.exe</code></td></tr>
+  <tr><td>Windows ARM64</td><td><code>DriverUpdaterSetup-arm64.exe</code></td></tr>
+  <tr><td>Windows 10 x86</td><td><code>DriverUpdaterSetup-x86.exe</code></td></tr>
 </table>
 
-The ZIP contains the unified setup wizard and its MSI/NSIS payload. Raw MSI and
-NSIS payloads are not published as separate assets because they show the native
-Windows Installer UI. Portable and symbol archives remain available for
-managed deployment and architecture-specific automation.
+The `.exe` is the normal installer. The matching
+<code>DriverUpdaterSetup-&lt;version&gt;-&lt;arch&gt;.zip</code> is the fallback for
+managed deployment and contains the MSI/NSIS payload. Raw MSI and NSIS payloads
+are not published as separate assets because they show the native Windows
+Installer UI. Portable and symbol archives remain available for
+architecture-specific automation.
 
 <table align="center">
   <tr>
@@ -221,7 +223,7 @@ managed deployment and architecture-specific automation.
   </tr>
 </table>
 
-The installer is per-user by default and does not require a reboot.
+The installer installs for all users and requires administrator rights; it does not require a reboot.
 
 The installer:
 
