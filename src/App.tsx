@@ -26,12 +26,8 @@ const PAGE_LOADERS = [loadAboutPage, loadBackupsPage, loadComponentsPage, loadDr
 import { useApp } from './store/app';
 
 function RouteFallback() {
-    const { beginLoading, endLoading } = useApp();
-    useLayoutEffect(() => {
-        beginLoading();
-        return endLoading;
-    }, [beginLoading, endLoading]);
-    return null;
+    const { t } = useApp();
+    return <LoadingScreen visible label={t('components.loading')} />;
 }
 
 function RouteScrollReset() {

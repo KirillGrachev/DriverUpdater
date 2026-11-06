@@ -1,4 +1,4 @@
-import { Fragment, useLayoutEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import { IconCheck, IconDownload, IconPackage } from '../components/icons';
 import { Button, Select } from '../components/ui';
 import { COMPONENT_CATALOG, type AppComponent, type ComponentGroup, type ComponentSubgroup } from '../data/components';
@@ -43,8 +43,6 @@ export function ComponentsPage() {
         packageInstalling,
         openModal,
         closeModal,
-        beginLoading,
-        endLoading,
     } = useApp();
     const [installed, setInstalled] = useState<Set<string>>(() => new Set());
     const [installedVersions, setInstalledVersions] = useState<Record<string, string>>({});
@@ -52,15 +50,8 @@ export function ComponentsPage() {
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         let cancelled = false;
-        let finished = false;
-        beginLoading();
-        const finish = () => {
-            if (finished) return;
-            finished = true;
-            endLoading();
-        };
         const prefetchVersions = async () => {
             const items = COMPONENT_CATALOG.filter((item) => item.wingetId);
             const loaded: Record<string, string[]> = {};
@@ -91,8 +82,8 @@ export function ComponentsPage() {
                 setVersions((prev) => ({ ...prev, ...loaded }));
             }
         };
-        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()])
-            .then(([detectedComponents, persistedIds]) => {
+        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()]).then(
+            ([detectedComponents, persistedIds]) => {
                 if (cancelled) return;
                 const next = new Set<string>();
                 const nextSelected = defaultSelection();
@@ -112,20 +103,12 @@ export function ComponentsPage() {
                 if (detectedComponents.length > 0) {
                     void saveInstalledComponents([...next]);
                 }
-            })
-            .finally(finish);
+            },
+        );
         return () => {
             cancelled = true;
-            finish();
         };
-    }, [
-        beginLoading,
-        endLoading,
-        detectInstalledComponents,
-        getInstalledComponents,
-        listPackageVersions,
-        saveInstalledComponents,
-    ]);
+    }, [detectInstalledComponents, getInstalledComponents, listPackageVersions, saveInstalledComponents]);
 
     const loadVersions = (item: AppComponent) => {
         if (!item.wingetId) return;
