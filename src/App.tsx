@@ -25,6 +25,15 @@ const PAGE_LOADERS = [loadAboutPage, loadBackupsPage, loadComponentsPage, loadDr
 
 import { useApp } from './store/app';
 
+function RouteFallback() {
+    const { beginLoading, endLoading } = useApp();
+    useLayoutEffect(() => {
+        beginLoading();
+        return endLoading;
+    }, [beginLoading, endLoading]);
+    return null;
+}
+
 function RouteScrollReset() {
     const { route } = useApp();
     useLayoutEffect(() => {
@@ -152,7 +161,7 @@ export function App() {
                             message={t('boot.errorSub')}
                             reloadLabel={t('boot.retry')}
                         >
-                            <Suspense fallback={null}>
+                            <Suspense fallback={<RouteFallback />}>
                                 <CurrentPage key={route} />
                             </Suspense>
                         </ErrorBoundary>
