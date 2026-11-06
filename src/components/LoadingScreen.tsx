@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react';
 import logo from '../assets/branding/logo.png';
 
 /**
@@ -9,6 +10,37 @@ import logo from '../assets/branding/logo.png';
  * <p>The element stays mounted while it fades, so boot, scan and page loads
  * share one visual instead of swapping between different spinners.</p>
  */
+/**
+ * Keeps short loading work invisible and prevents a shown loader from flashing.
+ *
+ * @param active whether work is in flight
+ * @param delay time to wait before showing the loader
+ * @param minVisible minimum time the loader remains visible once shown
+ * @returns whether the loader should currently be rendered
+ */
+export function useDelayedLoading(active: boolean, delay = 120, minVisible = 500) {
+    const [shown, setShown] = useState(false);
+    const shownAt = useRef(0);
+    const timer = useRef<number | undefined>(undefined);
+
+    useEffect(() => {
+        window.clearTimeout(timer.current);
+        if (active) {
+            if (shown) return undefined;
+            timer.current = window.setTimeout(() => {
+                shownAt.current = performance.now();
+                setShown(true);
+            }, delay);
+        } else if (shown) {
+            const elapsed = performance.now() - shownAt.current;
+            timer.current = window.setTimeout(() => setShown(false), Math.max(0, minVisible - elapsed));
+        }
+        return () => window.clearTimeout(timer.current);
+    }, [active, delay, minVisible, shown]);
+
+    return shown;
+}
+
 export function LoadingScreen({ visible, label }: { visible: boolean; label?: string }) {
     return (
         <div
