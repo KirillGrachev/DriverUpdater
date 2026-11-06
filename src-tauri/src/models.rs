@@ -86,7 +86,7 @@ impl Default for Settings {
         Self {
             language: "en".to_string(),
             theme: "system".to_string(),
-            auto_check: false,
+            auto_check: true,
             check_interval: "daily".to_string(),
             restore_point_before_install: true,
             keep_backups: true,
