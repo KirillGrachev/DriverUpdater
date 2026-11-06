@@ -1,0 +1,38 @@
+name: PowerShell analysis
+
+on:
+    push:
+        branches: [main]
+        paths:
+            - 'scripts/**'
+            - '.github/workflows/powershell.yml'
+    pull_request:
+        paths:
+            - 'scripts/**'
+            - '.github/workflows/powershell.yml'
+    workflow_dispatch:
+
+permissions:
+    contents: read
+    security-events: write
+
+jobs:
+    analyze:
+        name: PSScriptAnalyzer
+        runs-on: windows-2025
+        timeout-minutes: 15
+        steps:
+            - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+            - name: Run PSScriptAnalyzer
+              uses: microsoft/psscriptanalyzer-action@6b2948b1944407914a58661c49941824d149734f # v1.1
+              with:
+                  path: .\scripts
+                  recurse: true
+                  severity: '"Error", "Warning"'
+                  output: psscriptanalyzer.sarif
+            - name: Upload results
+              if: always()
+              uses: github/codeql-action/upload-sarif@9418214df1f2c4b8128c770156c409013b07d6b9 # v3
+              with:
+                  sarif_file: psscriptanalyzer.sarif
+                  category: powershell
