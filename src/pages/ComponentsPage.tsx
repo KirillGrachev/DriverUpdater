@@ -51,6 +51,7 @@ export function ComponentsPage() {
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
     const [activeGroup, setActiveGroup] = useState<ComponentGroup>('runtime');
     const [expandedGroup, setExpandedGroup] = useState<ComponentGroup | null>(null);
+    const [detectionReady, setDetectionReady] = useState(false);
 
     useEffect(() => {
         let cancelled = false;
@@ -84,8 +85,8 @@ export function ComponentsPage() {
                 setVersions((prev) => ({ ...prev, ...loaded }));
             }
         };
-        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()]).then(
-            ([detectedComponents, persistedIds]) => {
+        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()])
+            .then(([detectedComponents, persistedIds]) => {
                 if (cancelled) return;
                 const next = new Set<string>();
                 const nextSelected = defaultSelection();
@@ -105,8 +106,16 @@ export function ComponentsPage() {
                 if (detectedComponents.length > 0) {
                     void saveInstalledComponents([...next]);
                 }
-            },
-        );
+            })
+            .catch(() => {
+                /*
+                 * If detection fails, show the normal install controls rather
+                 * than leaving every row stuck in a checking state.
+                 */
+            })
+            .finally(() => {
+                if (!cancelled) setDetectionReady(true);
+            });
         return () => {
             cancelled = true;
         };
@@ -300,7 +309,11 @@ export function ComponentsPage() {
                                                         ? `~ ${item.sizeMb} ${t('common.mb')}`
                                                         : t('common.never')}
                                                 </div>
-                                                {!item.wingetId ? (
+                                                {!detectionReady ? (
+                                                    <Button variant="secondary" size="sm" disabled>
+                                                        {t('components.checking')}
+                                                    </Button>
+                                                ) : !item.wingetId ? (
                                                     <Button variant="secondary" size="sm" disabled>
                                                         {t('components.managed')}
                                                     </Button>
