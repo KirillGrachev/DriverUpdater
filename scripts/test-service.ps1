@@ -21,6 +21,12 @@ $built = Join-Path $targetDir 'driver-updater-service.exe'
 $sc = Join-Path $env:SystemRoot 'System32/sc.exe'
 
 function Remove-TestService {
+    [CmdletBinding(SupportsShouldProcess = $true)]
+    param()
+
+    if (-not $PSCmdlet.ShouldProcess($serviceName, 'Remove the test service')) {
+        return
+    }
     & $sc stop $serviceName 2>$null | Out-Null
     Start-Sleep -Milliseconds 800
     & $sc delete $serviceName 2>$null | Out-Null
