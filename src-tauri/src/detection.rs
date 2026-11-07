@@ -520,7 +520,9 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
     if name.contains("vulkan sdk") {
         return Some("vulkan-sdk");
     }
-    if name.contains("vulkan") {
+    if name.contains("vulkan")
+        && (name.contains("run time") || name.contains("runtime") || name.contains("loader"))
+    {
         return Some("vulkan-runtime");
     }
     if name.contains("webview2") && publisher_matches("microsoft") {
@@ -559,7 +561,7 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
     if name == "swift" || name.starts_with("swift ") {
         return Some("swift");
     }
-    if name.contains("llvm") {
+    if name.starts_with("llvm") && (publisher.is_empty() || publisher_matches("llvm")) {
         return Some("llvm");
     }
     if name.contains("docker desktop") {
@@ -586,10 +588,10 @@ fn component_id_for(display_name: &str, version: &str, publisher: &str) -> Optio
     if name.starts_with("postgresql") {
         return Some("postgresql");
     }
-    if name.starts_with("mysql") {
+    if name.starts_with("mysql server") && publisher_matches("oracle") {
         return Some("mysql");
     }
-    if name.starts_with("sqlite") {
+    if name.starts_with("sqlite") && publisher_matches("sqlite") {
         return Some("sqlite");
     }
     if name.starts_with("chocolatey") {
@@ -1087,6 +1089,15 @@ mod tests {
         assert_eq!(component_id_for("Git LFS", "3.6.0", "Git LFS"), None);
         assert_eq!(
             component_id_for("Python Launcher", "3.12.4", "Python Software Foundation"),
+            None
+        );
+        assert_eq!(
+            component_id_for("MySQL Workbench", "8.0.42", "Oracle"),
+            None
+        );
+        assert_eq!(component_id_for("LLVM Tools", "19.1.0", "Acme"), None);
+        assert_eq!(
+            component_id_for("Vulkan Tools", "1.4.0", "Khronos Group"),
             None
         );
     }
