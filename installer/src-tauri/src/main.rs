@@ -308,13 +308,19 @@ fn protect_service_token(token: &Path) -> Result<(), String> {
 }
 
 #[cfg(target_os = "windows")]
-fn install_service(install_path: &Path) -> Result<(), String> {
+fn install_service(_install_path: &Path) -> Result<(), String> {
     const SERVICE_NAME: &str = "DriverUpdaterService";
     if SERVICE_BYTES.is_empty() {
         return Err("The Windows service binary is missing from this setup build.".to_string());
     }
-    std::fs::create_dir_all(install_path).map_err(|error| error.to_string())?;
-    let service_path = install_path.join("driver-updater-service.exe");
+    // The service runs as LocalSystem, so its executable must never live in a
+    // user-writable custom application directory.
+    let service_dir = std::env::var_os("ProgramFiles")
+        .map(PathBuf::from)
+        .ok_or_else(|| "ProgramFiles is not available.".to_string())?
+        .join("Driver Updater");
+    std::fs::create_dir_all(&service_dir).map_err(|error| error.to_string())?;
+    let service_path = service_dir.join("driver-updater-service.exe");
     let sc = system_sc();
 
     let _ = system_command(&sc)
