@@ -134,6 +134,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(target_os = "windows")]
     fn rejects_backup_paths_outside_the_root() {
         assert!(validate_backup_path(
             r"C:\ProgramData\Driver Updater\Backups\a",
