@@ -210,24 +210,24 @@ fn handle_operation(
             crate::privileged::restore_restore_point(&id)
         }
         ServiceOperation::CreateDriverBackup { path } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::create_driver_backup(&path),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::create_driver_backup(&path)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::RestoreDriverBackup { path, id } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::restore_driver_backup(&path, &id),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::restore_driver_backup(&path, &id)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::DeleteDriverBackup { path, id } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::delete_driver_backup(&path, &id),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::delete_driver_backup(&path, &id)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::InstallPackage {

@@ -84,6 +84,16 @@ pub fn validate_request(request: &ServiceRequest, expected_token: &str) -> Resul
     Ok(())
 }
 
+/// Allows only the per-user or machine-wide Driver Updater backup roots.
+pub fn is_allowed_backup_root(path: &str) -> bool {
+    let normalized = path.replace('/', "\\").to_lowercase();
+    let normalized = normalized.trim_end_matches('\\');
+    (normalized == "c:\\programdata\\driver updater\\backups"
+        || (normalized.starts_with("c:\\users\\")
+            && normalized.ends_with("\\appdata\\local\\driver updater\\backups")))
+        && !normalized.contains("\\..\\")
+}
+
 /// Checks that a backup path stays inside the configured application root.
 pub fn validate_backup_path(path: &str, allowed_root: &str) -> Result<(), String> {
     let root = std::path::Path::new(allowed_root);
