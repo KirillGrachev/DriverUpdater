@@ -194,7 +194,13 @@ fn finish_setup(app: AppHandle, launch: bool) {
             r"C:\Program Files (x86)\Driver Updater\Driver Updater.exe",
         ));
         if let Some(executable) = candidates.iter().find(|path| path.exists()) {
-            let _ = Command::new(executable).spawn();
+            // The setup process is elevated. Launch through Explorer so the
+            // application receives the interactive user's medium token.
+            let explorer = std::env::var_os("SystemRoot")
+                .map(PathBuf::from)
+                .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
+                .join("explorer.exe");
+            let _ = Command::new(explorer).arg(executable).spawn();
         }
     }
     app.exit(0);
