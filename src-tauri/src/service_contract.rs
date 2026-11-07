@@ -144,6 +144,20 @@ mod tests {
     }
 
     #[test]
+    fn accepts_only_application_backup_roots() {
+        assert!(is_allowed_backup_root(
+            r"C:\ProgramData\Driver Updater\Backups"
+        ));
+        assert!(is_allowed_backup_root(
+            r"C:\Users\alice\AppData\Local\Driver Updater\Backups"
+        ));
+        assert!(!is_allowed_backup_root(r"D:\Driver Backups"));
+        assert!(!is_allowed_backup_root(
+            r"C:\Users\alice\AppData\Local\Driver Updater\Backups\..\Windows"
+        ));
+    }
+
+    #[test]
     #[cfg(target_os = "windows")]
     fn rejects_backup_paths_outside_the_root() {
         assert!(validate_backup_path(
