@@ -240,6 +240,24 @@ export function ComponentsPage() {
             {GROUPS.filter((group) => group.id === activeGroup).map((group) => {
                 const items = COMPONENT_CATALOG.filter((item) => item.group === group.id);
                 const visibleItems = expandedGroup === group.id ? items : items.slice(0, 8);
+                if (!detectionReady) {
+                    return (
+                        <section className="card components-card components-loading-card" aria-busy="true">
+                            <div className="components-head">
+                                <h2 className="card-title">{t('components.checking')}</h2>
+                            </div>
+                            <div className="component-skeleton" aria-hidden="true">
+                                {Array.from({ length: 6 }, (_, index) => (
+                                    <div className="component-skeleton-row" key={index}>
+                                        <span />
+                                        <span />
+                                        <span />
+                                    </div>
+                                ))}
+                            </div>
+                        </section>
+                    );
+                }
                 return (
                     <section className="card components-card" key={group.id}>
                         <div className="components-head">
