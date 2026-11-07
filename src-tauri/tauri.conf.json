@@ -54,7 +54,8 @@
                 "headerImage": "installer/header.bmp",
                 "sidebarImage": "installer/sidebar.bmp",
                 "uninstallerHeaderImage": "installer/header.bmp",
-                "languages": ["English", "Russian", "Ukrainian"]
+                "languages": ["English", "Russian", "Ukrainian"],
+                "installerHooks": "nsis-hooks.nsh"
             },
             "wix": {
                 "bannerPath": "installer/wix-banner.bmp",

@@ -17,9 +17,34 @@ mod windows_service_impl {
     use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
     use windows_service::{define_windows_service, service_dispatcher};
 
-    use crate::service_contract::SERVICE_NAME;
+    use crate::service_contract::{SERVICE_NAME, SERVICE_PIPE};
 
     define_windows_service!(ffi_service_main, service_main);
+
+    fn wake_pipe() {
+        use windows_sys::Win32::Foundation::{CloseHandle, GENERIC_READ, GENERIC_WRITE};
+        use windows_sys::Win32::Storage::FileSystem::{CreateFileW, OPEN_EXISTING};
+        let name: Vec<u16> = SERVICE_PIPE
+            .encode_utf16()
+            .chain(std::iter::once(0))
+            .collect();
+        let pipe = unsafe {
+            CreateFileW(
+                name.as_ptr(),
+                GENERIC_READ | GENERIC_WRITE,
+                0,
+                std::ptr::null(),
+                OPEN_EXISTING,
+                0,
+                std::ptr::null_mut(),
+            )
+        };
+        if pipe != windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE {
+            unsafe {
+                let _ = CloseHandle(pipe);
+            }
+        }
+    }
 
     pub fn run_service() {
         let _ = service_dispatcher::start(SERVICE_NAME, ffi_service_main);
@@ -32,6 +57,7 @@ mod windows_service_impl {
             service_control_handler::register(SERVICE_NAME, move |control| match control {
                 ServiceControl::Stop | ServiceControl::Shutdown => {
                     stop_for_handler.store(true, Ordering::SeqCst);
+                    wake_pipe();
                     ServiceControlHandlerResult::NoError
                 }
                 ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
@@ -146,6 +172,13 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
             }
             continue;
         }
+        if stop.load(Ordering::SeqCst) {
+            unsafe {
+                let _ = DisconnectNamedPipe(pipe);
+                let _ = CloseHandle(pipe);
+            }
+            break;
+        }
 
         let mut buffer = vec![0u8; 64 * 1024];
         let mut read = 0u32;
@@ -198,6 +231,7 @@ fn handle_operation(
 
     let result = match operation {
         ServiceOperation::Ping => Ok(serde_json::json!({ "service": "driver-updater" })),
+        ServiceOperation::FindUpdates => crate::privileged::find_updates(),
         ServiceOperation::InstallDriverUpdate { update_id } => {
             crate::privileged::install_update(&update_id)
         }
@@ -209,25 +243,32 @@ fn handle_operation(
         ServiceOperation::RestoreRestorePoint { id } => {
             crate::privileged::restore_restore_point(&id)
         }
+        ServiceOperation::ListDriverBackups { path } => {
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::list_driver_backups(&path)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
+            }
+        }
         ServiceOperation::CreateDriverBackup { path } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::create_driver_backup(&path),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::create_driver_backup(&path)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::RestoreDriverBackup { path, id } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::restore_driver_backup(&path, &id),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::restore_driver_backup(&path, &id)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::DeleteDriverBackup { path, id } => {
-            let root = crate::service_token::backup_root();
-            match crate::service_contract::validate_backup_path(&path, &root) {
-                Ok(()) => crate::privileged::delete_driver_backup(&path, &id),
-                Err(error) => Err(error),
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::delete_driver_backup(&path, &id)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
             }
         }
         ServiceOperation::InstallPackage {

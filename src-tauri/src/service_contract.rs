@@ -24,12 +24,14 @@ pub const MAX_REQUEST_BYTES: usize = 64 * 1024;
 #[serde(tag = "op", content = "payload", rename_all = "camelCase")]
 pub enum ServiceOperation {
     Ping,
+    FindUpdates,
     InstallDriverUpdate { update_id: String },
     CreateRestorePoint { name: String },
     ListRestorePoints,
     DeleteRestorePoint { id: String },
     RestoreRestorePoint { id: String },
     CreateDriverBackup { path: String },
+    ListDriverBackups { path: String },
     RestoreDriverBackup { path: String, id: String },
     DeleteDriverBackup { path: String, id: String },
     InstallPackage { package_id: String, version: String },
@@ -84,6 +86,16 @@ pub fn validate_request(request: &ServiceRequest, expected_token: &str) -> Resul
     Ok(())
 }
 
+/// Allows only the per-user or machine-wide Driver Updater backup roots.
+pub fn is_allowed_backup_root(path: &str) -> bool {
+    let normalized = path.replace('/', "\\").to_lowercase();
+    let normalized = normalized.trim_end_matches('\\');
+    (normalized == "c:\\programdata\\driver updater\\backups"
+        || (normalized.starts_with("c:\\users\\")
+            && normalized.ends_with("\\appdata\\local\\driver updater\\backups")))
+        && !normalized.contains("\\..\\")
+}
+
 /// Checks that a backup path stays inside the configured application root.
 pub fn validate_backup_path(path: &str, allowed_root: &str) -> Result<(), String> {
     let root = std::path::Path::new(allowed_root);
@@ -131,6 +143,20 @@ mod tests {
         bad.version = 99;
         assert!(validate_request(&bad, "secret").is_err());
         assert!(validate_request(&request(ServiceOperation::Ping), "secret").is_ok());
+    }
+
+    #[test]
+    fn accepts_only_application_backup_roots() {
+        assert!(is_allowed_backup_root(
+            r"C:\ProgramData\Driver Updater\Backups"
+        ));
+        assert!(is_allowed_backup_root(
+            r"C:\Users\alice\AppData\Local\Driver Updater\Backups"
+        ));
+        assert!(!is_allowed_backup_root(r"D:\Driver Backups"));
+        assert!(!is_allowed_backup_root(
+            r"C:\Users\alice\AppData\Local\Driver Updater\Backups\..\Windows"
+        ));
     }
 
     #[test]

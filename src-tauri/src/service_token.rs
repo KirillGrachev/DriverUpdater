@@ -28,15 +28,3 @@ pub fn read() -> Result<String, String> {
     }
     Ok(token)
 }
-
-/// Root allowed for driver backup operations.
-pub fn backup_root() -> String {
-    let local = std::env::var_os("LOCALAPPDATA")
-        .map(std::path::PathBuf::from)
-        .unwrap_or_else(|| std::path::PathBuf::from(r"C:\ProgramData"));
-    local
-        .join("Driver Updater")
-        .join("Backups")
-        .to_string_lossy()
-        .to_string()
-}

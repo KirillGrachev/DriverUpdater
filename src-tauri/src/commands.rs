@@ -51,7 +51,12 @@ where
 {
     match service_client::call(operation) {
         Ok(value) => serde_json::from_value(value).map_err(|error| error.to_string()),
-        Err(error) if service_is_unavailable(&error) && crate::security::is_elevated() => direct(),
+        Err(error)
+            if service_is_unavailable(&error)
+                && (crate::security::is_elevated() || cfg!(debug_assertions)) =>
+        {
+            direct()
+        }
         Err(error) => Err(error),
     }
 }
@@ -174,12 +179,15 @@ pub async fn check_updates(
 ) -> Result<CheckUpdatesResult, CommandError> {
     let repository = Arc::clone(&state.0);
     let drivers_task = tauri::async_runtime::spawn_blocking(|| NativeDetector.detect());
-    let updates_task =
-        tauri::async_runtime::spawn_blocking(|| default_update_provider().find_updates());
+    let updates_task = tauri::async_runtime::spawn_blocking(|| {
+        service_or_direct(ServiceOperation::FindUpdates, || {
+            default_update_provider().find_updates()
+        })
+    });
     let drivers = drivers_task.await.ok().flatten();
-    let updates = updates_task.await.map_err(|error| error.to_string())?;
+    let updates = updates_task.await.map_err(|error| error.to_string())??;
     run_repository_handle(repository, move |repository| {
-        repository.apply_check_result(drivers, updates)
+        repository.apply_check_result(drivers, Ok(updates))
     })
     .await
 }
@@ -256,10 +264,17 @@ async fn install_one(
     if create_backup && plan.keep_backups {
         emit_install_progress(&app, &id, current, total, "backup");
         let backup_dir = plan.backup_dir.clone();
-        tauri::async_runtime::spawn_blocking(move || default_backup_provider(backup_dir).create())
-            .await
-            .map_err(|error| error.to_string())?
-            .map_err(|error| format!("driver backup was not created: {error}"))?;
+        tauri::async_runtime::spawn_blocking(move || {
+            service_or_direct(
+                ServiceOperation::CreateDriverBackup {
+                    path: backup_dir.to_string_lossy().into_owned(),
+                },
+                || default_backup_provider(backup_dir.clone()).create(),
+            )
+        })
+        .await
+        .map_err(|error| error.to_string())?
+        .map_err(|error| format!("driver backup was not created: {error}"))?;
     }
 
     emit_install_progress(&app, &id, current, total, "install");
@@ -611,10 +626,17 @@ pub async fn list_driver_backups(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<crate::backup::DriverBackup>, CommandError> {
     let root = backup_root(&state).await?;
-    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).list())
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::ListDriverBackups {
+                path: root.to_string_lossy().into_owned(),
+            },
+            || default_backup_provider(root.clone()).list(),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -624,10 +646,17 @@ pub async fn create_driver_backup(
 ) -> Result<crate::backup::DriverBackup, CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
-    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).create())
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::CreateDriverBackup {
+                path: root.to_string_lossy().into_owned(),
+            },
+            || default_backup_provider(root.clone()).create(),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -638,10 +667,22 @@ pub async fn restore_driver_backup(
 ) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
-    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).restore(&id))
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::RestoreDriverBackup {
+                path: root.to_string_lossy().into_owned(),
+                id: id.clone(),
+            },
+            || {
+                default_backup_provider(root.clone())
+                    .restore(&id)
+                    .map(|_| ())
+            },
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
@@ -652,10 +693,22 @@ pub async fn delete_driver_backup(
 ) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let root = backup_root(&state).await?;
-    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).delete(&id))
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::DeleteDriverBackup {
+                path: root.to_string_lossy().into_owned(),
+                id: id.clone(),
+            },
+            || {
+                default_backup_provider(root.clone())
+                    .delete(&id)
+                    .map(|_| ())
+            },
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]

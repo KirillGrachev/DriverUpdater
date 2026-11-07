@@ -680,6 +680,7 @@ dependencies = [
 name = "driver-updater-setup"
 version = "1.1.2"
 dependencies = [
+ "getrandom 0.3.4",
  "rfd",
  "serde",
  "serde_json",

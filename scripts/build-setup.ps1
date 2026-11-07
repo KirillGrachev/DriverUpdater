@@ -42,6 +42,30 @@ $payloadHash = (Get-FileHash -LiteralPath $payload.FullName -Algorithm SHA256).H
 $previousPayloadHash = $env:DRIVER_UPDATER_PAYLOAD_SHA256
 $env:DRIVER_UPDATER_PAYLOAD_SHA256 = $payloadHash
 
+$serviceExe = Join-Path $root "src-tauri/target/$Target/release/driver-updater-service.exe"
+$serviceOutLog = Join-Path $env:TEMP "driver-updater-service-build.out.log"
+$serviceErrLog = Join-Path $env:TEMP "driver-updater-service-build.err.log"
+$serviceProcess = Start-Process cargo -ArgumentList @(
+    'build',
+    '--release',
+    '--manifest-path',
+    (Join-Path $root 'src-tauri/Cargo.toml'),
+    '--target',
+    $Target,
+    '--bin',
+    'driver-updater-service'
+) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $serviceOutLog -RedirectStandardError $serviceErrLog
+if ($serviceProcess.ExitCode -ne 0) {
+    Get-Content $serviceOutLog, $serviceErrLog -Tail 80 -ErrorAction SilentlyContinue
+    throw "The Windows service build failed with exit code $($serviceProcess.ExitCode)"
+}
+Remove-Item -LiteralPath $serviceOutLog, $serviceErrLog -Force -ErrorAction SilentlyContinue
+if (-not (Test-Path $serviceExe)) {
+    throw "Service executable was not produced: $serviceExe"
+}
+$previousServiceBin = $env:DRIVER_UPDATER_SERVICE_BIN
+$env:DRIVER_UPDATER_SERVICE_BIN = $serviceExe
+
 $setupProject = Join-Path $root 'installer/src-tauri'
 $buildId = [guid]::NewGuid().ToString('N')
 $stdoutLog = Join-Path $env:TEMP "driver-updater-setup-$buildId.out.log"
@@ -64,6 +88,11 @@ try {
         Remove-Item Env:DRIVER_UPDATER_PAYLOAD_SHA256 -ErrorAction SilentlyContinue
     } else {
         $env:DRIVER_UPDATER_PAYLOAD_SHA256 = $previousPayloadHash
+    }
+    if ($null -eq $previousServiceBin) {
+        Remove-Item Env:DRIVER_UPDATER_SERVICE_BIN -ErrorAction SilentlyContinue
+    } else {
+        $env:DRIVER_UPDATER_SERVICE_BIN = $previousServiceBin
     }
     Remove-Item -LiteralPath $stdoutLog, $stderrLog -Force -ErrorAction SilentlyContinue
 }
