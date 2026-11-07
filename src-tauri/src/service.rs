@@ -348,3 +348,23 @@ fn handle_operation(
         Err(error) => failure(error),
     }
 }
+
+#[cfg(all(test, target_os = "windows"))]
+mod tests {
+    use super::*;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::Arc;
+
+    #[test]
+    fn pipe_ping_round_trip() {
+        std::env::set_var("DRIVER_UPDATER_SERVICE_TOKEN", "a".repeat(64));
+        let stop = Arc::new(AtomicBool::new(false));
+        let stop_for_server = Arc::clone(&stop);
+        std::thread::spawn(move || serve_pipe(stop_for_server));
+        std::thread::sleep(std::time::Duration::from_millis(250));
+        let response = crate::service_client::call(crate::service_contract::ServiceOperation::Ping)
+            .expect("service ping");
+        assert_eq!(response["service"], "driver-updater");
+        stop.store(true, Ordering::SeqCst);
+    }
+}
