@@ -4,6 +4,47 @@
  */
 
 #[cfg(target_os = "windows")]
+mod package_jobs {
+    use std::collections::HashMap;
+    use std::sync::atomic::{AtomicBool, Ordering};
+    use std::sync::{Arc, LazyLock, Mutex};
+
+    static JOBS: LazyLock<Mutex<HashMap<String, Arc<AtomicBool>>>> =
+        LazyLock::new(|| Mutex::new(HashMap::new()));
+
+    pub fn insert(package_id: String, cancel: Arc<AtomicBool>) {
+        if let Ok(mut jobs) = JOBS.lock() {
+            jobs.insert(package_id, cancel);
+        }
+    }
+
+    pub fn remove(package_id: &str) {
+        if let Ok(mut jobs) = JOBS.lock() {
+            jobs.remove(package_id);
+        }
+    }
+
+    pub fn cancel(package_id: &str) -> bool {
+        JOBS.lock()
+            .ok()
+            .and_then(|jobs| jobs.get(package_id).cloned())
+            .map(|cancel| {
+                cancel.store(true, Ordering::SeqCst);
+                true
+            })
+            .unwrap_or(false)
+    }
+
+    pub fn cancel_all() {
+        if let Ok(jobs) = JOBS.lock() {
+            for cancel in jobs.values() {
+                cancel.store(true, Ordering::SeqCst);
+            }
+        }
+    }
+}
+
+#[cfg(target_os = "windows")]
 mod windows_service_impl {
     use std::ffi::OsString;
     use std::sync::atomic::{AtomicBool, Ordering};
@@ -106,7 +147,7 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
     use windows_sys::Win32::Foundation::{CloseHandle, LocalFree, INVALID_HANDLE_VALUE};
     use windows_sys::Win32::Security::Authorization::ConvertStringSecurityDescriptorToSecurityDescriptorW;
     use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
-    use windows_sys::Win32::Storage::FileSystem::{FlushFileBuffers, ReadFile, WriteFile};
+
     use windows_sys::Win32::System::Pipes::{
         ConnectNamedPipe, CreateNamedPipeW, DisconnectNamedPipe, PIPE_READMODE_BYTE,
         PIPE_TYPE_BYTE, PIPE_WAIT,
@@ -114,7 +155,7 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
 
     const PIPE_ACCESS_DUPLEX: u32 = 0x0000_0003;
 
-    use crate::service_contract::{failure, validate_request, ServiceRequest, SERVICE_PIPE};
+    use crate::service_contract::SERVICE_PIPE;
 
     let token = match crate::service_token::read() {
         Ok(token) => token,
@@ -154,7 +195,7 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
                 name.as_ptr(),
                 PIPE_ACCESS_DUPLEX,
                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
-                1,
+                8,
                 64 * 1024,
                 64 * 1024,
                 0,
@@ -179,47 +220,64 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
             }
             break;
         }
-
-        let mut buffer = vec![0u8; 64 * 1024];
-        let mut read = 0u32;
-        let ok = unsafe {
-            ReadFile(
-                pipe,
-                buffer.as_mut_ptr(),
-                buffer.len() as u32,
-                &mut read,
-                std::ptr::null_mut(),
-            )
-        };
-        let response = if ok != 0 {
-            match serde_json::from_slice::<ServiceRequest>(&buffer[..read as usize]) {
-                Ok(request) => match validate_request(&request, &token) {
-                    Ok(()) => handle_operation(request.operation),
-                    Err(error) => failure(error),
-                },
-                Err(_) => failure("invalid service request"),
-            }
-        } else {
-            failure("could not read service request")
-        };
-        let encoded = serde_json::to_vec(&response).unwrap_or_default();
-        let mut written = 0u32;
-        unsafe {
-            let _ = WriteFile(
-                pipe,
-                encoded.as_ptr(),
-                encoded.len() as u32,
-                &mut written,
-                std::ptr::null_mut(),
-            );
-            let _ = FlushFileBuffers(pipe);
-            let _ = DisconnectNamedPipe(pipe);
-            let _ = CloseHandle(pipe);
-        }
+        let token = token.clone();
+        let pipe_address = pipe as usize;
+        std::thread::spawn(move || handle_connection(pipe_address, token));
     }
 
+    package_jobs::cancel_all();
     unsafe {
         let _ = LocalFree(descriptor);
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn handle_connection(pipe_address: usize, token: String) {
+    use windows_sys::Win32::Foundation::{CloseHandle, HANDLE, INVALID_HANDLE_VALUE};
+    use windows_sys::Win32::Storage::FileSystem::{FlushFileBuffers, ReadFile, WriteFile};
+    use windows_sys::Win32::System::Pipes::DisconnectNamedPipe;
+
+    use crate::service_contract::{failure, validate_request, ServiceRequest};
+
+    let pipe = pipe_address as HANDLE;
+    if pipe == INVALID_HANDLE_VALUE {
+        return;
+    }
+    let mut buffer = vec![0u8; 64 * 1024];
+    let mut read = 0u32;
+    let ok = unsafe {
+        ReadFile(
+            pipe,
+            buffer.as_mut_ptr(),
+            buffer.len() as u32,
+            &mut read,
+            std::ptr::null_mut(),
+        )
+    };
+    let response = if ok != 0 {
+        match serde_json::from_slice::<ServiceRequest>(&buffer[..read as usize]) {
+            Ok(request) => match validate_request(&request, &token) {
+                Ok(()) => handle_operation(request.operation),
+                Err(error) => failure(error),
+            },
+            Err(_) => failure("invalid service request"),
+        }
+    } else {
+        failure("could not read service request")
+    };
+    let encoded = serde_json::to_vec(&response).unwrap_or_default();
+    let mut written = 0u32;
+    unsafe {
+        let _ = WriteFile(
+            pipe,
+            encoded.as_ptr(),
+            encoded.len() as u32,
+            &mut written,
+            std::ptr::null_mut(),
+        );
+        let _ = FlushFileBuffers(pipe);
+        let _ = DisconnectNamedPipe(pipe);
+        let _ = CloseHandle(pipe);
     }
 }
 
@@ -274,7 +332,16 @@ fn handle_operation(
         ServiceOperation::InstallPackage {
             package_id,
             version,
-        } => crate::privileged::install_package(&package_id, &version),
+        } => {
+            let cancel = std::sync::Arc::new(std::sync::atomic::AtomicBool::new(false));
+            package_jobs::insert(package_id.clone(), std::sync::Arc::clone(&cancel));
+            let result = crate::privileged::install_package(&package_id, &version, &cancel);
+            package_jobs::remove(&package_id);
+            result
+        }
+        ServiceOperation::CancelPackageInstall { package_id } => {
+            Ok(serde_json::json!({ "cancelled": package_jobs::cancel(&package_id) }))
+        }
     };
     match result {
         Ok(value) => success(value),

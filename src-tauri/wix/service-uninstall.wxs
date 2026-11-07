@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+  <Fragment>
+    <CustomAction Id="StopDriverUpdaterService" Directory="SystemFolder" Execute="deferred" Impersonate="no" Return="ignore" ExeCommand="&quot;[SystemFolder]sc.exe&quot; stop DriverUpdaterService" />
+    <CustomAction Id="DeleteDriverUpdaterService" Directory="SystemFolder" Execute="deferred" Impersonate="no" Return="ignore" ExeCommand="&quot;[SystemFolder]sc.exe&quot; delete DriverUpdaterService" />
+    <InstallExecuteSequence>
+      <Custom Action="StopDriverUpdaterService" Before="RemoveFiles">REMOVE="ALL"</Custom>
+      <Custom Action="DeleteDriverUpdaterService" After="StopDriverUpdaterService">REMOVE="ALL"</Custom>
+    </InstallExecuteSequence>
+  </Fragment>
+</Wix>
