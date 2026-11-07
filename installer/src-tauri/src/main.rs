@@ -174,13 +174,21 @@ fn finish_setup(app: AppHandle, launch: bool) {
                     if let Some(install_path) =
                         value.get("installPath").and_then(|value| value.as_str())
                     {
-                        candidates.push(PathBuf::from(install_path).join("Driver Updater.exe"));
+                        let directory = PathBuf::from(install_path);
+                        candidates.push(directory.join("driver-updater.exe"));
+                        candidates.push(directory.join("Driver Updater.exe"));
                     }
                 }
             }
         }
         candidates.push(PathBuf::from(
+            r"C:\Program Files\Driver Updater\driver-updater.exe",
+        ));
+        candidates.push(PathBuf::from(
             r"C:\Program Files\Driver Updater\Driver Updater.exe",
+        ));
+        candidates.push(PathBuf::from(
+            r"C:\Program Files (x86)\Driver Updater\driver-updater.exe",
         ));
         candidates.push(PathBuf::from(
             r"C:\Program Files (x86)\Driver Updater\Driver Updater.exe",
