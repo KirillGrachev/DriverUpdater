@@ -4,6 +4,8 @@ use serde::{Deserialize, Serialize};
 use sha2::Digest;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+#[cfg(target_os = "windows")]
+use std::process::Stdio;
 use tauri::{AppHandle, Emitter, Manager, Window};
 
 #[derive(Debug, Deserialize)]
@@ -150,7 +152,9 @@ async fn install(app: AppHandle, request: InstallRequest) -> Result<(), String> 
                 log.display()
             ));
         }
-        emit(&app_handle, 94, "Writing application preferences...");
+        emit(&app_handle, 94, "Registering the Windows service...");
+        install_service(&install_path)?;
+        emit(&app_handle, 97, "Writing application preferences...");
         write_first_run(&request)?;
         emit(&app_handle, 100, "Finishing...");
         Ok(())
@@ -226,6 +230,103 @@ fn find_payload() -> Result<PathBuf, String> {
         }
     }
     Err("Installer payload not found next to the setup executable.".to_string())
+}
+
+#[cfg(target_os = "windows")]
+static SERVICE_BYTES: &[u8] = include_bytes!(concat!(env!("OUT_DIR"), "/service.bin"));
+
+#[cfg(target_os = "windows")]
+fn system_sc() -> PathBuf {
+    std::env::var_os("SystemRoot")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
+        .join("System32")
+        .join("sc.exe")
+}
+
+#[cfg(target_os = "windows")]
+fn system_command(program: &Path) -> Command {
+    let mut command = Command::new(program);
+    use std::os::windows::process::CommandExt;
+    command.creation_flags(0x08000000);
+    command
+}
+
+#[cfg(target_os = "windows")]
+fn install_service(install_path: &Path) -> Result<(), String> {
+    const SERVICE_NAME: &str = "DriverUpdaterService";
+    if SERVICE_BYTES.is_empty() {
+        return Err("The Windows service binary is missing from this setup build.".to_string());
+    }
+    std::fs::create_dir_all(install_path).map_err(|error| error.to_string())?;
+    let service_path = install_path.join("driver-updater-service.exe");
+    let sc = system_sc();
+
+    let _ = system_command(&sc)
+        .args(["stop", SERVICE_NAME])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+    std::thread::sleep(std::time::Duration::from_millis(800));
+    let _ = system_command(&sc)
+        .args(["delete", SERVICE_NAME])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status();
+
+    std::fs::write(&service_path, SERVICE_BYTES)
+        .map_err(|error| format!("Could not install the Windows service: {error}"))?;
+
+    let token_dir = std::env::var_os("PROGRAMDATA")
+        .map(PathBuf::from)
+        .ok_or_else(|| "PROGRAMDATA is not available.".to_string())?
+        .join("Driver Updater");
+    std::fs::create_dir_all(&token_dir).map_err(|error| error.to_string())?;
+    let mut token_bytes = [0u8; 32];
+    getrandom::fill(&mut token_bytes).map_err(|error| error.to_string())?;
+    let token: String = token_bytes
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect();
+    std::fs::write(token_dir.join("service.token"), token.as_bytes())
+        .map_err(|error| format!("Could not write the service token: {error}"))?;
+
+    let bin_path = format!("\"{}\"", service_path.display());
+    let status = system_command(&sc)
+        .args([
+            "create",
+            SERVICE_NAME,
+            "binPath=",
+            &bin_path,
+            "start=",
+            "auto",
+            "obj=",
+            "LocalSystem",
+        ])
+        .status()
+        .map_err(|error| format!("Could not register the Windows service: {error}"))?;
+    if !status.success() {
+        return Err(format!(
+            "sc.exe create failed with code {}.",
+            status.code().unwrap_or(-1)
+        ));
+    }
+    let status = system_command(&sc)
+        .args(["start", SERVICE_NAME])
+        .status()
+        .map_err(|error| format!("Could not start the Windows service: {error}"))?;
+    if !status.success() {
+        return Err(format!(
+            "sc.exe start failed with code {}.",
+            status.code().unwrap_or(-1)
+        ));
+    }
+    Ok(())
+}
+
+#[cfg(not(target_os = "windows"))]
+fn install_service(_install_path: &Path) -> Result<(), String> {
+    Ok(())
 }
 
 fn write_first_run(request: &InstallRequest) -> Result<(), String> {
