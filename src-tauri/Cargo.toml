@@ -5,6 +5,7 @@ description = "Driver Updater - free open-source driver manager (Tauri core)"
 authors = ["Kirill Grachev <https://github.com/KirillGrachev>"]
 license = "MIT"
 edition = "2021"
+default-run = "driver-updater"
 rust-version = "1.85"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

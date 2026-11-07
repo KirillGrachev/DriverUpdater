@@ -166,10 +166,25 @@ async fn install(app: AppHandle, request: InstallRequest) -> Result<(), String> 
 #[tauri::command]
 fn finish_setup(app: AppHandle, launch: bool) {
     if launch {
-        let candidates = [
-            PathBuf::from(r"C:\Program Files\Driver Updater\Driver Updater.exe"),
-            PathBuf::from(r"C:\Program Files (x86)\Driver Updater\Driver Updater.exe"),
-        ];
+        let mut candidates = Vec::new();
+        if let Some(local) = std::env::var_os("LOCALAPPDATA").map(PathBuf::from) {
+            let preferences = local.join("Driver Updater").join("installer.json");
+            if let Ok(raw) = std::fs::read_to_string(preferences) {
+                if let Ok(value) = serde_json::from_str::<serde_json::Value>(&raw) {
+                    if let Some(install_path) =
+                        value.get("installPath").and_then(|value| value.as_str())
+                    {
+                        candidates.push(PathBuf::from(install_path).join("Driver Updater.exe"));
+                    }
+                }
+            }
+        }
+        candidates.push(PathBuf::from(
+            r"C:\Program Files\Driver Updater\Driver Updater.exe",
+        ));
+        candidates.push(PathBuf::from(
+            r"C:\Program Files (x86)\Driver Updater\Driver Updater.exe",
+        ));
         if let Some(executable) = candidates.iter().find(|path| path.exists()) {
             let _ = Command::new(executable).spawn();
         }
