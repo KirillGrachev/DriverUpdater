@@ -236,8 +236,10 @@ The setup registers a small `DriverUpdaterService` LocalSystem service and
 writes a per-user IPC token. The app itself runs with normal user rights, and
 the service performs only allowlisted privileged operations: driver updates,
 restore points and driver backups. This gives one UAC prompt at setup and no
-prompt for each driver. The portable archive does not register the service; use
-the setup executable for driver installation and restore-point features.
+prompt for each driver. The portable archive does not register the service. Run
+`DriverUpdaterPortable.exe` instead: it requests administrator rights once per
+session and starts the app elevated, so driver and restore-point operations work
+without a service or a per-driver UAC prompt.
 
 The installer:
 

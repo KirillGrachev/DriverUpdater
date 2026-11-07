@@ -1,0 +1,20 @@
+[package]
+name = "driver-updater-portable"
+version = "1.1.2"
+description = "Elevation launcher for the portable Driver Updater build"
+edition = "2021"
+rust-version = "1.85"
+build = "build.rs"
+
+[[bin]]
+name = "DriverUpdaterPortable"
+path = "src/main.rs"
+
+[build-dependencies]
+winres = "0.1"
+
+[profile.release]
+codegen-units = 1
+lto = true
+opt-level = "s"
+strip = true

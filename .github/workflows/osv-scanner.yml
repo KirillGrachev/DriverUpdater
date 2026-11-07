@@ -21,6 +21,7 @@ jobs:
                 --lockfile=./package-lock.json
                 --lockfile=./src-tauri/Cargo.lock
                 --lockfile=./installer/src-tauri/Cargo.lock
+                --lockfile=./portable/Cargo.lock
             fail-on-vuln: false
             upload-sarif: true
         permissions:
