@@ -17,9 +17,34 @@ mod windows_service_impl {
     use windows_service::service_control_handler::{self, ServiceControlHandlerResult};
     use windows_service::{define_windows_service, service_dispatcher};
 
-    use crate::service_contract::SERVICE_NAME;
+    use crate::service_contract::{SERVICE_NAME, SERVICE_PIPE};
 
     define_windows_service!(ffi_service_main, service_main);
+
+    fn wake_pipe() {
+        use windows_sys::Win32::Foundation::{CloseHandle, GENERIC_READ, GENERIC_WRITE};
+        use windows_sys::Win32::Storage::FileSystem::{CreateFileW, OPEN_EXISTING};
+        let name: Vec<u16> = SERVICE_PIPE
+            .encode_utf16()
+            .chain(std::iter::once(0))
+            .collect();
+        let pipe = unsafe {
+            CreateFileW(
+                name.as_ptr(),
+                GENERIC_READ | GENERIC_WRITE,
+                0,
+                std::ptr::null(),
+                OPEN_EXISTING,
+                0,
+                std::ptr::null_mut(),
+            )
+        };
+        if pipe != windows_sys::Win32::Foundation::INVALID_HANDLE_VALUE {
+            unsafe {
+                let _ = CloseHandle(pipe);
+            }
+        }
+    }
 
     pub fn run_service() {
         let _ = service_dispatcher::start(SERVICE_NAME, ffi_service_main);
@@ -32,6 +57,7 @@ mod windows_service_impl {
             service_control_handler::register(SERVICE_NAME, move |control| match control {
                 ServiceControl::Stop | ServiceControl::Shutdown => {
                     stop_for_handler.store(true, Ordering::SeqCst);
+                    wake_pipe();
                     ServiceControlHandlerResult::NoError
                 }
                 ServiceControl::Interrogate => ServiceControlHandlerResult::NoError,
@@ -145,6 +171,13 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
                 let _ = CloseHandle(pipe);
             }
             continue;
+        }
+        if stop.load(Ordering::SeqCst) {
+            unsafe {
+                let _ = DisconnectNamedPipe(pipe);
+                let _ = CloseHandle(pipe);
+            }
+            break;
         }
 
         let mut buffer = vec![0u8; 64 * 1024];
