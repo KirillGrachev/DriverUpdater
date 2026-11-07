@@ -156,6 +156,14 @@ jobs:
             - name: Name the architecture setup executable
               shell: pwsh
               run: Copy-Item "artifacts/setup/${{ matrix.arch }}/DriverUpdaterSetup.exe" "artifacts/setup/DriverUpdaterSetup-${{ matrix.arch }}.exe"
+            - name: Verify the setup embeds the Windows service
+              shell: pwsh
+              run: |
+                  $setup = "artifacts/setup/${{ matrix.arch }}/DriverUpdaterSetup.exe"
+                  $bytes = [System.IO.File]::ReadAllBytes($setup)
+                  $text = [System.Text.Encoding]::UTF8.GetString($bytes)
+                  if (-not $text.Contains("DriverUpdaterService")) { throw "The setup does not contain the service registration." }
+                  if (-not $text.Contains("driver-updater-service")) { throw "The setup does not contain the service binary." }
             - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
               with:
                   name: setup-${{ matrix.arch }}
