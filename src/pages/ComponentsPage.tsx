@@ -52,40 +52,12 @@ export function ComponentsPage() {
     const [activeGroup, setActiveGroup] = useState<ComponentGroup>('runtime');
     const [expandedGroup, setExpandedGroup] = useState<ComponentGroup | null>(null);
     const [detectionReady, setDetectionReady] = useState(false);
+    const [versionsReady, setVersionsReady] = useState(false);
+    const [loadedGroups, setLoadedGroups] = useState<Set<ComponentGroup>>(() => new Set());
 
     useEffect(() => {
         let cancelled = false;
-        const prefetchVersions = async () => {
-            const items = COMPONENT_CATALOG.filter((item) => item.wingetId);
-            const loaded: Record<string, string[]> = {};
-            let cursor = 0;
-            const worker = async () => {
-                while (cursor < items.length) {
-                    const item = items[cursor++];
-                    const cached = remoteVersionCache.get(item.id);
-                    if (cached) {
-                        loaded[item.id] = cached;
-                        continue;
-                    }
-                    try {
-                        const remote = await listPackageVersions(item.wingetId ?? '');
-                        if (remote.length > 0) {
-                            remoteVersionCache.set(item.id, remote);
-                            loaded[item.id] = remote;
-                        }
-                    } catch {
-                        /*
-                         * Fall back to the documented catalogue versions.
-                         */
-                    }
-                }
-            };
-            await Promise.all(Array.from({ length: Math.min(8, items.length) }, () => worker()));
-            if (!cancelled) {
-                setVersions((prev) => ({ ...prev, ...loaded }));
-            }
-        };
-        void Promise.all([detectInstalledComponents(), getInstalledComponents(), prefetchVersions()])
+        void Promise.all([detectInstalledComponents(), getInstalledComponents()])
             .then(([detectedComponents, persistedIds]) => {
                 if (cancelled) return;
                 const next = new Set<string>();
@@ -119,7 +91,51 @@ export function ComponentsPage() {
         return () => {
             cancelled = true;
         };
-    }, [detectInstalledComponents, getInstalledComponents, listPackageVersions, saveInstalledComponents]);
+    }, [detectInstalledComponents, getInstalledComponents, saveInstalledComponents]);
+
+    useEffect(() => {
+        if (!detectionReady || loadedGroups.has(activeGroup)) {
+            return undefined;
+        }
+        let cancelled = false;
+        const items = COMPONENT_CATALOG.filter((item) => item.group === activeGroup && item.wingetId);
+        const loaded: Record<string, string[]> = {};
+        let cursor = 0;
+        const worker = async () => {
+            while (cursor < items.length) {
+                const item = items[cursor++];
+                const cached = remoteVersionCache.get(item.id);
+                if (cached) {
+                    loaded[item.id] = cached;
+                    continue;
+                }
+                try {
+                    const remote = await listPackageVersions(item.wingetId ?? '');
+                    if (remote.length > 0) {
+                        remoteVersionCache.set(item.id, remote);
+                        loaded[item.id] = remote;
+                    }
+                } catch {
+                    /*
+                     * Keep the documented catalogue versions for this row.
+                     */
+                }
+            }
+        };
+        void Promise.all(Array.from({ length: Math.min(8, items.length) }, () => worker()))
+            .then(() => {
+                if (cancelled) return;
+                setVersions((prev) => ({ ...prev, ...loaded }));
+                setLoadedGroups((prev) => new Set(prev).add(activeGroup));
+                setVersionsReady(true);
+            })
+            .catch(() => {
+                if (!cancelled) setVersionsReady(true);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [activeGroup, detectionReady, listPackageVersions, loadedGroups]);
 
     const loadVersions = (item: AppComponent) => {
         if (!item.wingetId) return;
@@ -227,6 +243,7 @@ export function ComponentsPage() {
                             onClick={() => {
                                 setActiveGroup(group.id);
                                 setExpandedGroup(null);
+                                setVersionsReady(loadedGroups.has(group.id));
                                 document.querySelector('.app-main')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
                             }}
                         >
@@ -240,7 +257,7 @@ export function ComponentsPage() {
             {GROUPS.filter((group) => group.id === activeGroup).map((group) => {
                 const items = COMPONENT_CATALOG.filter((item) => item.group === group.id);
                 const visibleItems = expandedGroup === group.id ? items : items.slice(0, 8);
-                if (!detectionReady) {
+                if (!detectionReady || !versionsReady) {
                     return (
                         <section className="card components-card components-loading-card" aria-busy="true">
                             <div className="components-head">
