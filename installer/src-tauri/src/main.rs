@@ -1,6 +1,7 @@
 #![windows_subsystem = "windows"]
 
 use serde::{Deserialize, Serialize};
+use sha2::Digest;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use tauri::{AppHandle, Emitter, Manager, Window};
@@ -52,7 +53,11 @@ fn available_bytes(path: &str) -> Option<u64> {
             return None;
         }
     }
-    let wide: Vec<u16> = existing.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
+    let wide: Vec<u16> = existing
+        .as_os_str()
+        .encode_wide()
+        .chain(std::iter::once(0))
+        .collect();
     let mut free = 0u64;
     let ok = unsafe { GetDiskFreeSpaceExW(wide.as_ptr(), &mut free, null_mut(), null_mut()) };
     (ok != 0).then_some(free)
@@ -102,6 +107,7 @@ async fn install(app: AppHandle, request: InstallRequest) -> Result<(), String> 
         return Err("Choose an installation folder.".to_string());
     }
     let payload = find_payload()?;
+    verify_payload(&payload)?;
     let app_handle = app.clone();
     tauri::async_runtime::spawn_blocking(move || {
         emit(&app_handle, 8, "Preparing installation files...");
@@ -175,6 +181,24 @@ fn emit(app: &AppHandle, percent: u32, stage: &str) {
             stage: stage.to_string(),
         },
     );
+}
+
+fn verify_payload(payload: &Path) -> Result<(), String> {
+    let Some(expected) = option_env!("DRIVER_UPDATER_PAYLOAD_SHA256") else {
+        return Ok(());
+    };
+    let bytes = std::fs::read(payload)
+        .map_err(|error| format!("Could not read the installer payload: {error}"))?;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(&bytes);
+    let actual = format!("{:x}", hasher.finalize());
+    if actual != expected.to_ascii_lowercase() {
+        return Err(
+            "The installer payload failed its integrity check. Download the setup again."
+                .to_string(),
+        );
+    }
+    Ok(())
 }
 
 fn payload_command(payload: &Path) -> PathBuf {
