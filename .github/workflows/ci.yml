@@ -127,3 +127,5 @@ jobs:
             - name: Service install smoke
               shell: pwsh
               run: ./scripts/test-service.ps1
+            - name: Build the portable launcher
+              run: cargo build --release --manifest-path portable/Cargo.toml --target x86_64-pc-windows-msvc
