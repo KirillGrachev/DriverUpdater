@@ -163,30 +163,6 @@ fn unprotect(data: &[u8]) -> Result<Vec<u8>, String> {
     Ok(bytes)
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn seals_and_opens_round_trip() {
-        let plaintext = br#"{"hostname":"test-pc","drivers":[]}"#;
-        let sealed = seal(plaintext).expect("seal");
-        #[cfg(target_os = "windows")]
-        {
-            assert!(is_sealed(&sealed));
-            assert_ne!(sealed.as_slice(), plaintext.as_slice());
-        }
-        let opened = open(&sealed).expect("open");
-        assert_eq!(opened, plaintext);
-    }
-
-    #[test]
-    fn accepts_legacy_plaintext_for_migration() {
-        let plaintext = b"legacy";
-        assert_eq!(open(plaintext).expect("legacy"), plaintext);
-    }
-}
-
 /// Returns whether the current process already has an elevated token.
 #[cfg(target_os = "windows")]
 pub fn is_elevated() -> bool {
@@ -220,4 +196,28 @@ pub fn is_elevated() -> bool {
 #[cfg(not(target_os = "windows"))]
 pub fn is_elevated() -> bool {
     true
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn seals_and_opens_round_trip() {
+        let plaintext = br#"{"hostname":"test-pc","drivers":[]}"#;
+        let sealed = seal(plaintext).expect("seal");
+        #[cfg(target_os = "windows")]
+        {
+            assert!(is_sealed(&sealed));
+            assert_ne!(sealed.as_slice(), plaintext.as_slice());
+        }
+        let opened = open(&sealed).expect("open");
+        assert_eq!(opened, plaintext);
+    }
+
+    #[test]
+    fn accepts_legacy_plaintext_for_migration() {
+        let plaintext = b"legacy";
+        assert_eq!(open(plaintext).expect("legacy"), plaintext);
+    }
 }

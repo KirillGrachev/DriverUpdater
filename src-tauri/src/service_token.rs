@@ -14,6 +14,11 @@ pub fn path() -> Result<PathBuf, String> {
 
 /// Reads the token written by the setup wizard.
 pub fn read() -> Result<String, String> {
+    if let Ok(token) = std::env::var("DRIVER_UPDATER_SERVICE_TOKEN") {
+        if token.len() >= 32 {
+            return Ok(token);
+        }
+    }
     let path = path()?;
     let token = std::fs::read_to_string(&path)
         .map_err(|error| format!("could not read the service token: {error}"))?;

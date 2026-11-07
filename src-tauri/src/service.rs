@@ -80,10 +80,10 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
     use windows_sys::Win32::Foundation::{CloseHandle, LocalFree, INVALID_HANDLE_VALUE};
     use windows_sys::Win32::Security::Authorization::ConvertStringSecurityDescriptorToSecurityDescriptorW;
     use windows_sys::Win32::Security::SECURITY_ATTRIBUTES;
-    use windows_sys::Win32::Storage::FileSystem::{ReadFile, WriteFile};
+    use windows_sys::Win32::Storage::FileSystem::{FlushFileBuffers, ReadFile, WriteFile};
     use windows_sys::Win32::System::Pipes::{
-        ConnectNamedPipe, CreateNamedPipeW, DisconnectNamedPipe, PIPE_READMODE_MESSAGE,
-        PIPE_TYPE_MESSAGE, PIPE_WAIT,
+        ConnectNamedPipe, CreateNamedPipeW, DisconnectNamedPipe, PIPE_READMODE_BYTE,
+        PIPE_TYPE_BYTE, PIPE_WAIT,
     };
 
     const PIPE_ACCESS_DUPLEX: u32 = 0x0000_0003;
@@ -127,7 +127,7 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
             CreateNamedPipeW(
                 name.as_ptr(),
                 PIPE_ACCESS_DUPLEX,
-                PIPE_TYPE_MESSAGE | PIPE_READMODE_MESSAGE | PIPE_WAIT,
+                PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
                 1,
                 64 * 1024,
                 64 * 1024,
@@ -179,6 +179,7 @@ pub fn serve_pipe(stop: std::sync::Arc<std::sync::atomic::AtomicBool>) {
                 &mut written,
                 std::ptr::null_mut(),
             );
+            let _ = FlushFileBuffers(pipe);
             let _ = DisconnectNamedPipe(pipe);
             let _ = CloseHandle(pipe);
         }
