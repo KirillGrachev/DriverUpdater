@@ -125,7 +125,7 @@
     "kindSchedule": "Maħluq skont l-iskeda",
     "kindManual": "Maħluq manwalment",
     "confirmRestoreTitle": "Tirrestawra s-sistema?",
-    "confirmRestoreText": "Il-punt ta' rkupru “{name}” se jiġi applikat. Il-verżjonijiet attwali tad-drajvers se jiġu sostitwiti.",
+    "confirmRestoreText": "Il-punt ta' rkupru “{name}” se jiġi applikat. Il-verżjonijiet attwali tad-drajvers se jiġu sostitwiti. Windows se jerġa’ jibda. Issejvja d-dokumenti kollha miftuħa qabel ma tkompli.",
     "confirmDeleteTitle": "Tħassar il-punt ta' rkupru?",
     "confirmDeleteText": "Il-punt ta' rkupru “{name}” se jiġi mħassar b'mod permanenti.",
     "confirmOk": "Ikkonferma",
@@ -195,7 +195,9 @@
     "savedToast": "L-impostazzjonijiet ġew issejvjati",
     "resetToast": "L-impostazzjonijiet ġew irrisettjati għall-valuri default",
     "copyPath": "Copy path",
-    "copiedToast": "Mogħdija kkupjata"
+    "copiedToast": "Mogħdija kkupjata",
+    "autoInstall": "Installa aġġornamenti awtomatikament",
+    "autoInstallSub": "Installa l-aġġornamenti tad-driver disponibbli wara l-verifika awtomatika"
   },
   "about": {
     "title": "Dwar",
@@ -245,7 +247,8 @@
     "driverUpdated": "Id-drajver “{name}” ġie aġġornat",
     "restorePointCreated": "Punt ta' rkupru maħluq",
     "error": "L-operazzjoni falliet",
-    "rebootRequired": "Huwa meħtieġ bidu mill-ġdid biex jintemm l-aġġornament tas-sewwieq"
+    "rebootRequired": "Huwa meħtieġ bidu mill-ġdid biex jintemm l-aġġornament tas-sewwieq",
+    "cancelled": "Installazzjoni mħassra"
   },
   "components": {
     "cancelTooLate": "Il-programm tal-installazzjoni diġà beda. L-installazzjoni attwali se titlesta.",
@@ -268,7 +271,11 @@
     "version": "Verżjoni",
     "loading": "Tagħbija...",
     "managed": "Immexxi mis-sewwieq",
-    "openglNote": "Ipprovdut mis-sewwieq tal-GPU tiegħek"
+    "openglNote": "Ipprovdut mis-sewwieq tal-GPU tiegħek",
+    "cancelInstallTitle": "Tħassar l-installazzjoni?",
+    "cancelInstallText": "L-installer diġà qed jaħdem. It-tħassir jista’ jħalli l-komponent installat parzjalment.",
+    "cancelInstallConfirm": "Ħassar l-installazzjoni",
+    "cancelInstallKeep": "Kompli l-installazzjoni"
   },
   "boot": {
     "errorTitle": "The app could not start",

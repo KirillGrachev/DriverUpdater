@@ -119,7 +119,7 @@
     "kindSchedule": "Volgens planning gemaakt",
     "kindManual": "Handmatig gemaakt",
     "confirmRestoreTitle": "Het systeem herstellen?",
-    "confirmRestoreText": "Herstelpunt “{name}” wordt toegepast. Huidige stuurprogrammaversies worden vervangen.",
+    "confirmRestoreText": "Herstelpunt “{name}” wordt toegepast. Huidige stuurprogrammaversies worden vervangen. Windows wordt opnieuw gestart. Sla alle geopende documenten op voordat u doorgaat.",
     "confirmDeleteTitle": "Herstelpunt verwijderen?",
     "confirmDeleteText": "Herstelpunt “{name}” wordt permanent verwijderd.",
     "confirmOk": "Bevestigen",
@@ -189,7 +189,9 @@
     "savedToast": "Instellingen opgeslagen",
     "resetToast": "Instellingen teruggezet naar de standaardwaarden",
     "copyPath": "Copy path",
-    "copiedToast": "Pad gekopieerd"
+    "copiedToast": "Pad gekopieerd",
+    "autoInstall": "Updates automatisch installeren",
+    "autoInstallSub": "Beschikbare stuurprogramma-updates installeren na de automatische controle"
   },
   "about": {
     "title": "Over",
@@ -236,7 +238,8 @@
     "driverUpdated": "Stuurprogramma “{name}” bijgewerkt",
     "restorePointCreated": "Herstelpunt gemaakt",
     "error": "Bewerking mislukt",
-    "rebootRequired": "Een herstart is vereist om de update van het stuurprogramma te voltooien"
+    "rebootRequired": "Een herstart is vereist om de update van het stuurprogramma te voltooien",
+    "cancelled": "Installatie geannuleerd"
   },
   "components": {
     "cancelTooLate": "Het installatieprogramma is al gestart. De huidige installatie wordt voltooid.",
@@ -259,7 +262,11 @@
     "version": "Versie",
     "loading": "Laden...",
     "managed": "Bestuurder beheerd",
-    "openglNote": "Aangeleverd door uw GPU-stuurprogramma"
+    "openglNote": "Aangeleverd door uw GPU-stuurprogramma",
+    "cancelInstallTitle": "Installatie annuleren?",
+    "cancelInstallText": "Het installatieprogramma wordt al uitgevoerd. Annuleren kan het onderdeel gedeeltelijk geïnstalleerd achterlaten.",
+    "cancelInstallConfirm": "Installatie annuleren",
+    "cancelInstallKeep": "Doorgaan met installeren"
   },
   "boot": {
     "errorTitle": "The app could not start",

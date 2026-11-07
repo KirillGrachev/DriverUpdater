@@ -125,7 +125,7 @@
     "kindSchedule": "Cruthaithe de réir sceidil",
     "kindManual": "Cruthaithe de láimh",
     "confirmRestoreTitle": "Athchóirigh an córas?",
-    "confirmRestoreText": "Cuirfear pointe athchóirithe “{name}” i bhfeidhm. Cuirfear leaganacha reatha na dtiománaithe ina n-ionad.",
+    "confirmRestoreText": "Cuirfear pointe athchóirithe “{name}” i bhfeidhm. Cuirfear leaganacha reatha na dtiománaithe ina n-ionad. Atosóidh Windows. Sábháil gach doiciméad oscailte sula leanfaidh tú ar aghaidh.",
     "confirmDeleteTitle": "Scrios an pointe athchóirithe?",
     "confirmDeleteText": "Scriosfar pointe athchóirithe “{name}” go buan.",
     "confirmOk": "Deimhnigh",
@@ -195,7 +195,9 @@
     "savedToast": "Socruithe sábháilte",
     "resetToast": "Athshocraíodh na socruithe chuig na réamhshocruithe",
     "copyPath": "Copy path",
-    "copiedToast": "Conair cóipeáilte"
+    "copiedToast": "Conair cóipeáilte",
+    "autoInstall": "Suiteáil nuashonruithe go huathoibríoch",
+    "autoInstallSub": "Suiteáil na nuashonruithe tiománaithe atá ar fáil tar éis an tseiceála uathoibríoch"
   },
   "about": {
     "title": "Maidir le",
@@ -245,7 +247,8 @@
     "driverUpdated": "Nuashonraíodh an tiománaí “{name}”",
     "restorePointCreated": "Cruthaíodh pointe athchóirithe",
     "error": "Theip ar an oibríocht",
-    "rebootRequired": "Tá gá le atosú chun an nuashonrú tiománaí a chríochnú"
+    "rebootRequired": "Tá gá le atosú chun an nuashonrú tiománaí a chríochnú",
+    "cancelled": "Suiteáil curtha ar ceal"
   },
   "components": {
     "cancelTooLate": "Tá an suiteálaí tosaithe cheana. Críochnófar an tsuiteáil reatha.",
@@ -268,7 +271,11 @@
     "version": "Leagan",
     "loading": "Á lódáil…",
     "managed": "Tiománaí faoi stiúir",
-    "openglNote": "Ar fáil ag do tiománaí GPU"
+    "openglNote": "Ar fáil ag do tiománaí GPU",
+    "cancelInstallTitle": "Cealaigh an suiteáil?",
+    "cancelInstallText": "Tá an suiteálaí ag rith cheana féin. D’fhéadfadh an comhpháirt a bheith suiteáilte go páirteach má chealaítear.",
+    "cancelInstallConfirm": "Cealaigh an suiteáil",
+    "cancelInstallKeep": "Lean leis an suiteáil"
   },
   "boot": {
     "errorTitle": "The app could not start",

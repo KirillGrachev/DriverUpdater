@@ -123,7 +123,7 @@
     "kindSchedule": "Vytvorené podľa plánu",
     "kindManual": "Vytvorené ručne",
     "confirmRestoreTitle": "Obnoviť systém?",
-    "confirmRestoreText": "Použije sa bod obnovenia „{name}“. Aktuálne verzie ovládačov budú nahradené.",
+    "confirmRestoreText": "Použije sa bod obnovenia „{name}“. Aktuálne verzie ovládačov budú nahradené. Windows sa reštartuje. Pred pokračovaním uložte všetky otvorené dokumenty.",
     "confirmDeleteTitle": "Odstrániť bod obnovenia?",
     "confirmDeleteText": "Bod obnovenia „{name}“ bude natrvalo odstránený.",
     "confirmOk": "Potvrdiť",
@@ -193,7 +193,9 @@
     "savedToast": "Nastavenia boli uložené",
     "resetToast": "Nastavenia boli obnovené na predvolené hodnoty",
     "copyPath": "Copy path",
-    "copiedToast": "Cesta bola skopírovaná"
+    "copiedToast": "Cesta bola skopírovaná",
+    "autoInstall": "Automaticky inštalovať aktualizácie",
+    "autoInstallSub": "Po automatickej kontrole nainštalovať dostupné aktualizácie ovládačov"
   },
   "about": {
     "title": "O aplikácii",
@@ -242,7 +244,8 @@
     "driverUpdated": "Ovládač „{name}“ bol aktualizovaný",
     "restorePointCreated": "Bod obnovenia bol vytvorený",
     "error": "Operácia zlyhala",
-    "rebootRequired": "Na dokončenie aktualizácie ovládača je potrebný reštart"
+    "rebootRequired": "Na dokončenie aktualizácie ovládača je potrebný reštart",
+    "cancelled": "Inštalácia zrušená"
   },
   "components": {
     "cancelTooLate": "Inštalátor už beží. Aktuálna inštalácia sa dokončí.",
@@ -265,7 +268,11 @@
     "version": "Verzia",
     "loading": "Načítava sa…",
     "managed": "Riadené vodičom",
-    "openglNote": "Poskytuje váš ovládač GPU"
+    "openglNote": "Poskytuje váš ovládač GPU",
+    "cancelInstallTitle": "Zrušiť inštaláciu?",
+    "cancelInstallText": "Inštalátor už beží. Zrušenie môže zanechať komponent čiastočne nainštalovaný.",
+    "cancelInstallConfirm": "Zrušiť inštaláciu",
+    "cancelInstallKeep": "Pokračovať v inštalácii"
   },
   "boot": {
     "errorTitle": "The app could not start",

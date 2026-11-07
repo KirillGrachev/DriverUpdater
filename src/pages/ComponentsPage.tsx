@@ -180,7 +180,7 @@ export function ComponentsPage() {
         } catch (error) {
             const failure = commandErrorInfo(error);
             if (failure.code === 'packageCancelled' || failure.message === PACKAGE_CANCELLED_ERROR) {
-                pushToast(t('toasts.error'), 'info');
+                pushToast(t('toasts.cancelled'), 'info');
                 return;
             }
             console.error('component install failed', error);
@@ -191,10 +191,10 @@ export function ComponentsPage() {
 
     const requestCancelInstall = (item: AppComponent) => {
         openModal({
-            title: t('backups.banner'),
-            text: t('backups.bannerSub'),
-            confirmLabel: t('backups.confirmCancel'),
-            cancelLabel: t('backups.confirmOk'),
+            title: t('components.cancelInstallTitle'),
+            text: t('components.cancelInstallText'),
+            confirmLabel: t('components.cancelInstallConfirm'),
+            cancelLabel: t('components.cancelInstallKeep'),
             tone: 'danger',
             onConfirm: async () => {
                 closeModal();

@@ -121,7 +121,7 @@
     "kindSchedule": "Criado por agendamento",
     "kindManual": "Criado manualmente",
     "confirmRestoreTitle": "Restaurar o sistema?",
-    "confirmRestoreText": "O ponto de restauração “{name}” será aplicado. As versões atuais dos drivers serão substituídas.",
+    "confirmRestoreText": "O ponto de restauração “{name}” será aplicado. As versões atuais dos drivers serão substituídas. O Windows será reiniciado. Guarde todos os documentos abertos antes de continuar.",
     "confirmDeleteTitle": "Excluir ponto de restauração?",
     "confirmDeleteText": "O ponto de restauração “{name}” será excluído permanentemente.",
     "confirmOk": "Confirmar",
@@ -191,7 +191,9 @@
     "savedToast": "Configurações salvas",
     "resetToast": "Configurações redefinidas para o padrão",
     "copyPath": "Copy path",
-    "copiedToast": "Caminho copiado"
+    "copiedToast": "Caminho copiado",
+    "autoInstall": "Instalar atualizações automaticamente",
+    "autoInstallSub": "Instalar as atualizações de drivers disponíveis após a verificação automática"
   },
   "about": {
     "title": "Sobre",
@@ -239,7 +241,8 @@
     "driverUpdated": "Driver “{name}” atualizado",
     "restorePointCreated": "Ponto de restauração criado",
     "error": "Falha na operação",
-    "rebootRequired": "É necessária uma reinicialização para concluir a atualização do driver"
+    "rebootRequired": "É necessária uma reinicialização para concluir a atualização do driver",
+    "cancelled": "Instalação cancelada"
   },
   "components": {
     "cancelTooLate": "O instalador já foi iniciado. A instalação atual será concluída.",
@@ -262,7 +265,11 @@
     "version": "Versão",
     "loading": "Carregando…",
     "managed": "Gerenciado pelo driver",
-    "openglNote": "Fornecido pelo seu driver GPU"
+    "openglNote": "Fornecido pelo seu driver GPU",
+    "cancelInstallTitle": "Cancelar a instalação?",
+    "cancelInstallText": "O instalador já está em execução. Cancelar pode deixar o componente parcialmente instalado.",
+    "cancelInstallConfirm": "Cancelar instalação",
+    "cancelInstallKeep": "Continuar a instalação"
   },
   "boot": {
     "errorTitle": "The app could not start",

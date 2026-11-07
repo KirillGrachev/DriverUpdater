@@ -119,7 +119,7 @@
     "kindSchedule": "Nach Zeitplan erstellt",
     "kindManual": "Manuell erstellt",
     "confirmRestoreTitle": "System wiederherstellen?",
-    "confirmRestoreText": "Der Punkt „{name}“ wird angewendet. Aktuelle Treiberversionen werden durch die Versionen aus der Kopie ersetzt.",
+    "confirmRestoreText": "Der Punkt „{name}“ wird angewendet. Aktuelle Treiberversionen werden durch die Versionen aus der Kopie ersetzt. Windows wird neu gestartet. Speichern Sie alle geöffneten Dokumente, bevor Sie fortfahren.",
     "confirmDeleteTitle": "Wiederherstellungspunkt löschen?",
     "confirmDeleteText": "Der Punkt „{name}“ wird dauerhaft gelöscht.",
     "confirmOk": "Bestätigen",
@@ -189,7 +189,9 @@
     "savedToast": "Einstellungen gespeichert",
     "resetToast": "Einstellungen auf Standard zurückgesetzt",
     "copyPath": "Copy path",
-    "copiedToast": "Pfad kopiert"
+    "copiedToast": "Pfad kopiert",
+    "autoInstall": "Updates automatisch installieren",
+    "autoInstallSub": "Verfügbare Treiberupdates nach der automatischen Prüfung installieren"
   },
   "about": {
     "title": "Über",
@@ -236,7 +238,8 @@
     "driverUpdated": "Treiber „{name}“ aktualisiert",
     "restorePointCreated": "Wiederherstellungspunkt erstellt",
     "error": "Vorgang fehlgeschlagen",
-    "rebootRequired": "Um die Treiberaktualisierung abzuschließen, ist ein Neustart erforderlich"
+    "rebootRequired": "Um die Treiberaktualisierung abzuschließen, ist ein Neustart erforderlich",
+    "cancelled": "Installation abgebrochen"
   },
   "components": {
     "cancelTooLate": "Das Installationsprogramm läuft bereits. Die aktuelle Installation wird abgeschlossen.",
@@ -259,7 +262,11 @@
     "version": "Version",
     "loading": "Laden…",
     "managed": "Fahrerverwaltet",
-    "openglNote": "Wird von Ihrem GPU-Treiber bereitgestellt"
+    "openglNote": "Wird von Ihrem GPU-Treiber bereitgestellt",
+    "cancelInstallTitle": "Installation abbrechen?",
+    "cancelInstallText": "Das Installationsprogramm läuft bereits. Ein Abbruch kann die Komponente teilweise installiert zurücklassen.",
+    "cancelInstallConfirm": "Installation abbrechen",
+    "cancelInstallKeep": "Installation fortsetzen"
   },
   "boot": {
     "errorTitle": "The app could not start",

@@ -121,7 +121,7 @@
     "kindSchedule": "Creato secondo la pianificazione",
     "kindManual": "Creato manualmente",
     "confirmRestoreTitle": "Ripristinare il sistema?",
-    "confirmRestoreText": "Verrà applicato il punto di ripristino “{name}”. Le versioni attuali dei driver verranno sostituite.",
+    "confirmRestoreText": "Verrà applicato il punto di ripristino “{name}”. Le versioni attuali dei driver verranno sostituite. Windows verrà riavviato. Salva tutti i documenti aperti prima di continuare.",
     "confirmDeleteTitle": "Eliminare il punto di ripristino?",
     "confirmDeleteText": "Il punto di ripristino “{name}” verrà eliminato definitivamente.",
     "confirmOk": "Conferma",
@@ -191,7 +191,9 @@
     "savedToast": "Impostazioni salvate",
     "resetToast": "Impostazioni ripristinate ai valori predefiniti",
     "copyPath": "Copy path",
-    "copiedToast": "Percorso copiato"
+    "copiedToast": "Percorso copiato",
+    "autoInstall": "Installa gli aggiornamenti automaticamente",
+    "autoInstallSub": "Installa gli aggiornamenti dei driver disponibili dopo il controllo automatico"
   },
   "about": {
     "title": "Informazioni",
@@ -239,7 +241,8 @@
     "driverUpdated": "Driver “{name}” aggiornato",
     "restorePointCreated": "Punto di ripristino creato",
     "error": "Operazione non riuscita",
-    "rebootRequired": "È necessario un riavvio per completare l'aggiornamento del driver"
+    "rebootRequired": "È necessario un riavvio per completare l'aggiornamento del driver",
+    "cancelled": "Installazione annullata"
   },
   "components": {
     "cancelTooLate": "Il programma di installazione è già avviato. L’installazione corrente verrà completata.",
@@ -262,7 +265,11 @@
     "version": "Versione",
     "loading": "Caricamento…",
     "managed": "Gestito dal conducente",
-    "openglNote": "Fornito dal driver GPU"
+    "openglNote": "Fornito dal driver GPU",
+    "cancelInstallTitle": "Annullare l’installazione?",
+    "cancelInstallText": "Il programma di installazione è già in esecuzione. L’annullamento può lasciare il componente parzialmente installato.",
+    "cancelInstallConfirm": "Annulla installazione",
+    "cancelInstallKeep": "Continua l’installazione"
   },
   "boot": {
     "errorTitle": "The app could not start",

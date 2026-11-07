@@ -119,7 +119,7 @@
     "kindSchedule": "Oprettet efter plan",
     "kindManual": "Oprettet manuelt",
     "confirmRestoreTitle": "Gendan systemet?",
-    "confirmRestoreText": "Gendannelsespunktet “{name}” anvendes. De nuværende driverversioner erstattes.",
+    "confirmRestoreText": "Gendannelsespunktet “{name}” anvendes. De nuværende driverversioner erstattes. Windows genstarter. Gem alle åbne dokumenter, før du fortsætter.",
     "confirmDeleteTitle": "Slet gendannelsespunkt?",
     "confirmDeleteText": "Gendannelsespunktet “{name}” slettes permanent.",
     "confirmOk": "Bekræft",
@@ -189,7 +189,9 @@
     "savedToast": "Indstillinger gemt",
     "resetToast": "Indstillinger nulstillet til standard",
     "copyPath": "Copy path",
-    "copiedToast": "Stien er kopieret"
+    "copiedToast": "Stien er kopieret",
+    "autoInstall": "Installer opdateringer automatisk",
+    "autoInstallSub": "Installer tilgængelige driveropdateringer efter den automatiske kontrol"
   },
   "about": {
     "title": "Om",
@@ -236,7 +238,8 @@
     "driverUpdated": "Driveren “{name}” er opdateret",
     "restorePointCreated": "Gendannelsespunkt oprettet",
     "error": "Handlingen mislykkedes",
-    "rebootRequired": "En genstart er påkrævet for at afslutte driveropdateringen"
+    "rebootRequired": "En genstart er påkrævet for at afslutte driveropdateringen",
+    "cancelled": "Installationen blev annulleret"
   },
   "components": {
     "cancelTooLate": "Installationsprogrammet er allerede startet. Den aktuelle installation fuldføres.",
@@ -259,7 +262,11 @@
     "version": "version",
     "loading": "Indlæser...",
     "managed": "Driverstyret",
-    "openglNote": "Leveres af din GPU-driver"
+    "openglNote": "Leveres af din GPU-driver",
+    "cancelInstallTitle": "Annuller installationen?",
+    "cancelInstallText": "Installationsprogrammet kører allerede. Annullering kan efterlade komponenten delvist installeret.",
+    "cancelInstallConfirm": "Annuller installation",
+    "cancelInstallKeep": "Fortsæt installationen"
   },
   "boot": {
     "errorTitle": "The app could not start",

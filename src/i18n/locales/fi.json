@@ -119,7 +119,7 @@
     "kindSchedule": "Luotu aikataulun mukaan",
     "kindManual": "Luotu manuaalisesti",
     "confirmRestoreTitle": "Palautetaanko järjestelmä?",
-    "confirmRestoreText": "Palautuspiste “{name}” otetaan käyttöön. Nykyiset ajuriversiot korvataan.",
+    "confirmRestoreText": "Palautuspiste “{name}” otetaan käyttöön. Nykyiset ajuriversiot korvataan. Windows käynnistyy uudelleen. Tallenna kaikki avoimet asiakirjat ennen jatkamista.",
     "confirmDeleteTitle": "Poistetaanko palautuspiste?",
     "confirmDeleteText": "Palautuspiste “{name}” poistetaan pysyvästi.",
     "confirmOk": "Vahvista",
@@ -189,7 +189,9 @@
     "savedToast": "Asetukset tallennettu",
     "resetToast": "Asetukset palautettu oletusarvoihin",
     "copyPath": "Copy path",
-    "copiedToast": "Polku kopioitu"
+    "copiedToast": "Polku kopioitu",
+    "autoInstall": "Asenna päivitykset automaattisesti",
+    "autoInstallSub": "Asenna saatavilla olevat ajuripäivitykset automaattisen tarkistuksen jälkeen"
   },
   "about": {
     "title": "Tietoja",
@@ -236,7 +238,8 @@
     "driverUpdated": "Ajuri “{name}” päivitetty",
     "restorePointCreated": "Palautuspiste luotu",
     "error": "Toiminto epäonnistui",
-    "rebootRequired": "Uudelleenkäynnistys vaaditaan ohjaimen päivityksen viimeistelemiseksi"
+    "rebootRequired": "Uudelleenkäynnistys vaaditaan ohjaimen päivityksen viimeistelemiseksi",
+    "cancelled": "Asennus peruutettu"
   },
   "components": {
     "cancelTooLate": "Asennusohjelma on jo käynnistynyt. Nykyinen asennus suoritetaan loppuun.",
@@ -259,7 +262,11 @@
     "version": "Versio",
     "loading": "Ladataan…",
     "managed": "Kuljettajan johtama",
-    "openglNote": "GPU-ohjaimesi toimittama"
+    "openglNote": "GPU-ohjaimesi toimittama",
+    "cancelInstallTitle": "Peruuta asennus?",
+    "cancelInstallText": "Asennusohjelma on jo käynnissä. Peruuttaminen voi jättää komponentin osittain asennetuksi.",
+    "cancelInstallConfirm": "Peruuta asennus",
+    "cancelInstallKeep": "Jatka asennusta"
   },
   "boot": {
     "errorTitle": "The app could not start",

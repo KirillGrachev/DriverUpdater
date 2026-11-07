@@ -119,7 +119,7 @@
     "kindSchedule": "Meýilnama boýunça döredildi",
     "kindManual": "El bilen döredildi",
     "confirmRestoreTitle": "Ulgam dikeldilsinmi?",
-    "confirmRestoreText": "“{name}” dikeltme nokady ulanylar. Häzirki sürüji wersiýalary çalşylar.",
+    "confirmRestoreText": "“{name}” dikeltme nokady ulanylar. Häzirki sürüji wersiýalary çalşylar. Windows täzeden başlar. Dowam etmezden öň ähli açyk resminamalary ýazdyryň.",
     "confirmDeleteTitle": "Dikeltme nokady pozulsynmy?",
     "confirmDeleteText": "“{name}” dikeltme nokady düýbünden pozular.",
     "confirmOk": "Tassykla",
@@ -189,7 +189,9 @@
     "savedToast": "Sazlamalar saklandy",
     "resetToast": "Sazlamalar başlangyç ýagdaýa getirildi",
     "copyPath": "Copy path",
-    "copiedToast": "Göçürildi"
+    "copiedToast": "Göçürildi",
+    "autoInstall": "Täzelenmeleri awtomatik gurmak",
+    "autoInstallSub": "Awtomatik barlagdan soň elýeterli sürüji täzelenmelerini gurmak"
   },
   "about": {
     "title": "Barada",
@@ -236,7 +238,8 @@
     "driverUpdated": "“{name}” sürüjisi täzelendi",
     "restorePointCreated": "Dikeltme nokady döredildi",
     "error": "Amal başa barmady",
-    "rebootRequired": "Sürüjiniň täzelenmesini gutarmak üçin täzeden başlamaly"
+    "rebootRequired": "Sürüjiniň täzelenmesini gutarmak üçin täzeden başlamaly",
+    "cancelled": "Gurnama ýatyryldy"
   },
   "components": {
     "cancelTooLate": "Gurnama programu eýýäm başlady. Häzirki gurnama tamamlanar.",
@@ -259,7 +262,11 @@
     "version": "Wersiýa",
     "loading": "Adingüklenýär…",
     "managed": "Sürüji tarapyndan dolandyrylýar",
-    "openglNote": "GPU sürüjiňiz tarapyndan üpjün edilýär"
+    "openglNote": "GPU sürüjiňiz tarapyndan üpjün edilýär",
+    "cancelInstallTitle": "Gurnamany ýatyrmalymy?",
+    "cancelInstallText": "Gurýjy eýýäm işleýär. Ýatyrmak komponenti bölekleýin gurlan ýagdaýda galdyryp biler.",
+    "cancelInstallConfirm": "Gurnamany ýatyrmak",
+    "cancelInstallKeep": "Gurnamany dowam etmek"
   },
   "boot": {
     "errorTitle": "The app could not start",

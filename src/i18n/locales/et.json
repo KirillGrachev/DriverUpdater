@@ -119,7 +119,7 @@
     "kindSchedule": "Loodud ajakava järgi",
     "kindManual": "Loodud käsitsi",
     "confirmRestoreTitle": "Kas taastada süsteem?",
-    "confirmRestoreText": "Taastamispunkt „{name}“ rakendatakse. Praegused draiverite versioonid asendatakse.",
+    "confirmRestoreText": "Taastamispunkt „{name}“ rakendatakse. Praegused draiverite versioonid asendatakse. Windows taaskäivitub. Enne jätkamist salvestage kõik avatud dokumendid.",
     "confirmDeleteTitle": "Kas kustutada taastamispunkt?",
     "confirmDeleteText": "Taastamispunkt „{name}“ kustutatakse jäädavalt.",
     "confirmOk": "Kinnita",
@@ -189,7 +189,9 @@
     "savedToast": "Seaded salvestatud",
     "resetToast": "Seaded lähtestatud vaikeväärtustele",
     "copyPath": "Copy path",
-    "copiedToast": "Tee on kopeeritud"
+    "copiedToast": "Tee on kopeeritud",
+    "autoInstall": "Installi värskendused automaatselt",
+    "autoInstallSub": "Paigaldage automaatse kontrolli järel saadaolevad draiverivärskendused"
   },
   "about": {
     "title": "Teave",
@@ -236,7 +238,8 @@
     "driverUpdated": "Draiver „{name}“ värskendatud",
     "restorePointCreated": "Taastamispunkt loodud",
     "error": "Toiming ebaõnnestus",
-    "rebootRequired": "Draiveri värskendamise lõpetamiseks on vaja taaskäivitamist"
+    "rebootRequired": "Draiveri värskendamise lõpetamiseks on vaja taaskäivitamist",
+    "cancelled": "Paigaldamine tühistatud"
   },
   "components": {
     "cancelTooLate": "Paigaldaja on juba käivitatud. Praegune paigaldus viiakse lõpule.",
@@ -259,7 +262,11 @@
     "version": "Versioon",
     "loading": "Laadimine…",
     "managed": "Juhi juhitav",
-    "openglNote": "Pakub teie GPU draiverilt"
+    "openglNote": "Pakub teie GPU draiverilt",
+    "cancelInstallTitle": "Kas tühistada paigaldamine?",
+    "cancelInstallText": "Paigaldaja töötab juba. Tühistamine võib jätta komponendi osaliselt paigaldatuks.",
+    "cancelInstallConfirm": "Tühista paigaldamine",
+    "cancelInstallKeep": "Jätka paigaldamist"
   },
   "boot": {
     "errorTitle": "The app could not start",

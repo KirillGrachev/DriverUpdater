@@ -119,7 +119,7 @@
     "kindSchedule": "Ütemezés szerint létrehozva",
     "kindManual": "Kézzel létrehozva",
     "confirmRestoreTitle": "Visszaállítja a rendszert?",
-    "confirmRestoreText": "„{name}” visszaállítási pont alkalmazásra kerül. A jelenlegi illesztőprogram-verziók lecserélődnek.",
+    "confirmRestoreText": "„{name}” visszaállítási pont alkalmazásra kerül. A jelenlegi illesztőprogram-verziók lecserélődnek. A Windows újraindul. A folytatás előtt mentse el az összes megnyitott dokumentumot.",
     "confirmDeleteTitle": "Törli a visszaállítási pontot?",
     "confirmDeleteText": "„{name}” visszaállítási pont véglegesen törlődik.",
     "confirmOk": "Megerősítés",
@@ -189,7 +189,9 @@
     "savedToast": "A beállítások mentve",
     "resetToast": "A beállítások visszaálltak az alapértelmezett értékekre",
     "copyPath": "Copy path",
-    "copiedToast": "Útvonal másolva"
+    "copiedToast": "Útvonal másolva",
+    "autoInstall": "Frissítések automatikus telepítése",
+    "autoInstallSub": "A rendelkezésre álló illesztőprogram-frissítések telepítése az automatikus ellenőrzés után"
   },
   "about": {
     "title": "Névjegy",
@@ -236,7 +238,8 @@
     "driverUpdated": "„{name}” illesztőprogram frissítve",
     "restorePointCreated": "Visszaállítási pont létrehozva",
     "error": "A művelet nem sikerült",
-    "rebootRequired": "Az illesztőprogram frissítésének befejezéséhez újraindítás szükséges"
+    "rebootRequired": "Az illesztőprogram frissítésének befejezéséhez újraindítás szükséges",
+    "cancelled": "Telepítés megszakítva"
   },
   "components": {
     "cancelTooLate": "A telepítő már elindult. A jelenlegi telepítés befejeződik.",
@@ -259,7 +262,11 @@
     "version": "Verzió",
     "loading": "Betöltés…",
     "managed": "Sofőr által kezelt",
-    "openglNote": "A GPU illesztőprogramja biztosítja"
+    "openglNote": "A GPU illesztőprogramja biztosítja",
+    "cancelInstallTitle": "Megszakítja a telepítést?",
+    "cancelInstallText": "A telepítő már fut. A megszakítás részben telepített összetevőt hagyhat.",
+    "cancelInstallConfirm": "Telepítés megszakítása",
+    "cancelInstallKeep": "Telepítés folytatása"
   },
   "boot": {
     "errorTitle": "The app could not start",
