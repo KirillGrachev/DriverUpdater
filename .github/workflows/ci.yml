@@ -124,3 +124,6 @@ jobs:
               run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
             - name: Cargo tests
               run: cargo test --manifest-path src-tauri/Cargo.toml
+            - name: Service install smoke
+              shell: pwsh
+              run: ./scripts/test-service.ps1
