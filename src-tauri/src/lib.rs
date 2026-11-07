@@ -4,10 +4,17 @@ mod detection;
 mod error;
 mod models;
 mod packages;
+#[cfg(target_os = "windows")]
+mod privileged;
 mod process;
 mod repository;
 mod restore;
 mod security;
+pub mod service;
+mod service_client;
+pub mod service_contract;
+#[cfg(target_os = "windows")]
+mod service_token;
 mod storage;
 mod windows_update;
 

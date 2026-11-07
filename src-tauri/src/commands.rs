@@ -22,9 +22,39 @@ use crate::models::{
 };
 use crate::repository::DriverRepository;
 use crate::restore::default_restore_provider;
+use crate::service_client;
+use crate::service_contract::ServiceOperation;
 use crate::windows_update::default_update_provider;
 
 pub struct AppRepository(pub Arc<Mutex<DriverRepository>>);
+
+/**
+ * Returns true only for failures that mean the service is absent, so a local
+ * elevated development build can fall back to the in-process implementation.
+ */
+fn service_is_unavailable(error: &str) -> bool {
+    error.contains("service is not running")
+        || error.contains("service token")
+        || error.contains("could not send the service request")
+        || error.contains("could not read the service response")
+}
+
+/**
+ * Calls the elevated service and deserializes a typed result. Direct calls are
+ * only a development fallback for an elevated build; a medium-integrity app
+ * never bypasses the service.
+ */
+fn service_or_direct<T, F>(operation: ServiceOperation, direct: F) -> Result<T, String>
+where
+    T: serde::de::DeserializeOwned,
+    F: FnOnce() -> Result<T, String>,
+{
+    match service_client::call(operation) {
+        Ok(value) => serde_json::from_value(value).map_err(|error| error.to_string()),
+        Err(error) if service_is_unavailable(&error) && crate::security::is_elevated() => direct(),
+        Err(error) => Err(error),
+    }
+}
 
 /**
  * Package installs that the UI can cancel by package id.
@@ -192,17 +222,24 @@ async fn install_one(
         let name = restore_point_name
             .filter(|name| !name.trim().is_empty() && name.chars().count() <= 63)
             .ok_or_else(|| "E_RESTORE_POINT: a restore point name is required".to_string())?;
-        let created =
-            tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
-                .await
-                .map_err(|error| error.to_string())?;
+        let created = tauri::async_runtime::spawn_blocking(move || {
+            service_or_direct(
+                ServiceOperation::CreateRestorePoint { name: name.clone() },
+                || default_restore_provider().create(&name),
+            )
+        })
+        .await
+        .map_err(|error| error.to_string())?;
         match created {
             Ok(_) => {
-                let points =
-                    tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
-                        .await
-                        .map_err(|error| error.to_string())?
-                        .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
+                let points = tauri::async_runtime::spawn_blocking(|| {
+                    service_or_direct(ServiceOperation::ListRestorePoints, || {
+                        default_restore_provider().list()
+                    })
+                })
+                .await
+                .map_err(|error| error.to_string())?
+                .map_err(|error| format!("E_RESTORE_POINT: {error}"))?;
                 run_repository_handle(Arc::clone(&repository), move |repository| {
                     repository.set_restore_points(points);
                     Ok(())
@@ -231,7 +268,30 @@ async fn install_one(
     log::info!("installing Windows Update package {update_id}");
     let logged_update_id = update_id.clone();
     let outcome = tauri::async_runtime::spawn_blocking(move || {
-        default_update_provider().install_update(&update_id)
+        #[derive(serde::Deserialize)]
+        #[serde(rename_all = "camelCase")]
+        struct ServiceInstallResult {
+            reboot_required: bool,
+        }
+        service_or_direct(
+            ServiceOperation::InstallDriverUpdate {
+                update_id: update_id.clone(),
+            },
+            || {
+                default_update_provider()
+                    .install_update(&update_id)
+                    .map(|outcome| ServiceInstallResult {
+                        reboot_required: outcome.reboot_required,
+                    })
+            },
+        )
+        .map(|result| crate::windows_update::InstallOutcome {
+            #[cfg(target_os = "windows")]
+            result_code: 0,
+            reboot_required: result.reboot_required,
+            #[cfg(target_os = "windows")]
+            h_result: 0,
+        })
     })
     .await
     .map_err(|error| error.to_string())??;
@@ -352,9 +412,13 @@ pub async fn install_updates(
 pub async fn list_restore_points(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<RestorePoint>, CommandError> {
-    let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
-        .await
-        .map_err(|error| error.to_string())??;
+    let points = tauri::async_runtime::spawn_blocking(|| {
+        service_or_direct(ServiceOperation::ListRestorePoints, || {
+            default_restore_provider().list()
+        })
+    })
+    .await
+    .map_err(|error| error.to_string())??;
     run_repository_handle(Arc::clone(&state.0), move |repository| {
         let result = points.clone();
         repository.set_restore_points(points);
@@ -377,9 +441,13 @@ pub async fn create_restore_point(
         tauri::async_runtime::spawn_blocking(move || default_restore_provider().create(&name))
             .await
             .map_err(|error| error.to_string())??;
-    let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
-        .await
-        .map_err(|error| error.to_string())??;
+    let points = tauri::async_runtime::spawn_blocking(|| {
+        service_or_direct(ServiceOperation::ListRestorePoints, || {
+            default_restore_provider().list()
+        })
+    })
+    .await
+    .map_err(|error| error.to_string())??;
     run_repository_handle(Arc::clone(&state.0), move |repository| {
         repository.set_restore_points(points);
         Ok(point)
@@ -394,9 +462,14 @@ pub async fn delete_restore_point(
     id: String,
 ) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
-    tauri::async_runtime::spawn_blocking(move || default_restore_provider().delete(&id))
-        .await
-        .map_err(|error| error.to_string())??;
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::DeleteRestorePoint { id: id.clone() },
+            || default_restore_provider().delete(&id),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())??;
     let points = tauri::async_runtime::spawn_blocking(|| default_restore_provider().list())
         .await
         .map_err(|error| error.to_string())??;
@@ -415,10 +488,15 @@ pub async fn restore_from_point(
 ) -> Result<(), CommandError> {
     let _busy = BusyGuard::acquire(&busy.0);
     let _ = state;
-    tauri::async_runtime::spawn_blocking(move || default_restore_provider().restore(&id))
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::RestoreRestorePoint { id: id.clone() },
+            || default_restore_provider().restore(&id).map(|_| ()),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]
