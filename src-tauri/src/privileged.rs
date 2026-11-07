@@ -79,8 +79,11 @@ pub fn delete_driver_backup(root: &str, id: &str) -> Result<Value, String> {
 }
 
 /// Installs one allowlisted winget package.
-pub fn install_package(package_id: &str, version: &str) -> Result<Value, String> {
-    let cancel = std::sync::atomic::AtomicBool::new(false);
-    let result = WingetPackageManager.install_cancellable(package_id, version, &cancel)?;
+pub fn install_package(
+    package_id: &str,
+    version: &str,
+    cancel: &std::sync::atomic::AtomicBool,
+) -> Result<Value, String> {
+    let result = WingetPackageManager.install_cancellable(package_id, version, cancel)?;
     serde_json::to_value(result).map_err(|error| error.to_string())
 }

@@ -35,6 +35,7 @@ pub enum ServiceOperation {
     RestoreDriverBackup { path: String, id: String },
     DeleteDriverBackup { path: String, id: String },
     InstallPackage { package_id: String, version: String },
+    CancelPackageInstall { package_id: String },
 }
 
 /// Request envelope written by the UI.

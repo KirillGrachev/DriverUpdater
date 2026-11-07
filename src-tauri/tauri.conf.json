@@ -60,7 +60,8 @@
             "wix": {
                 "bannerPath": "installer/wix-banner.bmp",
                 "dialogImagePath": "installer/wix-dialog.bmp",
-                "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8"
+                "upgradeCode": "ed5cda4f-d451-50fd-b164-3d31c46ab8d8",
+                "fragmentPaths": ["wix/service-uninstall.wxs"]
             }
         },
         "publisher": "Kirill Grachev",

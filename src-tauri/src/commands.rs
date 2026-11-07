@@ -774,10 +774,19 @@ pub async fn cancel_package_install(
         .unwrap_or_else(|poisoned| poisoned.into_inner())
         .get(&package_id)
         .cloned();
-    if let Some(flag) = job {
+    let local_cancelled = if let Some(flag) = job {
         flag.store(true, Ordering::SeqCst);
-        Ok(true)
+        true
     } else {
-        Ok(false)
-    }
+        false
+    };
+    let service_cancelled = tauri::async_runtime::spawn_blocking(move || {
+        service_client::call(ServiceOperation::CancelPackageInstall { package_id })
+            .ok()
+            .and_then(|value| value.get("cancelled").and_then(|flag| flag.as_bool()))
+            .unwrap_or(false)
+    })
+    .await
+    .unwrap_or(false);
+    Ok(local_cancelled || service_cancelled)
 }
