@@ -51,7 +51,12 @@ where
 {
     match service_client::call(operation) {
         Ok(value) => serde_json::from_value(value).map_err(|error| error.to_string()),
-        Err(error) if service_is_unavailable(&error) && crate::security::is_elevated() => direct(),
+        Err(error)
+            if service_is_unavailable(&error)
+                && (crate::security::is_elevated() || cfg!(debug_assertions)) =>
+        {
+            direct()
+        }
         Err(error) => Err(error),
     }
 }
