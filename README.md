@@ -232,6 +232,13 @@ architecture-specific automation.
 
 The installer installs for all users and requires administrator rights; it does not require a reboot.
 
+The setup registers a small `DriverUpdaterService` LocalSystem service and
+writes a per-user IPC token. The app itself runs with normal user rights, and
+the service performs only allowlisted privileged operations: driver updates,
+restore points and driver backups. This gives one UAC prompt at setup and no
+prompt for each driver. The portable archive does not register the service; use
+the setup executable for driver installation and restore-point features.
+
 The installer:
 
 1. applies the selected language and theme on the first app launch;
