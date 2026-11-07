@@ -73,6 +73,8 @@ pub struct Settings {
     pub language: String,
     pub theme: String,
     pub auto_check: bool,
+    #[serde(default)]
+    pub auto_install: bool,
     pub check_interval: String,
     pub restore_point_before_install: bool,
     pub keep_backups: bool,
@@ -87,6 +89,7 @@ impl Default for Settings {
             language: "en".to_string(),
             theme: "system".to_string(),
             auto_check: true,
+            auto_install: false,
             check_interval: "daily".to_string(),
             restore_point_before_install: true,
             keep_backups: true,

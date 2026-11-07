@@ -12,7 +12,7 @@ import type {
     SystemInfo,
     ThemeMode,
 } from '../ipc/types';
-import { autoCheckInterval, shouldAutoCheck } from './autoCheck';
+import { autoCheckInterval, autoInstallIds, shouldAutoCheck } from './autoCheck';
 
 export type Route = 'home' | 'drivers' | 'components' | 'backups' | 'settings' | 'about';
 
@@ -796,8 +796,15 @@ export function AppProvider({ children }: { children: ReactNode }) {
         const settings = state.data?.settings;
         if (!settings?.autoCheck) return undefined;
         const interval = autoCheckInterval(settings.checkInterval);
+        const check = async () => {
+            await scan();
+            const updates = autoInstallIds(settings, dataRef.current?.drivers ?? []);
+            if (updates.length > 0) {
+                await installUpdates(updates);
+            }
+        };
         if (shouldAutoCheck(settings, state.data?.summary.lastCheck)) {
-            void scan();
+            void check();
         }
         /*
          * Spread automatic checks by up to ten percent so machines that
@@ -805,10 +812,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
          */
         const jitter = Math.round(interval * 0.1 * (Math.random() * 2 - 1));
         const timer = window.setInterval(() => {
-            void scan();
+            void check();
         }, interval + jitter);
         return () => window.clearInterval(timer);
-    }, [state.data?.settings, state.data?.summary.lastCheck, scan]);
+    }, [state.data?.settings, state.data?.summary.lastCheck, scan, installUpdates]);
 
     useEffect(() => {
         const settings = state.data?.settings;

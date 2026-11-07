@@ -78,6 +78,7 @@ export interface Settings {
     language: string;
     theme: ThemeMode;
     autoCheck: boolean;
+    autoInstall: boolean;
     checkInterval: CheckInterval;
     restorePointBeforeInstall: boolean;
     keepBackups: boolean;

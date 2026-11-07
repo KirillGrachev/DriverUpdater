@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Settings } from '../ipc/types';
-import { autoCheckInterval, shouldAutoCheck } from './autoCheck';
+import type { Driver, Settings } from '../ipc/types';
+import { autoCheckInterval, autoInstallIds, shouldAutoCheck } from './autoCheck';
 
 const NOW = Date.parse('2026-11-07T00:00:00Z');
 
@@ -9,6 +9,7 @@ function settings(overrides: Partial<Settings> = {}): Settings {
         language: 'en',
         theme: 'system',
         autoCheck: true,
+        autoInstall: false,
         checkInterval: 'daily',
         restorePointBeforeInstall: true,
         keepBackups: true,
@@ -47,5 +48,20 @@ describe('automatic update checks', () => {
 
     it('runs at the exact boundary', () => {
         expect(shouldAutoCheck(settings(), '2026-11-06T00:00:00Z', NOW)).toBe(true);
+    });
+});
+
+describe('automatic install selection', () => {
+    const drivers = [
+        { id: 'gpu', status: 'update' },
+        { id: 'audio', status: 'current' },
+    ] as Driver[];
+
+    it('returns nothing unless auto-install is enabled', () => {
+        expect(autoInstallIds(settings(), drivers)).toEqual([]);
+    });
+
+    it('selects only available updates', () => {
+        expect(autoInstallIds(settings({ autoInstall: true }), drivers)).toEqual(['gpu']);
     });
 });

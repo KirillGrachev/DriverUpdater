@@ -131,6 +131,14 @@ export function SettingsPage() {
                         label={t('settings.autoCheck')}
                     />
                 </Row>
+                <Row icon={<IconSettingsSync size={21} />} label={t('updates.installBtn')} sub={t('drivers.updateAll')}>
+                    <Toggle
+                        checked={settings.autoInstall}
+                        onChange={(v) => update('autoInstall', v)}
+                        label={t('updates.installBtn')}
+                        disabled={!settings.autoCheck}
+                    />
+                </Row>
                 <Row icon={<IconSettingsClock size={21} />} label={t('settings.interval')}>
                     <Select<CheckInterval>
                         className="interval-select"
