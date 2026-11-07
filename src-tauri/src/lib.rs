@@ -4,10 +4,15 @@ mod detection;
 mod error;
 mod models;
 mod packages;
+mod privileged;
 mod process;
 mod repository;
 mod restore;
 mod security;
+pub mod service;
+mod service_client;
+pub mod service_contract;
+mod service_token;
 mod storage;
 mod windows_update;
 
