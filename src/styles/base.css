@@ -114,6 +114,11 @@ a:focus-visible,
     outline-offset: 2px;
 }
 
+html[data-input='pointer']
+    :is(button, a, [role='button'], [role='switch'], [role='checkbox'], [role='radio'], .select-trigger):focus-visible {
+    outline: none;
+}
+
 input,
 select {
     font: inherit;
