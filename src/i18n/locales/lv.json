@@ -123,7 +123,7 @@
     "kindSchedule": "Izveidots pēc grafika",
     "kindManual": "Izveidots manuāli",
     "confirmRestoreTitle": "Atjaunot sistēmu?",
-    "confirmRestoreText": "Tiks lietots atjaunošanas punkts “{name}”. Pašreizējās draiveru versijas tiks aizstātas.",
+    "confirmRestoreText": "Tiks lietots atjaunošanas punkts “{name}”. Pašreizējās draiveru versijas tiks aizstātas. Windows tiks restartēta. Pirms turpināt, saglabājiet visus atvērtos dokumentus.",
     "confirmDeleteTitle": "Dzēst atjaunošanas punktu?",
     "confirmDeleteText": "Atjaunošanas punkts “{name}” tiks neatgriezeniski dzēsts.",
     "confirmOk": "Apstiprināt",
@@ -193,7 +193,9 @@
     "savedToast": "Iestatījumi saglabāti",
     "resetToast": "Iestatījumi atiestatīti uz noklusējuma vērtībām",
     "copyPath": "Copy path",
-    "copiedToast": "Ceļš nokopēts"
+    "copiedToast": "Ceļš nokopēts",
+    "autoInstall": "Instalēt atjauninājumus automātiski",
+    "autoInstallSub": "Pēc automātiskās pārbaudes instalēt pieejamos draiveru atjauninājumus"
   },
   "about": {
     "title": "Par",
@@ -242,7 +244,8 @@
     "driverUpdated": "Draivers “{name}” atjaunināts",
     "restorePointCreated": "Atjaunošanas punkts izveidots",
     "error": "Darbība neizdevās",
-    "rebootRequired": "Lai pabeigtu draivera atjaunināšanu, ir nepieciešama restartēšana"
+    "rebootRequired": "Lai pabeigtu draivera atjaunināšanu, ir nepieciešama restartēšana",
+    "cancelled": "Instalēšana atcelta"
   },
   "components": {
     "cancelTooLate": "Instalētājs jau ir palaists. Pašreizējā instalācija tiks pabeigta.",
@@ -265,7 +268,11 @@
     "version": "Versija",
     "loading": "Notiek ielāde…",
     "managed": "Vadītāja vadīts",
-    "openglNote": "Nodrošina jūsu GPU draiveris"
+    "openglNote": "Nodrošina jūsu GPU draiveris",
+    "cancelInstallTitle": "Atcelt instalēšanu?",
+    "cancelInstallText": "Instalētājs jau darbojas. Atcelšana var atstāt komponentu daļēji instalētu.",
+    "cancelInstallConfirm": "Atcelt instalēšanu",
+    "cancelInstallKeep": "Turpināt instalēšanu"
   },
   "boot": {
     "errorTitle": "The app could not start",

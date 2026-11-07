@@ -119,7 +119,7 @@
     "kindSchedule": "Jadval boʻyicha yaratilgan",
     "kindManual": "Qoʻlda yaratilgan",
     "confirmRestoreTitle": "Tizim tiklanadimi?",
-    "confirmRestoreText": "“{name}” tiklash nuqtasi qoʻllanadi. Joriy drayver versiyalari almashtiriladi.",
+    "confirmRestoreText": "“{name}” tiklash nuqtasi qoʻllanadi. Joriy drayver versiyalari almashtiriladi. Windows qayta ishga tushadi. Davom etishdan oldin barcha ochiq hujjatlarni saqlang.",
     "confirmDeleteTitle": "Tiklash nuqtasi oʻchirilsinmi?",
     "confirmDeleteText": "“{name}” tiklash nuqtasi butunlay oʻchiriladi.",
     "confirmOk": "Tasdiqlash",
@@ -189,7 +189,9 @@
     "savedToast": "Sozlamalar saqlandi",
     "resetToast": "Sozlamalar standart holatga qaytarildi",
     "copyPath": "Copy path",
-    "copiedToast": "Yoʻl nusxalandi"
+    "copiedToast": "Yoʻl nusxalandi",
+    "autoInstall": "Yangilanishlarni avtomatik o‘rnatish",
+    "autoInstallSub": "Avtomatik tekshiruvdan so‘ng mavjud drayver yangilanishlarini o‘rnatish"
   },
   "about": {
     "title": "Dastur haqida",
@@ -236,7 +238,8 @@
     "driverUpdated": "“{name}” drayveri yangilandi",
     "restorePointCreated": "Tiklash nuqtasi yaratildi",
     "error": "Amalni bajarib boʻlmadi",
-    "rebootRequired": "Drayv yangilanishini tugatish uchun qayta ishga tushirish talab qilinadi"
+    "rebootRequired": "Drayv yangilanishini tugatish uchun qayta ishga tushirish talab qilinadi",
+    "cancelled": "O‘rnatish bekor qilindi"
   },
   "components": {
     "cancelTooLate": "O'rnatuvchi allaqachon ishga tushgan. Joriy o'rnatish yakunlanadi.",
@@ -259,7 +262,11 @@
     "version": "Versiya",
     "loading": "Yuklanmoqda…",
     "managed": "Haydovchi tomonidan boshqariladi",
-    "openglNote": "GPU drayveringiz tomonidan taqdim etilgan"
+    "openglNote": "GPU drayveringiz tomonidan taqdim etilgan",
+    "cancelInstallTitle": "O‘rnatishni bekor qilish?",
+    "cancelInstallText": "O‘rnatuvchi allaqachon ishlamoqda. Bekor qilish komponentni qisman o‘rnatilgan holda qoldirishi mumkin.",
+    "cancelInstallConfirm": "O‘rnatishni bekor qilish",
+    "cancelInstallKeep": "O‘rnatishni davom ettirish"
   },
   "boot": {
     "errorTitle": "The app could not start",

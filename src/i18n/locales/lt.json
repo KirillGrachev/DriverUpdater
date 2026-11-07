@@ -123,7 +123,7 @@
     "kindSchedule": "Sukurtas pagal grafiką",
     "kindManual": "Sukurtas rankiniu būdu",
     "confirmRestoreTitle": "Atkurti sistemą?",
-    "confirmRestoreText": "Bus pritaikytas atkūrimo taškas „{name}“. Dabartinės tvarkyklių versijos bus pakeistos.",
+    "confirmRestoreText": "Bus pritaikytas atkūrimo taškas „{name}“. Dabartinės tvarkyklių versijos bus pakeistos. Windows bus paleista iš naujo. Prieš tęsdami išsaugokite visus atidarytus dokumentus.",
     "confirmDeleteTitle": "Ištrinti atkūrimo tašką?",
     "confirmDeleteText": "Atkūrimo taškas „{name}“ bus visam laikui ištrintas.",
     "confirmOk": "Patvirtinti",
@@ -193,7 +193,9 @@
     "savedToast": "Nustatymai išsaugoti",
     "resetToast": "Nustatymai atkurti į numatytuosius",
     "copyPath": "Copy path",
-    "copiedToast": "Kelias nukopijuotas"
+    "copiedToast": "Kelias nukopijuotas",
+    "autoInstall": "Diegti naujinimus automatiškai",
+    "autoInstallSub": "Po automatinės patikros įdiegti galimus tvarkyklės naujinimus"
   },
   "about": {
     "title": "Apie",
@@ -242,7 +244,8 @@
     "driverUpdated": "Tvarkyklė „{name}“ atnaujinta",
     "restorePointCreated": "Atkūrimo taškas sukurtas",
     "error": "Operacija nepavyko",
-    "rebootRequired": "Norint baigti tvarkyklės naujinimą, reikia paleisti iš naujo"
+    "rebootRequired": "Norint baigti tvarkyklės naujinimą, reikia paleisti iš naujo",
+    "cancelled": "Diegimas atšauktas"
   },
   "components": {
     "cancelTooLate": "Diegimo programa jau paleista. Dabartinis diegimas bus baigtas.",
@@ -265,7 +268,11 @@
     "version": "Versija",
     "loading": "Įkeliama…",
     "managed": "Vairuotojo valdoma",
-    "openglNote": "Pateikta jūsų GPU tvarkyklės"
+    "openglNote": "Pateikta jūsų GPU tvarkyklės",
+    "cancelInstallTitle": "Atšaukti diegimą?",
+    "cancelInstallText": "Diegimo programa jau veikia. Atšaukimas gali palikti komponentą įdiegtą iš dalies.",
+    "cancelInstallConfirm": "Atšaukti diegimą",
+    "cancelInstallKeep": "Tęsti diegimą"
   },
   "boot": {
     "errorTitle": "The app could not start",

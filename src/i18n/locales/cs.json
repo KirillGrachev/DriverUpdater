@@ -123,7 +123,7 @@
     "kindSchedule": "Vytvořeno podle plánu",
     "kindManual": "Vytvořeno ručně",
     "confirmRestoreTitle": "Obnovit systém?",
-    "confirmRestoreText": "Bude použit bod obnovení „{name}“. Aktuální verze ovladačů budou nahrazeny.",
+    "confirmRestoreText": "Bude použit bod obnovení „{name}“. Aktuální verze ovladačů budou nahrazeny. Windows se restartuje. Před pokračováním uložte všechny otevřené dokumenty.",
     "confirmDeleteTitle": "Odstranit bod obnovení?",
     "confirmDeleteText": "Bod obnovení „{name}“ bude trvale odstraněn.",
     "confirmOk": "Potvrdit",
@@ -193,7 +193,9 @@
     "savedToast": "Nastavení uloženo",
     "resetToast": "Nastavení obnoveno na výchozí hodnoty",
     "copyPath": "Copy path",
-    "copiedToast": "Cesta zkopírována"
+    "copiedToast": "Cesta zkopírována",
+    "autoInstall": "Automaticky instalovat aktualizace",
+    "autoInstallSub": "Po automatické kontrole nainstalovat dostupné aktualizace ovladačů"
   },
   "about": {
     "title": "O aplikaci",
@@ -242,7 +244,8 @@
     "driverUpdated": "Ovladač „{name}“ aktualizován",
     "restorePointCreated": "Bod obnovení vytvořen",
     "error": "Operace se nezdařila",
-    "rebootRequired": "K dokončení aktualizace ovladače je vyžadován restart"
+    "rebootRequired": "K dokončení aktualizace ovladače je vyžadován restart",
+    "cancelled": "Instalace zrušena"
   },
   "components": {
     "cancelTooLate": "Instalátor již běží. Aktuální instalace bude dokončena.",
@@ -265,7 +268,11 @@
     "version": "Verze",
     "loading": "Načítání…",
     "managed": "Spravováno řidičem",
-    "openglNote": "Poskytuje váš ovladač GPU"
+    "openglNote": "Poskytuje váš ovladač GPU",
+    "cancelInstallTitle": "Zrušit instalaci?",
+    "cancelInstallText": "Instalační program již běží. Zrušení může zanechat komponentu částečně nainstalovanou.",
+    "cancelInstallConfirm": "Zrušit instalaci",
+    "cancelInstallKeep": "Pokračovat v instalaci"
   },
   "boot": {
     "errorTitle": "The app could not start",

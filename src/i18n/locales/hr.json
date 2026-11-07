@@ -123,7 +123,7 @@
     "kindSchedule": "Stvorena prema rasporedu",
     "kindManual": "Stvorena ručno",
     "confirmRestoreTitle": "Vratiti sustav?",
-    "confirmRestoreText": "Primijenit će se točka vraćanja „{name}”. Trenutne verzije upravljačkih programa bit će zamijenjene.",
+    "confirmRestoreText": "Primijenit će se točka vraćanja „{name}”. Trenutne verzije upravljačkih programa bit će zamijenjene. Windows će se ponovno pokrenuti. Spremite sve otvorene dokumente prije nastavka.",
     "confirmDeleteTitle": "Izbrisati točku vraćanja?",
     "confirmDeleteText": "Točka vraćanja „{name}” bit će trajno izbrisana.",
     "confirmOk": "Potvrdi",
@@ -193,7 +193,9 @@
     "savedToast": "Postavke su spremljene",
     "resetToast": "Postavke su vraćene na zadane vrijednosti",
     "copyPath": "Copy path",
-    "copiedToast": "Put je kopiran"
+    "copiedToast": "Put je kopiran",
+    "autoInstall": "Automatski instaliraj ažuriranja",
+    "autoInstallSub": "Instaliraj dostupna ažuriranja upravljačkih programa nakon automatske provjere"
   },
   "about": {
     "title": "O aplikaciji",
@@ -242,7 +244,8 @@
     "driverUpdated": "Upravljački program „{name}” je ažuriran",
     "restorePointCreated": "Točka vraćanja je stvorena",
     "error": "Radnja nije uspjela",
-    "rebootRequired": "Za završetak ažuriranja upravljačkog programa potrebno je ponovno pokretanje"
+    "rebootRequired": "Za završetak ažuriranja upravljačkog programa potrebno je ponovno pokretanje",
+    "cancelled": "Instalacija otkazana"
   },
   "components": {
     "cancelTooLate": "Instalacijski program je već pokrenut. Trenutna instalacija će se dovršiti.",
@@ -265,7 +268,11 @@
     "version": "Verzija",
     "loading": "učitavanje...",
     "managed": "Upravlja vozač",
-    "openglNote": "Omogućuje vaš GPU upravljački program"
+    "openglNote": "Omogućuje vaš GPU upravljački program",
+    "cancelInstallTitle": "Otkazati instalaciju?",
+    "cancelInstallText": "Instalater već radi. Otkazivanje može ostaviti komponentu djelomično instaliranom.",
+    "cancelInstallConfirm": "Otkaži instalaciju",
+    "cancelInstallKeep": "Nastavi instalaciju"
   },
   "boot": {
     "errorTitle": "The app could not start",

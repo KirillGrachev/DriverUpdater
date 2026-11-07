@@ -119,7 +119,7 @@
     "kindSchedule": "Cədvəl üzrə yaradılıb",
     "kindManual": "Əl ilə yaradılıb",
     "confirmRestoreTitle": "Sistem bərpa edilsin?",
-    "confirmRestoreText": "“{name}” bərpa nöqtəsi tətbiq ediləcək. Cari drayver versiyaları əvəz olunacaq.",
+    "confirmRestoreText": "“{name}” bərpa nöqtəsi tətbiq ediləcək. Cari drayver versiyaları əvəz olunacaq. Windows yenidən başlayacaq. Davam etməzdən əvvəl bütün açıq sənədləri saxlayın.",
     "confirmDeleteTitle": "Bərpa nöqtəsi silinsin?",
     "confirmDeleteText": "“{name}” bərpa nöqtəsi birdəfəlik silinəcək.",
     "confirmOk": "Təsdiqlə",
@@ -189,7 +189,9 @@
     "savedToast": "Tənzimləmələr yadda saxlanıldı",
     "resetToast": "Tənzimləmələr ilkin vəziyyətə qaytarıldı",
     "copyPath": "Copy path",
-    "copiedToast": "Yol kopyalandı"
+    "copiedToast": "Yol kopyalandı",
+    "autoInstall": "Yeniləmələri avtomatik quraşdır",
+    "autoInstallSub": "Avtomatik yoxlamadan sonra mövcud sürücü yeniləmələrini quraşdır"
   },
   "about": {
     "title": "Proqram haqqında",
@@ -236,7 +238,8 @@
     "driverUpdated": "“{name}” drayveri yeniləndi",
     "restorePointCreated": "Bərpa nöqtəsi yaradıldı",
     "error": "Əməliyyat uğursuz oldu",
-    "rebootRequired": "Sürücü yeniləməsini tamamlamaq üçün yenidən başlatma tələb olunur"
+    "rebootRequired": "Sürücü yeniləməsini tamamlamaq üçün yenidən başlatma tələb olunur",
+    "cancelled": "Quraşdırma ləğv edildi"
   },
   "components": {
     "cancelTooLate": "Quraşdırıcı artıq işə düşüb. Cari quraşdırma tamamlanacaq.",
@@ -259,7 +262,11 @@
     "version": "Versiya",
     "loading": "Yüklənir...",
     "managed": "Sürücü tərəfindən idarə olunur",
-    "openglNote": "GPU sürücünüz tərəfindən təmin edilir"
+    "openglNote": "GPU sürücünüz tərəfindən təmin edilir",
+    "cancelInstallTitle": "Quraşdırmanı ləğv et?",
+    "cancelInstallText": "Quraşdırıcı artıq işləyir. Ləğv etmə komponenti qismən quraşdırılmış vəziyyətdə qoya bilər.",
+    "cancelInstallConfirm": "Quraşdırmanı ləğv et",
+    "cancelInstallKeep": "Quraşdırmanı davam etdir"
   },
   "boot": {
     "errorTitle": "The app could not start",

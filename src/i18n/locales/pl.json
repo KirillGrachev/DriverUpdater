@@ -123,7 +123,7 @@
     "kindSchedule": "Utworzono według harmonogramu",
     "kindManual": "Utworzono ręcznie",
     "confirmRestoreTitle": "Przywrócić system?",
-    "confirmRestoreText": "Zostanie zastosowany punkt przywracania „{name}”. Bieżące wersje sterowników zostaną zastąpione.",
+    "confirmRestoreText": "Zostanie zastosowany punkt przywracania „{name}”. Bieżące wersje sterowników zostaną zastąpione. Windows zostanie uruchomiony ponownie. Zapisz wszystkie otwarte dokumenty przed kontynuowaniem.",
     "confirmDeleteTitle": "Usunąć punkt przywracania?",
     "confirmDeleteText": "Punkt przywracania „{name}” zostanie trwale usunięty.",
     "confirmOk": "Potwierdź",
@@ -193,7 +193,9 @@
     "savedToast": "Ustawienia zapisane",
     "resetToast": "Przywrócono ustawienia domyślne",
     "copyPath": "Copy path",
-    "copiedToast": "Ścieżka skopiowana"
+    "copiedToast": "Ścieżka skopiowana",
+    "autoInstall": "Automatycznie instaluj aktualizacje",
+    "autoInstallSub": "Zainstaluj dostępne aktualizacje sterowników po automatycznym sprawdzeniu"
   },
   "about": {
     "title": "O programie",
@@ -242,7 +244,8 @@
     "driverUpdated": "Zaktualizowano sterownik „{name}”",
     "restorePointCreated": "Utworzono punkt przywracania",
     "error": "Operacja nie powiodła się",
-    "rebootRequired": "Aby zakończyć aktualizację sterownika, wymagane jest ponowne uruchomienie"
+    "rebootRequired": "Aby zakończyć aktualizację sterownika, wymagane jest ponowne uruchomienie",
+    "cancelled": "Instalacja anulowana"
   },
   "components": {
     "cancelTooLate": "Instalator został już uruchomiony. Bieżąca instalacja zostanie dokończona.",
@@ -265,7 +268,11 @@
     "version": "Wersja",
     "loading": "Ładowanie…",
     "managed": "Zarządzany przez kierowcę",
-    "openglNote": "Dostarczone przez sterownik GPU"
+    "openglNote": "Dostarczone przez sterownik GPU",
+    "cancelInstallTitle": "Anulować instalację?",
+    "cancelInstallText": "Instalator już działa. Anulowanie może pozostawić składnik częściowo zainstalowany.",
+    "cancelInstallConfirm": "Anuluj instalację",
+    "cancelInstallKeep": "Kontynuuj instalację"
   },
   "boot": {
     "errorTitle": "The app could not start",

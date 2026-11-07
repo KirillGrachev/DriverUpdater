@@ -123,7 +123,7 @@
     "kindSchedule": "Creat conform programului",
     "kindManual": "Creat manual",
     "confirmRestoreTitle": "Restaurezi sistemul?",
-    "confirmRestoreText": "Punctul de restaurare „{name}” va fi aplicat. Versiunile curente ale driverelor vor fi înlocuite.",
+    "confirmRestoreText": "Punctul de restaurare „{name}” va fi aplicat. Versiunile curente ale driverelor vor fi înlocuite. Windows se va reporni. Salvați toate documentele deschise înainte de a continua.",
     "confirmDeleteTitle": "Ștergi punctul de restaurare?",
     "confirmDeleteText": "Punctul de restaurare „{name}” va fi șters definitiv.",
     "confirmOk": "Confirmă",
@@ -193,7 +193,9 @@
     "savedToast": "Setările au fost salvate",
     "resetToast": "Setările au fost resetate la valorile implicite",
     "copyPath": "Copy path",
-    "copiedToast": "Calea copiată"
+    "copiedToast": "Calea copiată",
+    "autoInstall": "Instalează actualizările automat",
+    "autoInstallSub": "Instalează actualizările disponibile ale driverelor după verificarea automată"
   },
   "about": {
     "title": "Despre",
@@ -242,7 +244,8 @@
     "driverUpdated": "Driverul „{name}” a fost actualizat",
     "restorePointCreated": "Punctul de restaurare a fost creat",
     "error": "Operațiunea a eșuat",
-    "rebootRequired": "Este necesară o repornire pentru a finaliza actualizarea driverului"
+    "rebootRequired": "Este necesară o repornire pentru a finaliza actualizarea driverului",
+    "cancelled": "Instalare anulată"
   },
   "components": {
     "cancelTooLate": "Programul de instalare a pornit deja. Instalarea curentă se va finaliza.",
@@ -265,7 +268,11 @@
     "version": "Versiune",
     "loading": "Se încarcă…",
     "managed": "Gestionat de șofer",
-    "openglNote": "Furnizat de driverul dvs. GPU"
+    "openglNote": "Furnizat de driverul dvs. GPU",
+    "cancelInstallTitle": "Anulați instalarea?",
+    "cancelInstallText": "Programul de instalare rulează deja. Anularea poate lăsa componenta parțial instalată.",
+    "cancelInstallConfirm": "Anulați instalarea",
+    "cancelInstallKeep": "Continuați instalarea"
   },
   "boot": {
     "errorTitle": "The app could not start",

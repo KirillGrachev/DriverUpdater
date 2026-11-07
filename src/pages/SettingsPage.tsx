@@ -131,11 +131,15 @@ export function SettingsPage() {
                         label={t('settings.autoCheck')}
                     />
                 </Row>
-                <Row icon={<IconSettingsSync size={21} />} label={t('updates.installBtn')} sub={t('drivers.updateAll')}>
+                <Row
+                    icon={<IconSettingsSync size={21} />}
+                    label={t('settings.autoInstall')}
+                    sub={t('settings.autoInstallSub')}
+                >
                     <Toggle
                         checked={settings.autoInstall}
                         onChange={(v) => update('autoInstall', v)}
-                        label={t('updates.installBtn')}
+                        label={t('settings.autoInstall')}
                         disabled={!settings.autoCheck}
                     />
                 </Row>

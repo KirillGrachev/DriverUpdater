@@ -123,7 +123,7 @@
     "kindSchedule": "Ustvarjeno po urniku",
     "kindManual": "Ustvarjeno ročno",
     "confirmRestoreTitle": "Obnoviti sistem?",
-    "confirmRestoreText": "Obnovitvena točka »{name}« bo uporabljena. Trenutne različice gonilnikov bodo zamenjane.",
+    "confirmRestoreText": "Obnovitvena točka »{name}« bo uporabljena. Trenutne različice gonilnikov bodo zamenjane. Windows se bo znova zagnal. Pred nadaljevanjem shranite vse odprte dokumente.",
     "confirmDeleteTitle": "Izbrisati obnovitveno točko?",
     "confirmDeleteText": "Obnovitvena točka »{name}« bo trajno izbrisana.",
     "confirmOk": "Potrdi",
@@ -193,7 +193,9 @@
     "savedToast": "Nastavitve so shranjene",
     "resetToast": "Nastavitve so ponastavljene na privzete",
     "copyPath": "Copy path",
-    "copiedToast": "Pot je kopirana"
+    "copiedToast": "Pot je kopirana",
+    "autoInstall": "Samodejno namesti posodobitve",
+    "autoInstallSub": "Po samodejnem preverjanju namesti razpoložljive posodobitve gonilnikov"
   },
   "about": {
     "title": "O aplikaciji",
@@ -242,7 +244,8 @@
     "driverUpdated": "Gonilnik »{name}« je posodobljen",
     "restorePointCreated": "Obnovitvena točka je ustvarjena",
     "error": "Opravilo ni uspelo",
-    "rebootRequired": "Za dokončanje posodobitve gonilnika je potreben ponovni zagon"
+    "rebootRequired": "Za dokončanje posodobitve gonilnika je potreben ponovni zagon",
+    "cancelled": "Namestitev preklicana"
   },
   "components": {
     "cancelTooLate": "Namestitveni program se je že zagnal. Trenutna namestitev bo dokončana.",
@@ -265,7 +268,11 @@
     "version": "Različica",
     "loading": "Nalaganje ...",
     "managed": "Upravlja ga voznik",
-    "openglNote": "Zagotavlja vaš gonilnik GPE"
+    "openglNote": "Zagotavlja vaš gonilnik GPE",
+    "cancelInstallTitle": "Prekliči namestitev?",
+    "cancelInstallText": "Namestitveni program že deluje. Preklic lahko pusti komponento delno nameščeno.",
+    "cancelInstallConfirm": "Prekliči namestitev",
+    "cancelInstallKeep": "Nadaljuj z namestitvijo"
   },
   "boot": {
     "errorTitle": "The app could not start",

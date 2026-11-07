@@ -109,7 +109,11 @@
     "managed": "Driver-managed",
     "openglNote": "Provided by your GPU driver",
     "cancelTooLate": "The installer has already started. The current installation will finish.",
-    "sdks": "SDKs"
+    "sdks": "SDKs",
+    "cancelInstallTitle": "Cancel installation?",
+    "cancelInstallText": "The installer is already running. Cancelling may leave the component partially installed.",
+    "cancelInstallConfirm": "Cancel installation",
+    "cancelInstallKeep": "Continue installation"
   },
   "updates": {
     "title": "Updates",
@@ -217,7 +221,9 @@
     "reset": "Reset settings",
     "save": "Save changes",
     "savedToast": "Settings saved",
-    "resetToast": "Settings reset to defaults"
+    "resetToast": "Settings reset to defaults",
+    "autoInstall": "Install updates automatically",
+    "autoInstallSub": "Install available driver updates after the automatic check"
   },
   "about": {
     "title": "About",
@@ -264,6 +270,7 @@
     "driverUpdated": "Driver “{name}” updated",
     "restorePointCreated": "Restore point created",
     "error": "Operation failed",
-    "rebootRequired": "A restart is required to finish the driver update"
+    "rebootRequired": "A restart is required to finish the driver update",
+    "cancelled": "Installation cancelled"
   }
 }

@@ -119,7 +119,7 @@
     "kindSchedule": "Skapad enligt schema",
     "kindManual": "Skapad manuellt",
     "confirmRestoreTitle": "Återställa systemet?",
-    "confirmRestoreText": "Återställningspunkten ”{name}” tillämpas. Nuvarande drivrutinsversioner ersätts.",
+    "confirmRestoreText": "Återställningspunkten ”{name}” tillämpas. Nuvarande drivrutinsversioner ersätts. Windows startas om. Spara alla öppna dokument innan du fortsätter.",
     "confirmDeleteTitle": "Ta bort återställningspunkt?",
     "confirmDeleteText": "Återställningspunkten ”{name}” tas bort permanent.",
     "confirmOk": "Bekräfta",
@@ -189,7 +189,9 @@
     "savedToast": "Inställningarna sparades",
     "resetToast": "Inställningarna återställdes till standard",
     "copyPath": "Copy path",
-    "copiedToast": "Sökvägen kopierad"
+    "copiedToast": "Sökvägen kopierad",
+    "autoInstall": "Installera uppdateringar automatiskt",
+    "autoInstallSub": "Installera tillgängliga drivrutinsuppdateringar efter den automatiska kontrollen"
   },
   "about": {
     "title": "Om",
@@ -236,7 +238,8 @@
     "driverUpdated": "Drivrutinen ”{name}” uppdaterades",
     "restorePointCreated": "Återställningspunkt skapad",
     "error": "Åtgärden misslyckades",
-    "rebootRequired": "En omstart krävs för att avsluta drivrutinsuppdateringen"
+    "rebootRequired": "En omstart krävs för att avsluta drivrutinsuppdateringen",
+    "cancelled": "Installationen avbröts"
   },
   "components": {
     "cancelTooLate": "Installationsprogrammet har redan startat. Den pågående installationen slutförs.",
@@ -259,7 +262,11 @@
     "version": "Version",
     "loading": "Laddar...",
     "managed": "Förarhanterad",
-    "openglNote": "Tillhandahålls av din GPU-drivrutin"
+    "openglNote": "Tillhandahålls av din GPU-drivrutin",
+    "cancelInstallTitle": "Avbryta installationen?",
+    "cancelInstallText": "Installationsprogrammet körs redan. Avbrytning kan lämna komponenten delvis installerad.",
+    "cancelInstallConfirm": "Avbryt installationen",
+    "cancelInstallKeep": "Fortsätt installera"
   },
   "boot": {
     "errorTitle": "The app could not start",
