@@ -1,4 +1,4 @@
-import type { CheckInterval, Settings } from '../ipc/types';
+import type { CheckInterval, Driver, Settings } from '../ipc/types';
 
 const HOUR = 60 * 60 * 1000;
 const DAY = 24 * HOUR;
@@ -33,4 +33,16 @@ export function shouldAutoCheck(settings: Settings, lastCheck: string | null | u
     const checkedAt = Date.parse(lastCheck);
     if (!Number.isFinite(checkedAt)) return true;
     return now - checkedAt >= autoCheckInterval(settings.checkInterval);
+}
+
+/**
+ * Selects the driver updates to install after an automatic check.
+ *
+ * @param settings current settings
+ * @param drivers latest driver inventory
+ * @returns ids of updates to install, or an empty list when disabled
+ */
+export function autoInstallIds(settings: Settings, drivers: Driver[]): string[] {
+    if (!settings.autoInstall) return [];
+    return drivers.filter((driver) => driver.status === 'update').map((driver) => driver.id);
 }

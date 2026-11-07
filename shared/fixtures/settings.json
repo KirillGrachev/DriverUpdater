@@ -2,6 +2,7 @@
   "language": "ru",
   "theme": "light",
   "autoCheck": true,
+  "autoInstall": false,
   "checkInterval": "daily",
   "restorePointBeforeInstall": true,
   "keepBackups": true,
