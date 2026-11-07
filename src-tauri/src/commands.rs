@@ -749,19 +749,7 @@ pub async fn install_package(
         jobs.insert(job_key.clone(), Arc::clone(&cancel));
     }
     let result = tauri::async_runtime::spawn_blocking(move || {
-        service_or_direct(
-            ServiceOperation::InstallPackage {
-                package_id: package_id.clone(),
-                version: version.clone(),
-            },
-            || {
-                crate::packages::WingetPackageManager.install_cancellable(
-                    &package_id,
-                    &version,
-                    &cancel,
-                )
-            },
-        )
+        crate::packages::WingetPackageManager.install_cancellable(&package_id, &version, &cancel)
     })
     .await
     .map_err(|error| error.to_string());
@@ -786,19 +774,10 @@ pub async fn cancel_package_install(
         .unwrap_or_else(|poisoned| poisoned.into_inner())
         .get(&package_id)
         .cloned();
-    let local_cancelled = if let Some(flag) = job {
+    if let Some(flag) = job {
         flag.store(true, Ordering::SeqCst);
-        true
+        Ok(true)
     } else {
-        false
-    };
-    let service_cancelled = tauri::async_runtime::spawn_blocking(move || {
-        service_client::call(ServiceOperation::CancelPackageInstall { package_id })
-            .ok()
-            .and_then(|value| value.get("cancelled").and_then(|flag| flag.as_bool()))
-            .unwrap_or(false)
-    })
-    .await
-    .unwrap_or(false);
-    Ok(local_cancelled || service_cancelled)
+        Ok(false)
+    }
 }
