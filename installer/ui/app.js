@@ -77,6 +77,28 @@ function renderThemes() {
     }
 }
 
+const requiredSpace = document.getElementById('required-space');
+const availableSpace = document.getElementById('available-space');
+
+function formatBytes(bytes) {
+    if (!Number.isFinite(bytes) || bytes <= 0) return '—';
+    const gb = bytes / (1024 * 1024 * 1024);
+    if (gb >= 1) return `${gb.toFixed(1)} GB`;
+    return `${Math.max(1, Math.round(bytes / (1024 * 1024)))} MB`;
+}
+
+async function refreshSpace() {
+    if (!invoke) return;
+    try {
+        const space = await invoke('installation_space', { path: state.installPath });
+        requiredSpace.textContent = formatBytes(space.requiredBytes);
+        availableSpace.textContent = formatBytes(space.availableBytes);
+    } catch {
+        requiredSpace.textContent = '—';
+        availableSpace.textContent = '—';
+    }
+}
+
 function setProgress(percent, stage) {
     const value = Math.max(0, Math.min(100, Math.round(percent)));
     progressBar.style.width = `${value}%`;
@@ -107,6 +129,7 @@ document.addEventListener('click', async (event) => {
     }
     if (target.dataset.next) {
         showScreen(target.dataset.next);
+        if (target.dataset.next === 'location') void refreshSpace();
         return;
     }
     if (target.dataset.back) {
@@ -123,6 +146,7 @@ document.addEventListener('click', async (event) => {
 languageSearch.addEventListener('input', renderLanguages);
 installPath.addEventListener('input', () => {
     state.installPath = installPath.value;
+    void refreshSpace();
 });
 
 document.getElementById('browse').addEventListener('click', async () => {
@@ -131,6 +155,7 @@ document.getElementById('browse').addEventListener('click', async () => {
     if (selected) {
         state.installPath = selected;
         installPath.value = selected;
+        void refreshSpace();
     }
 });
 
@@ -207,3 +232,4 @@ document.getElementById('finish').addEventListener('click', async () => {
 renderLanguages();
 renderThemes();
 renderDots();
+void refreshSpace();

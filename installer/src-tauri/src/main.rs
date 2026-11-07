@@ -20,6 +20,49 @@ struct InstallProgress {
     stage: String,
 }
 
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct InstallationSpace {
+    required_bytes: u64,
+    available_bytes: u64,
+}
+
+#[tauri::command]
+fn installation_space(path: String) -> InstallationSpace {
+    let payload_bytes = find_payload()
+        .ok()
+        .and_then(|payload| std::fs::metadata(payload).ok())
+        .map(|metadata| metadata.len())
+        .unwrap_or(120 * 1024 * 1024);
+    InstallationSpace {
+        required_bytes: payload_bytes.saturating_add(64 * 1024 * 1024),
+        available_bytes: available_bytes(&path).unwrap_or(0),
+    }
+}
+
+#[cfg(target_os = "windows")]
+fn available_bytes(path: &str) -> Option<u64> {
+    use std::os::windows::ffi::OsStrExt;
+    use std::ptr::null_mut;
+    use windows_sys::Win32::Storage::FileSystem::GetDiskFreeSpaceExW;
+
+    let mut existing = PathBuf::from(path);
+    while !existing.exists() {
+        if !existing.pop() {
+            return None;
+        }
+    }
+    let wide: Vec<u16> = existing.as_os_str().encode_wide().chain(std::iter::once(0)).collect();
+    let mut free = 0u64;
+    let ok = unsafe { GetDiskFreeSpaceExW(wide.as_ptr(), &mut free, null_mut(), null_mut()) };
+    (ok != 0).then_some(free)
+}
+
+#[cfg(not(target_os = "windows"))]
+fn available_bytes(_path: &str) -> Option<u64> {
+    None
+}
+
 #[tauri::command]
 fn minimize_setup(window: Window) {
     let _ = window.minimize();
@@ -189,6 +232,7 @@ fn main() {
             toggle_maximize,
             close_setup,
             choose_directory,
+            installation_space,
             install,
             finish_setup
         ])
