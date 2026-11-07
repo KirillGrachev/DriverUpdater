@@ -322,12 +322,21 @@ fn install_service(install_path: &Path) -> Result<(), String> {
         .stdout(Stdio::null())
         .stderr(Stdio::null())
         .status();
-    std::thread::sleep(std::time::Duration::from_millis(800));
-    let _ = system_command(&sc)
-        .args(["delete", SERVICE_NAME])
-        .stdout(Stdio::null())
-        .stderr(Stdio::null())
-        .status();
+    std::thread::sleep(std::time::Duration::from_secs(2));
+    for _ in 0..4 {
+        let deleted = system_command(&sc)
+            .args(["delete", SERVICE_NAME])
+            .stdout(Stdio::null())
+            .stderr(Stdio::null())
+            .status()
+            .map(|status| status.success())
+            .unwrap_or(false);
+        if deleted {
+            break;
+        }
+        std::thread::sleep(std::time::Duration::from_millis(500));
+    }
+    std::thread::sleep(std::time::Duration::from_millis(500));
 
     std::fs::write(&service_path, SERVICE_BYTES)
         .map_err(|error| format!("Could not install the Windows service: {error}"))?;
