@@ -87,6 +87,31 @@ if (isTauriRuntime()) {
     });
 }
 
+/**
+ * Keeps keyboard focus rings available while suppressing them after a mouse
+ * or touch interaction, including WebView2 builds that keep :focus-visible.
+ */
+function trackInputModality() {
+    const root = document.documentElement;
+    root.dataset.input = 'pointer';
+    window.addEventListener(
+        'pointerdown',
+        () => {
+            root.dataset.input = 'pointer';
+        },
+        { capture: true, passive: true },
+    );
+    window.addEventListener(
+        'keydown',
+        () => {
+            root.dataset.input = 'keyboard';
+        },
+        { capture: true },
+    );
+}
+
+trackInputModality();
+
 createRoot(document.getElementById('root')!).render(
     <StrictMode>
         <AppProvider>
