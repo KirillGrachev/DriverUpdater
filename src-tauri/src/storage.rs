@@ -9,6 +9,7 @@
 use std::fs;
 use std::io::Write;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicU64, Ordering};
 
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Serialize};
@@ -97,7 +98,11 @@ impl EncryptedStore {
             fs::create_dir_all(parent).map_err(|error| error.to_string())?;
         }
 
-        let temporary = path.with_extension("json.tmp");
+        static SAVE_SEQUENCE: AtomicU64 = AtomicU64::new(0);
+        let temporary = path.with_extension(format!(
+            "json.{}.tmp",
+            SAVE_SEQUENCE.fetch_add(1, Ordering::Relaxed)
+        ));
         let mut file = fs::File::create(&temporary).map_err(|error| error.to_string())?;
         file.write_all(&sealed).map_err(|error| error.to_string())?;
         file.sync_all().map_err(|error| error.to_string())?;
@@ -269,6 +274,69 @@ mod tests {
             })
             .expect("save old cache");
         assert!(cache.load().expect("load old cache").is_none());
+        let _ = fs::remove_dir_all(directory);
+    }
+
+    #[test]
+    fn settings_without_auto_install_default_to_false() {
+        let settings: Settings = serde_json::from_value(json!({
+            "language": "en",
+            "theme": "system",
+            "autoCheck": true,
+            "checkInterval": "daily",
+            "restorePointBeforeInstall": true,
+            "keepBackups": true,
+            "backupPath": "",
+            "autoRestorePoints": false,
+            "restorePointPeriod": "weekly"
+        }))
+        .expect("legacy settings");
+        assert!(!settings.auto_install);
+    }
+
+    #[test]
+    fn corrupt_state_returns_an_error_instead_of_defaults() {
+        let directory = std::env::temp_dir().join(format!(
+            "driver-updater-corrupt-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        fs::create_dir_all(&directory).expect("create directory");
+        let path = directory.join("state.json");
+        fs::write(&path, b"not valid json").expect("write corrupt state");
+        let store = EncryptedStore::new(Some(path));
+        let loaded: Result<Option<serde_json::Value>, String> = store.load();
+        assert!(loaded.is_err());
+        let _ = fs::remove_dir_all(directory);
+    }
+
+    #[test]
+    fn concurrent_saves_leave_a_readable_document() {
+        let directory = std::env::temp_dir().join(format!(
+            "driver-updater-concurrent-{}-{}",
+            std::process::id(),
+            std::time::SystemTime::now()
+                .duration_since(std::time::UNIX_EPOCH)
+                .expect("clock")
+                .as_nanos()
+        ));
+        let path = directory.join("state.json");
+        let store = std::sync::Arc::new(EncryptedStore::new(Some(path)));
+        let mut handles = Vec::new();
+        for index in 0..4 {
+            let store = std::sync::Arc::clone(&store);
+            handles.push(std::thread::spawn(move || {
+                store.save(&json!({ "writer": index })).expect("save");
+            }));
+        }
+        for handle in handles {
+            handle.join().expect("join");
+        }
+        let loaded: serde_json::Value = store.load().expect("load").expect("state");
+        assert!(loaded.get("writer").is_some());
         let _ = fs::remove_dir_all(directory);
     }
 
