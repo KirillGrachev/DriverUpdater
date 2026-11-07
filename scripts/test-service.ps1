@@ -15,7 +15,8 @@ if (-not $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administra
 $serviceName = 'DriverUpdaterService'
 $tokenDir = Join-Path $env:ProgramData 'Driver Updater'
 $tokenPath = Join-Path $tokenDir 'service.token'
-$servicePath = Join-Path $tokenDir 'driver-updater-service-test.exe'
+$serviceDir = Join-Path $env:ProgramFiles 'Driver Updater'
+$servicePath = Join-Path $serviceDir 'driver-updater-service-test.exe'
 $targetDir = Join-Path $root "src-tauri/target/$Configuration"
 $built = Join-Path $targetDir 'driver-updater-service.exe'
 $sc = Join-Path $env:SystemRoot 'System32/sc.exe'
