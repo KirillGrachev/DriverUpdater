@@ -3,6 +3,7 @@ node_modules/
 dist/
 coverage/
 src-tauri/target/
+portable/target/
 
 # local env / editor
 *.local

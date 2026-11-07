@@ -4,6 +4,7 @@ param(
 )
 
 $ErrorActionPreference = "Stop"
+$PSNativeCommandUseErrorActionPreference = $false
 
 $arch = switch ($Target) {
     "x86_64-pc-windows-msvc" { "x64" }
@@ -34,6 +35,24 @@ if (-not (Test-Path $exe)) {
 }
 Copy-Item $exe $portable
 
+$portableProject = Join-Path $root 'portable'
+$launcher = Join-Path $portableProject "target/$Target/release/DriverUpdaterPortable.exe"
+$cargoOut = Join-Path $env:TEMP "driver-updater-portable-$arch.out.log"
+$cargoErr = Join-Path $env:TEMP "driver-updater-portable-$arch.err.log"
+$cargoProcess = Start-Process cargo -ArgumentList @(
+    'build',
+    '--release',
+    '--manifest-path',
+    (Join-Path $portableProject 'Cargo.toml'),
+    '--target',
+    $Target
+) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $cargoOut -RedirectStandardError $cargoErr
+Remove-Item -LiteralPath $cargoOut, $cargoErr -Force -ErrorAction SilentlyContinue
+if ($cargoProcess.ExitCode -ne 0 -or -not (Test-Path $launcher)) {
+    throw "Portable launcher was not built: $launcher"
+}
+Copy-Item $launcher (Join-Path $portable 'DriverUpdaterPortable.exe')
+
 Get-ChildItem $release -Filter "*.pdb" -File | ForEach-Object {
     Copy-Item $_.FullName $symbols
 }
@@ -44,6 +63,10 @@ Driver Updater portable build ($arch)
 This build needs Microsoft Edge WebView2 Runtime. It is already present on
 current Windows 10 and Windows 11 systems; otherwise install it from
 https://developer.microsoft.com/microsoft-edge/webview2/.
+
+Run DriverUpdaterPortable.exe. It asks for administrator rights once per
+session, then starts Driver Updater elevated so driver installation and restore
+points work without a service installation or a per-driver UAC prompt.
 
 The application is portable: settings and component state stay in the user's
 AppData directory. Delete the folder to remove the app; no installer or
