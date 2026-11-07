@@ -749,7 +749,19 @@ pub async fn install_package(
         jobs.insert(job_key.clone(), Arc::clone(&cancel));
     }
     let result = tauri::async_runtime::spawn_blocking(move || {
-        crate::packages::WingetPackageManager.install_cancellable(&package_id, &version, &cancel)
+        service_or_direct(
+            ServiceOperation::InstallPackage {
+                package_id: package_id.clone(),
+                version: version.clone(),
+            },
+            || {
+                crate::packages::WingetPackageManager.install_cancellable(
+                    &package_id,
+                    &version,
+                    &cancel,
+                )
+            },
+        )
     })
     .await
     .map_err(|error| error.to_string());
