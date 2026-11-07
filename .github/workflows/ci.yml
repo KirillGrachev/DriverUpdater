@@ -34,6 +34,8 @@ jobs:
               run: npm test
             - name: Locale coverage
               run: npm run check:locales
+            - name: Setup language coverage
+              run: npm run check:setup-languages
             - name: Version consistency
               run: node scripts/check-version.mjs
             - name: Production dependency audit
