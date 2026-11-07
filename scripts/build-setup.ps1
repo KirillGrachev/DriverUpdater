@@ -36,6 +36,12 @@ if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
     throw "No MSI or NSIS payload found under $BundleRoot"
 }
 
+$payload = if ($nsis.Count -gt 0) { $nsis[0] } else { $msi[0] }
+$payloadName = "payload$($payload.Extension.ToLowerInvariant())"
+$payloadHash = (Get-FileHash -LiteralPath $payload.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+$previousPayloadHash = $env:DRIVER_UPDATER_PAYLOAD_SHA256
+$env:DRIVER_UPDATER_PAYLOAD_SHA256 = $payloadHash
+
 $setupProject = Join-Path $root 'installer/src-tauri'
 $buildId = [guid]::NewGuid().ToString('N')
 $stdoutLog = Join-Path $env:TEMP "driver-updater-setup-$buildId.out.log"
@@ -54,6 +60,11 @@ try {
         throw "The setup wizard build failed with exit code $($process.ExitCode)"
     }
 } finally {
+    if ($null -eq $previousPayloadHash) {
+        Remove-Item Env:DRIVER_UPDATER_PAYLOAD_SHA256 -ErrorAction SilentlyContinue
+    } else {
+        $env:DRIVER_UPDATER_PAYLOAD_SHA256 = $previousPayloadHash
+    }
     Remove-Item -LiteralPath $stdoutLog, $stderrLog -Force -ErrorAction SilentlyContinue
 }
 $setupExe = Join-Path $setupProject "target/$Target/release/driver-updater-setup.exe"
@@ -71,8 +82,6 @@ Copy-Item $setupExe (Join-Path $output 'DriverUpdaterSetup.exe') -Force
 if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
     throw "No installer payload was available for $arch"
 }
-$payload = if ($nsis.Count -gt 0) { $nsis[0] } else { $msi[0] }
-$payloadName = "payload$($payload.Extension.ToLowerInvariant())"
 Copy-Item $payload.FullName (Join-Path $payloadDir $payloadName) -Force
 
 $archive = Join-Path $root "artifacts/setup/DriverUpdaterSetup-$Version-$arch.zip"
