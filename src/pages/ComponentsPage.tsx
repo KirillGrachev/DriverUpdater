@@ -50,6 +50,7 @@ export function ComponentsPage() {
     const [versions, setVersions] = useState<Record<string, string[]>>(defaultVersions);
     const [detected, setDetected] = useState<Record<string, InstalledComponent>>({});
     const [activeGroup, setActiveGroup] = useState<ComponentGroup>('runtime');
+    const [expandedGroup, setExpandedGroup] = useState<ComponentGroup | null>(null);
 
     useEffect(() => {
         let cancelled = false;
@@ -214,7 +215,11 @@ export function ComponentsPage() {
                             role="tab"
                             aria-selected={activeGroup === group.id}
                             className={`component-tab${activeGroup === group.id ? ' is-active' : ''}`}
-                            onClick={() => setActiveGroup(group.id)}
+                            onClick={() => {
+                                setActiveGroup(group.id);
+                                setExpandedGroup(null);
+                                document.querySelector('.app-main')?.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+                            }}
                         >
                             {t(group.titleKey)}
                             <span>{count}</span>
@@ -225,6 +230,7 @@ export function ComponentsPage() {
 
             {GROUPS.filter((group) => group.id === activeGroup).map((group) => {
                 const items = COMPONENT_CATALOG.filter((item) => item.group === group.id);
+                const visibleItems = expandedGroup === group.id ? items : items.slice(0, 8);
                 return (
                     <section className="card components-card" key={group.id}>
                         <div className="components-head">
@@ -234,7 +240,7 @@ export function ComponentsPage() {
                         <ul className="component-list">
                             {(() => {
                                 let lastSubgroup: ComponentSubgroup | undefined;
-                                return items.map((item) => {
+                                return visibleItems.map((item) => {
                                     const showSubgroup =
                                         group.id === 'runtime' &&
                                         item.subgroup !== undefined &&
@@ -332,6 +338,11 @@ export function ComponentsPage() {
                                 });
                             })()}
                         </ul>
+                        {items.length > visibleItems.length ? (
+                            <button type="button" className="component-more" onClick={() => setExpandedGroup(group.id)}>
+                                {t('home.showAll')} ({items.length})
+                            </button>
+                        ) : null}
                     </section>
                 );
             })}
