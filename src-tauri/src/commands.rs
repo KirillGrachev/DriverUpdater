@@ -174,12 +174,15 @@ pub async fn check_updates(
 ) -> Result<CheckUpdatesResult, CommandError> {
     let repository = Arc::clone(&state.0);
     let drivers_task = tauri::async_runtime::spawn_blocking(|| NativeDetector.detect());
-    let updates_task =
-        tauri::async_runtime::spawn_blocking(|| default_update_provider().find_updates());
+    let updates_task = tauri::async_runtime::spawn_blocking(|| {
+        service_or_direct(ServiceOperation::FindUpdates, || {
+            default_update_provider().find_updates()
+        })
+    });
     let drivers = drivers_task.await.ok().flatten();
-    let updates = updates_task.await.map_err(|error| error.to_string())?;
+    let updates = updates_task.await.map_err(|error| error.to_string())??;
     run_repository_handle(repository, move |repository| {
-        repository.apply_check_result(drivers, updates)
+        repository.apply_check_result(drivers, Ok(updates))
     })
     .await
 }
@@ -618,10 +621,17 @@ pub async fn list_driver_backups(
     state: State<'_, AppRepository>,
 ) -> Result<Vec<crate::backup::DriverBackup>, CommandError> {
     let root = backup_root(&state).await?;
-    tauri::async_runtime::spawn_blocking(move || default_backup_provider(root).list())
-        .await
-        .map_err(|error| error.to_string())?
-        .map_err(CommandError::from_message)
+    tauri::async_runtime::spawn_blocking(move || {
+        service_or_direct(
+            ServiceOperation::ListDriverBackups {
+                path: root.to_string_lossy().into_owned(),
+            },
+            || default_backup_provider(root.clone()).list(),
+        )
+    })
+    .await
+    .map_err(|error| error.to_string())?
+    .map_err(CommandError::from_message)
 }
 
 #[tauri::command]

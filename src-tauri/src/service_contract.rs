@@ -24,12 +24,14 @@ pub const MAX_REQUEST_BYTES: usize = 64 * 1024;
 #[serde(tag = "op", content = "payload", rename_all = "camelCase")]
 pub enum ServiceOperation {
     Ping,
+    FindUpdates,
     InstallDriverUpdate { update_id: String },
     CreateRestorePoint { name: String },
     ListRestorePoints,
     DeleteRestorePoint { id: String },
     RestoreRestorePoint { id: String },
     CreateDriverBackup { path: String },
+    ListDriverBackups { path: String },
     RestoreDriverBackup { path: String, id: String },
     DeleteDriverBackup { path: String, id: String },
     InstallPackage { package_id: String, version: String },

@@ -198,6 +198,7 @@ fn handle_operation(
 
     let result = match operation {
         ServiceOperation::Ping => Ok(serde_json::json!({ "service": "driver-updater" })),
+        ServiceOperation::FindUpdates => crate::privileged::find_updates(),
         ServiceOperation::InstallDriverUpdate { update_id } => {
             crate::privileged::install_update(&update_id)
         }
@@ -208,6 +209,13 @@ fn handle_operation(
         ServiceOperation::DeleteRestorePoint { id } => crate::privileged::delete_restore_point(&id),
         ServiceOperation::RestoreRestorePoint { id } => {
             crate::privileged::restore_restore_point(&id)
+        }
+        ServiceOperation::ListDriverBackups { path } => {
+            if crate::service_contract::is_allowed_backup_root(&path) {
+                crate::privileged::list_driver_backups(&path)
+            } else {
+                Err("backup path is outside the allowed folders".to_string())
+            }
         }
         ServiceOperation::CreateDriverBackup { path } => {
             if crate::service_contract::is_allowed_backup_root(&path) {

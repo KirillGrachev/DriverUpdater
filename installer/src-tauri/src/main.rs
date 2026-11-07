@@ -253,6 +253,61 @@ fn system_command(program: &Path) -> Command {
 }
 
 #[cfg(target_os = "windows")]
+fn current_user_sid() -> Result<String, String> {
+    let whoami = std::env::var_os("SystemRoot")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
+        .join("System32")
+        .join("whoami.exe");
+    let output = system_command(&whoami)
+        .args(["/user", "/fo", "csv", "/nh"])
+        .output()
+        .map_err(|error| format!("Could not resolve the current user SID: {error}"))?;
+    let text = String::from_utf8_lossy(&output.stdout);
+    let sid = text
+        .trim()
+        .rsplit(',')
+        .next()
+        .unwrap_or_default()
+        .trim()
+        .trim_matches('"')
+        .to_string();
+    if !sid.starts_with("S-1-") {
+        return Err("Could not resolve the current user SID.".to_string());
+    }
+    Ok(sid)
+}
+
+#[cfg(target_os = "windows")]
+fn protect_service_token(token: &Path) -> Result<(), String> {
+    let icacls = std::env::var_os("SystemRoot")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from(r"C:\Windows"))
+        .join("System32")
+        .join("icacls.exe");
+    let sid = current_user_sid()?;
+    let status = system_command(&icacls)
+        .arg(token)
+        .args([
+            "/inheritance:r",
+            "/grant:r",
+            &format!("*{sid}:R"),
+            "/grant:r",
+            "*S-1-5-18:F",
+            "/grant:r",
+            "*S-1-5-32-544:F",
+        ])
+        .stdout(Stdio::null())
+        .stderr(Stdio::null())
+        .status()
+        .map_err(|error| format!("Could not protect the service token: {error}"))?;
+    if !status.success() {
+        return Err("Could not restrict access to the service token.".to_string());
+    }
+    Ok(())
+}
+
+#[cfg(target_os = "windows")]
 fn install_service(install_path: &Path) -> Result<(), String> {
     const SERVICE_NAME: &str = "DriverUpdaterService";
     if SERVICE_BYTES.is_empty() {
@@ -288,8 +343,10 @@ fn install_service(install_path: &Path) -> Result<(), String> {
         .iter()
         .map(|byte| format!("{byte:02x}"))
         .collect();
-    std::fs::write(token_dir.join("service.token"), token.as_bytes())
+    let token_path = token_dir.join("service.token");
+    std::fs::write(&token_path, token.as_bytes())
         .map_err(|error| format!("Could not write the service token: {error}"))?;
+    protect_service_token(&token_path)?;
 
     let bin_path = format!("\"{}\"", service_path.display());
     let status = system_command(&sc)

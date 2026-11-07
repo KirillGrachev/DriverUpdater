@@ -10,7 +10,7 @@
 #[cfg(target_os = "windows")]
 use std::time::Duration;
 
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 use crate::models::Driver;
 #[cfg(target_os = "windows")]
@@ -19,7 +19,7 @@ use crate::process;
 /**
  * A driver update returned by Windows Update.
  */
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct DriverUpdate {
     pub update_id: String,

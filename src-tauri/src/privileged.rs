@@ -13,6 +13,12 @@ use crate::packages::WingetPackageManager;
 use crate::restore::default_restore_provider;
 use crate::windows_update::default_update_provider;
 
+/// Searches Windows Update for driver packages.
+pub fn find_updates() -> Result<Value, String> {
+    serde_json::to_value(default_update_provider().find_updates()?)
+        .map_err(|error| error.to_string())
+}
+
 /// Installs one Windows Update driver package.
 pub fn install_update(update_id: &str) -> Result<Value, String> {
     if update_id.trim().is_empty() {
@@ -46,6 +52,12 @@ pub fn delete_restore_point(id: &str) -> Result<Value, String> {
 pub fn restore_restore_point(id: &str) -> Result<Value, String> {
     default_restore_provider().restore(id)?;
     Ok(Value::Null)
+}
+
+/// Lists driver package backups under an already validated root.
+pub fn list_driver_backups(root: &str) -> Result<Value, String> {
+    serde_json::to_value(default_backup_provider(std::path::PathBuf::from(root)).list()?)
+        .map_err(|error| error.to_string())
 }
 
 /// Creates a driver package backup under an already validated root.
