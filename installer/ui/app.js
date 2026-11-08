@@ -12,6 +12,23 @@ const state = {
     launching: true,
 };
 
+// Keep the setup window inside the monitor work area, including at 125/150% DPI,
+// where a fixed 980x800 logical window puts the footer buttons under the taskbar.
+function fitSetupWindow() {
+    try {
+        const maxWidth = Math.max(760, window.screen.availWidth - 80);
+        const maxHeight = Math.max(520, window.screen.availHeight - 80);
+        const width = Math.min(980, maxWidth);
+        const height = Math.min(660, maxHeight);
+        if (window.outerWidth > window.screen.availWidth || window.outerHeight > window.screen.availHeight) {
+            window.resizeTo(width, height);
+        }
+    } catch {
+        // Non-fatal; the window remains usable.
+    }
+}
+fitSetupWindow();
+
 const screens = [...document.querySelectorAll('[data-screen]')];
 const languageList = document.getElementById('language-list');
 const languageSearch = document.getElementById('language-search');
