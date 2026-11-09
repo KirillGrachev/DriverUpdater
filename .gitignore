@@ -29,3 +29,7 @@ src-tauri/gen/
 
 # Locally assembled Windows release assets
 artifacts/
+
+# Microsoft WebView2 offline runtime (downloaded by scripts/build-setup.ps1)
+installer/webview2/*.exe
+installer/webview2/*.download

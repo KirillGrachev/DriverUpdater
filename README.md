@@ -115,10 +115,12 @@ is collected.
 
 <h3 align="center">Installer prerequisites</h3>
 
-The Windows installer downloads the small Microsoft WebView2 bootstrapper when
-the runtime is missing, then launches the app. The MSVC runtime is linked
-statically, so a separate Visual C++ Redistributable is not required. Setup
-therefore needs an internet connection on a clean Windows 10/11 machine.
+The setup executable starts with a small native bootstrapper. When the
+Microsoft Edge WebView2 Runtime is missing, it installs Microsoft's included
+offline Evergreen installer before starting the custom setup UI. This also
+works on Windows 10 LTSC, Windows Server images and offline machines. The MSVC
+runtime is linked statically, so a separate Visual C++ Redistributable is not
+required.
 
 <h3 align="center">Component installation</h3>
 
@@ -172,10 +174,10 @@ failure instead of pretending the package was installed.
 
 - Windows 10 or Windows 11;
 - x64, ARM64 or 32-bit x86 (x86 is Windows 10 only);
-- the installer downloads the WebView2 bootstrapper only when the runtime is missing;
+- the native setup bootstrapper installs the included offline WebView2 Runtime only when it is missing;
 - the MSVC runtime is linked statically;
-- the unified setup UI itself needs WebView2; on a clean Windows 10 image, setup installs it before the app first launches;
-- about 25 MB for the installed app, plus the shared WebView2 runtime.
+- the custom setup UI needs WebView2, so the native preflight runs before it starts;
+- about 25 MB for the installed app, plus the shared WebView2 runtime; the setup bundle itself carries the offline runtime.
 
 <h3 align="center">Building</h3>
 

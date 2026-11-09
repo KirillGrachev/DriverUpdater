@@ -224,7 +224,11 @@ fn verify_payload(payload: &Path) -> Result<(), String> {
         .map_err(|error| format!("Could not read the installer payload: {error}"))?;
     let mut hasher = sha2::Sha256::new();
     hasher.update(&bytes);
-    let actual = format!("{:x}", hasher.finalize());
+    let actual = hasher
+        .finalize()
+        .iter()
+        .map(|byte| format!("{byte:02x}"))
+        .collect::<String>();
     if actual != expected.to_ascii_lowercase() {
         return Err(
             "The installer payload failed its integrity check. Download the setup again."
