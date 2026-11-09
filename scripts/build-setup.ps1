@@ -16,6 +16,41 @@ $arch = switch ($Target) {
     'i686-pc-windows-msvc' { 'x86' }
     default { throw "Unsupported target: $Target" }
 }
+
+# The setup wizard is a WebView2 application. Windows 10 LTSC and some
+# server images do not ship the Evergreen runtime, so keep Microsoft's
+# offline installer next to the native bootstrapper.
+$webview2Dir = Join-Path $root "installer/webview2"
+$webview2Installer = Join-Path $webview2Dir 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
+$webview2Url = 'https://go.microsoft.com/fwlink/?linkid=2124701'
+New-Item -ItemType Directory -Path $webview2Dir -Force | Out-Null
+$downloadWebView2 = -not (Test-Path $webview2Installer)
+if (-not $downloadWebView2) {
+    $downloadWebView2 = (Get-Item $webview2Installer).Length -lt 100MB
+}
+if ($downloadWebView2) {
+    $temporary = "$webview2Installer.download"
+    Remove-Item $temporary -Force -ErrorAction SilentlyContinue
+    $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+    if ($curl) {
+        & $curl.Source --location --fail --retry 3 --retry-delay 5 --output $temporary $webview2Url
+        if ($LASTEXITCODE -ne 0) {
+            Remove-Item $temporary -Force -ErrorAction SilentlyContinue
+            throw "WebView2 Runtime download failed with curl exit code $LASTEXITCODE"
+        }
+    } else {
+        Invoke-WebRequest -Uri $webview2Url -OutFile $temporary -UseBasicParsing
+    }
+    $downloaded = (Test-Path $temporary) -and (Get-Item $temporary).Length -gt 100MB
+    if (-not $downloaded) {
+        Remove-Item $temporary -Force -ErrorAction SilentlyContinue
+        throw 'WebView2 Runtime download is incomplete'
+    }
+    Move-Item $temporary $webview2Installer -Force
+}
+if (-not (Test-Path $webview2Installer)) {
+    throw "WebView2 offline installer is missing: $webview2Installer"
+}
 if (-not $BundleRoot) {
     $BundleRoot = Join-Path $root "src-tauri/target/$Target/release/bundle"
 }
@@ -101,13 +136,37 @@ if (-not (Test-Path $setupExe)) {
     throw "Setup executable was not produced: $setupExe"
 }
 
+$bootstrapperProject = Join-Path $root 'installer/bootstrapper'
+$bootstrapperExe = Join-Path $bootstrapperProject "target/$Target/release/driver-updater-bootstrapper.exe"
+$bootstrapperOutLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.out.log'
+$bootstrapperErrLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.err.log'
+$bootstrapperProcess = Start-Process cargo -ArgumentList @(
+    'build',
+    '--release',
+    '--manifest-path',
+    (Join-Path $bootstrapperProject 'Cargo.toml'),
+    '--target',
+    $Target
+) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $bootstrapperOutLog -RedirectStandardError $bootstrapperErrLog
+if ($bootstrapperProcess.ExitCode -ne 0) {
+    Get-Content $bootstrapperOutLog, $bootstrapperErrLog -Tail 80 -ErrorAction SilentlyContinue
+    throw "The setup bootstrapper build failed with exit code $($bootstrapperProcess.ExitCode)"
+}
+Remove-Item -LiteralPath $bootstrapperOutLog, $bootstrapperErrLog -Force -ErrorAction SilentlyContinue
+if (-not (Test-Path $bootstrapperExe)) {
+    throw "Setup bootstrapper was not produced: $bootstrapperExe"
+}
+
 $output = Join-Path $root "artifacts/setup/$arch"
 if (Test-Path $output) {
     Remove-Item -LiteralPath $output -Recurse -Force
 }
 $payloadDir = Join-Path $output 'payload'
-New-Item -ItemType Directory -Path $payloadDir -Force | Out-Null
-Copy-Item $setupExe (Join-Path $output 'DriverUpdaterSetup.exe') -Force
+$webview2Output = Join-Path $output 'webview2'
+New-Item -ItemType Directory -Path $payloadDir, $webview2Output -Force | Out-Null
+Copy-Item $bootstrapperExe (Join-Path $output 'DriverUpdaterSetup.exe') -Force
+Copy-Item $setupExe (Join-Path $output 'driver-updater-setup-ui.exe') -Force
+Copy-Item $webview2Installer (Join-Path $webview2Output 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
 if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
     throw "No installer payload was available for $arch"
 }
@@ -117,6 +176,18 @@ $archive = Join-Path $root "artifacts/setup/DriverUpdaterSetup-$Version-$arch.zi
 if (Test-Path $archive) {
     Remove-Item -LiteralPath $archive -Force
 }
-Compress-Archive -Path (Join-Path $output '*') -DestinationPath $archive -CompressionLevel Optimal
+$sevenZip = Join-Path $env:ProgramFiles '7-Zip\7z.exe'
+if (Test-Path $sevenZip) {
+    & $sevenZip a -tzip -mx=5 $archive (Join-Path $output '*') | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw "7-Zip failed to create $archive" }
+} else {
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [System.IO.Compression.ZipFile]::CreateFromDirectory(
+        $output,
+        $archive,
+        [System.IO.Compression.CompressionLevel]::Optimal,
+        $true
+    )
+}
 "Setup wizard: $output"
 "Archive: $archive"

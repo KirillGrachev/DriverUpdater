@@ -120,6 +120,10 @@ jobs:
               run: cargo check --manifest-path src-tauri/Cargo.toml
             - name: Cargo clippy
               run: cargo clippy --manifest-path src-tauri/Cargo.toml --all-targets -- -D warnings
+            - name: Cargo check setup bootstrapper
+              run: cargo check --release --manifest-path installer/bootstrapper/Cargo.toml --target x86_64-pc-windows-msvc
+            - name: Cargo check setup wizard
+              run: cargo check --release --manifest-path installer/src-tauri/Cargo.toml --target x86_64-pc-windows-msvc
             - name: Cargo format
               run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
             - name: Cargo tests
