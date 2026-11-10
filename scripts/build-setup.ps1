@@ -138,12 +138,31 @@ if (-not (Test-Path $setupExe)) {
 
 $bootstrapperProject = Join-Path $root 'installer/bootstrapper'
 $bootstrapperExe = Join-Path $bootstrapperProject "target/$Target/release/driver-updater-bootstrapper.exe"
+
+$output = Join-Path $root "artifacts/setup/$arch"
+if (Test-Path $output) {
+    Remove-Item -LiteralPath $output -Recurse -Force
+}
+$payloadDir = Join-Path $output 'payload'
+$webview2Output = Join-Path $output 'webview2'
+New-Item -ItemType Directory -Path $payloadDir, $webview2Output -Force | Out-Null
+Copy-Item $setupExe (Join-Path $output 'driver-updater-setup-ui.exe') -Force
+Copy-Item $webview2Installer (Join-Path $webview2Output 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
+if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
+    throw "No installer payload was available for $arch"
+}
+Copy-Item $payload.FullName (Join-Path $payloadDir $payloadName) -Force
+
 $bootstrapperOutLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.out.log'
 $bootstrapperErrLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.err.log'
 $previousRustFlags = $env:RUSTFLAGS
+$previousBundleDir = $env:DRIVER_UPDATER_BUNDLE_DIR
+$previousPayloadName = $env:DRIVER_UPDATER_PAYLOAD_NAME
 try {
-    # The native bootstrapper must run before any redistributable is present.
+    # Embed the UI, offline WebView2 installer and payload into one executable.
     $env:RUSTFLAGS = "$previousRustFlags -C target-feature=+crt-static".Trim()
+    $env:DRIVER_UPDATER_BUNDLE_DIR = $output
+    $env:DRIVER_UPDATER_PAYLOAD_NAME = $payloadName
     $bootstrapperProcess = Start-Process cargo -ArgumentList @(
         'build',
         '--release',
@@ -158,43 +177,26 @@ try {
     }
 } finally {
     $env:RUSTFLAGS = $previousRustFlags
+    $env:DRIVER_UPDATER_BUNDLE_DIR = $previousBundleDir
+    $env:DRIVER_UPDATER_PAYLOAD_NAME = $previousPayloadName
     Remove-Item -LiteralPath $bootstrapperOutLog, $bootstrapperErrLog -Force -ErrorAction SilentlyContinue
 }
 if (-not (Test-Path $bootstrapperExe)) {
     throw "Setup bootstrapper was not produced: $bootstrapperExe"
 }
-
-$output = Join-Path $root "artifacts/setup/$arch"
-if (Test-Path $output) {
-    Remove-Item -LiteralPath $output -Recurse -Force
-}
-$payloadDir = Join-Path $output 'payload'
-$webview2Output = Join-Path $output 'webview2'
-New-Item -ItemType Directory -Path $payloadDir, $webview2Output -Force | Out-Null
 Copy-Item $bootstrapperExe (Join-Path $output 'DriverUpdaterSetup.exe') -Force
-Copy-Item $setupExe (Join-Path $output 'driver-updater-setup-ui.exe') -Force
-Copy-Item $webview2Installer (Join-Path $webview2Output 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
-if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
-    throw "No installer payload was available for $arch"
-}
-Copy-Item $payload.FullName (Join-Path $payloadDir $payloadName) -Force
 
 $archive = Join-Path $root "artifacts/setup/DriverUpdaterSetup-$Version-$arch.zip"
 if (Test-Path $archive) {
     Remove-Item -LiteralPath $archive -Force
 }
+$setupBundle = Join-Path $output 'DriverUpdaterSetup.exe'
 $sevenZip = Join-Path $env:ProgramFiles '7-Zip\7z.exe'
 if (Test-Path $sevenZip) {
-    & $sevenZip a -tzip -mx=5 $archive (Join-Path $output '*') | Out-Null
+    & $sevenZip a -tzip -mx=5 $archive $setupBundle | Out-Null
     if ($LASTEXITCODE -ne 0) { throw "7-Zip failed to create $archive" }
 } else {
-    Add-Type -AssemblyName System.IO.Compression.FileSystem
-    [System.IO.Compression.ZipFile]::CreateFromDirectory(
-        $output,
-        $archive,
-        [System.IO.Compression.CompressionLevel]::Optimal,
-        $true
-    )
+    Compress-Archive -Path $setupBundle -DestinationPath $archive -CompressionLevel Optimal
 }
 "Setup wizard: $output"
 "Archive: $archive"

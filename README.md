@@ -203,12 +203,14 @@ Download the installer for your architecture from
   <tr><td>Windows 10 x86</td><td><code>DriverUpdaterSetup-x86.exe</code></td></tr>
 </table>
 
-The `.exe` is the normal installer. The matching
-<code>DriverUpdaterSetup-&lt;version&gt;-&lt;arch&gt;.zip</code> is the fallback for
-managed deployment and contains the MSI/NSIS payload. Raw MSI and NSIS payloads
-are not published as separate assets because they show the native Windows
-Installer UI. Portable and symbol archives remain available for
-architecture-specific automation.
+The `.exe` is the normal installer. It contains the custom setup UI, the
+offline WebView2 Runtime and the MSI/NSIS payload, so it can run on a clean
+Windows installation without sibling files. The matching
+<code>DriverUpdaterSetup-&lt;version&gt;-&lt;arch&gt;.zip</code> is the same
+self-contained executable for managed deployment. Raw MSI and NSIS payloads are
+not published as separate assets because they show the native Windows Installer
+UI. Portable and symbol archives remain available for architecture-specific
+automation.
 
 <table align="center">
   <tr>
