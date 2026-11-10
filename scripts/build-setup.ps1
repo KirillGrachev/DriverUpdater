@@ -140,19 +140,26 @@ $bootstrapperProject = Join-Path $root 'installer/bootstrapper'
 $bootstrapperExe = Join-Path $bootstrapperProject "target/$Target/release/driver-updater-bootstrapper.exe"
 $bootstrapperOutLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.out.log'
 $bootstrapperErrLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.err.log'
-$bootstrapperProcess = Start-Process cargo -ArgumentList @(
-    'build',
-    '--release',
-    '--manifest-path',
-    (Join-Path $bootstrapperProject 'Cargo.toml'),
-    '--target',
-    $Target
-) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $bootstrapperOutLog -RedirectStandardError $bootstrapperErrLog
-if ($bootstrapperProcess.ExitCode -ne 0) {
-    Get-Content $bootstrapperOutLog, $bootstrapperErrLog -Tail 80 -ErrorAction SilentlyContinue
-    throw "The setup bootstrapper build failed with exit code $($bootstrapperProcess.ExitCode)"
+$previousRustFlags = $env:RUSTFLAGS
+try {
+    # The native bootstrapper must run before any redistributable is present.
+    $env:RUSTFLAGS = "$previousRustFlags -C target-feature=+crt-static".Trim()
+    $bootstrapperProcess = Start-Process cargo -ArgumentList @(
+        'build',
+        '--release',
+        '--manifest-path',
+        (Join-Path $bootstrapperProject 'Cargo.toml'),
+        '--target',
+        $Target
+    ) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $bootstrapperOutLog -RedirectStandardError $bootstrapperErrLog
+    if ($bootstrapperProcess.ExitCode -ne 0) {
+        Get-Content $bootstrapperOutLog, $bootstrapperErrLog -Tail 80 -ErrorAction SilentlyContinue
+        throw "The setup bootstrapper build failed with exit code $($bootstrapperProcess.ExitCode)"
+    }
+} finally {
+    $env:RUSTFLAGS = $previousRustFlags
+    Remove-Item -LiteralPath $bootstrapperOutLog, $bootstrapperErrLog -Force -ErrorAction SilentlyContinue
 }
-Remove-Item -LiteralPath $bootstrapperOutLog, $bootstrapperErrLog -Force -ErrorAction SilentlyContinue
 if (-not (Test-Path $bootstrapperExe)) {
     throw "Setup bootstrapper was not produced: $bootstrapperExe"
 }
