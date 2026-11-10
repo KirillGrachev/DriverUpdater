@@ -1,11 +1,16 @@
 #![cfg_attr(target_os = "windows", windows_subsystem = "windows")]
 
 use std::env;
+use std::fs;
 use std::path::{Path, PathBuf};
 use std::process::{Command, Stdio};
 
 #[cfg(windows)]
 use windows_sys::Win32::UI::WindowsAndMessaging::{MessageBoxW, MB_ICONERROR, MB_OK};
+
+mod embedded {
+    include!(concat!(env!("OUT_DIR"), "/bundle_assets.rs"));
+}
 
 const WEBVIEW2_CLIENT: &str =
     r"SOFTWARE\WOW6432Node\Microsoft\EdgeUpdate\Clients\{F3017226-FE2A-4295-8BDF-00C3A9A7E4C5}";
@@ -18,11 +23,21 @@ fn main() {
 }
 
 fn run() -> Result<(), String> {
-    let directory = env::current_exe()
+    let external = env::current_exe()
         .map_err(|error| format!("Не удалось определить папку установщика: {error}"))?
         .parent()
         .ok_or_else(|| "Не удалось определить папку установщика".to_string())?
         .to_path_buf();
+
+    let mut temporary = None;
+    let directory = if embedded::SETUP_UI.is_empty() {
+        external
+    } else {
+        let bundle = extract_bundle()?;
+        let path = bundle.path.clone();
+        temporary = Some(bundle);
+        path
+    };
 
     if !webview2_installed() {
         install_webview2(&directory)?;
@@ -45,7 +60,47 @@ fn run() -> Result<(), String> {
             status.code().unwrap_or(-1)
         ));
     }
+
+    drop(temporary);
     Ok(())
+}
+
+struct TemporaryBundle {
+    path: PathBuf,
+}
+
+impl Drop for TemporaryBundle {
+    fn drop(&mut self) {
+        let _ = fs::remove_dir_all(&self.path);
+    }
+}
+
+fn extract_bundle() -> Result<TemporaryBundle, String> {
+    let path = env::temp_dir().join(format!("driver-updater-setup-{}", std::process::id()));
+    if path.exists() {
+        fs::remove_dir_all(&path)
+            .map_err(|error| format!("Не удалось очистить временную папку: {error}"))?;
+    }
+    fs::create_dir_all(path.join("payload"))
+        .map_err(|error| format!("Не удалось создать временную папку: {error}"))?;
+    fs::create_dir_all(path.join("webview2"))
+        .map_err(|error| format!("Не удалось создать временную папку: {error}"))?;
+
+    fs::write(path.join("driver-updater-setup-ui.exe"), embedded::SETUP_UI)
+        .map_err(|error| format!("Не удалось распаковать установщик: {error}"))?;
+    fs::write(
+        path.join("webview2")
+            .join("MicrosoftEdgeWebView2RuntimeInstallerX64.exe"),
+        embedded::WEBVIEW2,
+    )
+    .map_err(|error| format!("Не удалось распаковать WebView2 Runtime: {error}"))?;
+    fs::write(
+        path.join("payload").join(embedded::PAYLOAD_NAME),
+        embedded::PAYLOAD,
+    )
+    .map_err(|error| format!("Не удалось распаковать payload: {error}"))?;
+
+    Ok(TemporaryBundle { path })
 }
 
 fn webview2_installed() -> bool {
