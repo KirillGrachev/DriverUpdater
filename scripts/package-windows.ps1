@@ -36,18 +36,29 @@ if (-not (Test-Path $exe)) {
 Copy-Item $exe $portable
 
 $webview2Dir = Join-Path $portable 'webview2'
-$webview2Installer = Join-Path $root 'installer/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
-if ($arch -eq 'x64') {
-    if (-not (Test-Path $webview2Installer)) {
-        New-Item -ItemType Directory -Path (Split-Path $webview2Installer) -Force | Out-Null
-        $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
-        if (-not $curl) { throw 'curl.exe is required to download the WebView2 offline installer' }
-        & $curl.Source --location --fail --retry 3 --output $webview2Installer 'https://go.microsoft.com/fwlink/?linkid=2124701'
-        if ($LASTEXITCODE -ne 0) { throw "WebView2 Runtime download failed with exit code $LASTEXITCODE" }
-    }
-    New-Item -ItemType Directory -Path $webview2Dir -Force | Out-Null
-    Copy-Item $webview2Installer (Join-Path $webview2Dir 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
+$webview2Name = switch ($arch) {
+    'x64' { 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe' }
+    'x86' { 'MicrosoftEdgeWebView2RuntimeInstallerX86.exe' }
+    'arm64' { 'MicrosoftEdgeWebview2Setup.exe' }
+    default { throw "Unsupported WebView2 architecture: $arch" }
 }
+$webview2Url = switch ($arch) {
+    'x64' { 'https://go.microsoft.com/fwlink/?linkid=2124701' }
+    'x86' { 'https://go.microsoft.com/fwlink/?linkid=2099617' }
+    'arm64' { 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' }
+    default { throw "Unsupported WebView2 architecture: $arch" }
+}
+$webview2Installer = Join-Path $root "installer/webview2/$webview2Name"
+$webview2MinimumBytes = if ($arch -eq 'arm64') { 1MB } else { 100MB }
+if (-not (Test-Path $webview2Installer) -or (Get-Item $webview2Installer).Length -lt $webview2MinimumBytes) {
+    New-Item -ItemType Directory -Path (Split-Path $webview2Installer) -Force | Out-Null
+    $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+    if (-not $curl) { throw 'curl.exe is required to download the WebView2 installer' }
+    & $curl.Source --location --fail --retry 3 --output $webview2Installer $webview2Url
+    if ($LASTEXITCODE -ne 0) { throw "WebView2 Runtime download failed with exit code $LASTEXITCODE" }
+}
+New-Item -ItemType Directory -Path $webview2Dir -Force | Out-Null
+Copy-Item $webview2Installer (Join-Path $webview2Dir $webview2Name) -Force
 
 $portableProject = Join-Path $root 'portable'
 $launcher = Join-Path $portableProject "target/$Target/release/DriverUpdaterPortable.exe"

@@ -168,8 +168,8 @@ jobs:
                   if (-not $text.Contains("driver-updater-service")) { throw "The setup does not contain the service binary." }
                   $bootstrapper = Join-Path $root "DriverUpdaterSetup.exe"
                   if (-not (Test-Path $bootstrapper)) { throw "The native setup bootstrapper is missing." }
-                  $webview2 = Join-Path $root "webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
-                  if (-not (Test-Path $webview2)) { throw "The offline WebView2 Runtime is missing." }
+                  $webview2 = Get-ChildItem (Join-Path $root "webview2") -File -ErrorAction SilentlyContinue | Select-Object -First 1
+                  if (-not $webview2) { throw "The WebView2 Runtime installer is missing." }
             - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
               with:
                   name: setup-${{ matrix.arch }}

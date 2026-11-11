@@ -89,8 +89,7 @@ fn extract_bundle() -> Result<TemporaryBundle, String> {
     fs::write(path.join("driver-updater-setup-ui.exe"), embedded::SETUP_UI)
         .map_err(|error| format!("Не удалось распаковать установщик: {error}"))?;
     fs::write(
-        path.join("webview2")
-            .join("MicrosoftEdgeWebView2RuntimeInstallerX64.exe"),
+        path.join("webview2").join(embedded::WEBVIEW2_NAME),
         embedded::WEBVIEW2,
     )
     .map_err(|error| format!("Не удалось распаковать WebView2 Runtime: {error}"))?;
@@ -142,9 +141,7 @@ fn registry_has_version(key: &str) -> bool {
 }
 
 fn install_webview2(directory: &Path) -> Result<(), String> {
-    let installer = directory
-        .join("webview2")
-        .join("MicrosoftEdgeWebView2RuntimeInstallerX64.exe");
+    let installer = directory.join("webview2").join(embedded::WEBVIEW2_NAME);
     if !installer.is_file() {
         return Err(format!(
             "На этом компьютере отсутствует WebView2 Runtime, а offline-установщик не найден:\n{}",
