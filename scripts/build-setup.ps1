@@ -21,12 +21,24 @@ $arch = switch ($Target) {
 # server images do not ship the Evergreen runtime, so keep Microsoft's
 # offline installer next to the native bootstrapper.
 $webview2Dir = Join-Path $root "installer/webview2"
-$webview2Installer = Join-Path $webview2Dir 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
-$webview2Url = 'https://go.microsoft.com/fwlink/?linkid=2124701'
+$webview2Name = switch ($arch) {
+    'x64' { 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe' }
+    'x86' { 'MicrosoftEdgeWebView2RuntimeInstallerX86.exe' }
+    'arm64' { 'MicrosoftEdgeWebview2Setup.exe' }
+    default { throw "Unsupported WebView2 architecture: $arch" }
+}
+$webview2Url = switch ($arch) {
+    'x64' { 'https://go.microsoft.com/fwlink/?linkid=2124701' }
+    'x86' { 'https://go.microsoft.com/fwlink/?linkid=2099617' }
+    'arm64' { 'https://go.microsoft.com/fwlink/p/?LinkId=2124703' }
+    default { throw "Unsupported WebView2 architecture: $arch" }
+}
+$webview2Installer = Join-Path $webview2Dir $webview2Name
+$webview2MinimumBytes = if ($arch -eq 'arm64') { 1MB } else { 100MB }
 New-Item -ItemType Directory -Path $webview2Dir -Force | Out-Null
 $downloadWebView2 = -not (Test-Path $webview2Installer)
 if (-not $downloadWebView2) {
-    $downloadWebView2 = (Get-Item $webview2Installer).Length -lt 100MB
+    $downloadWebView2 = (Get-Item $webview2Installer).Length -lt $webview2MinimumBytes
 }
 if ($downloadWebView2) {
     $temporary = "$webview2Installer.download"
@@ -41,7 +53,7 @@ if ($downloadWebView2) {
     } else {
         Invoke-WebRequest -Uri $webview2Url -OutFile $temporary -UseBasicParsing
     }
-    $downloaded = (Test-Path $temporary) -and (Get-Item $temporary).Length -gt 100MB
+    $downloaded = (Test-Path $temporary) -and (Get-Item $temporary).Length -gt $webview2MinimumBytes
     if (-not $downloaded) {
         Remove-Item $temporary -Force -ErrorAction SilentlyContinue
         throw 'WebView2 Runtime download is incomplete'
@@ -147,7 +159,7 @@ $payloadDir = Join-Path $output 'payload'
 $webview2Output = Join-Path $output 'webview2'
 New-Item -ItemType Directory -Path $payloadDir, $webview2Output -Force | Out-Null
 Copy-Item $setupExe (Join-Path $output 'driver-updater-setup-ui.exe') -Force
-Copy-Item $webview2Installer (Join-Path $webview2Output 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
+Copy-Item $webview2Installer (Join-Path $webview2Output $webview2Name) -Force
 if ($nsis.Count -eq 0 -and $msi.Count -eq 0) {
     throw "No installer payload was available for $arch"
 }
@@ -158,11 +170,13 @@ $bootstrapperErrLog = Join-Path $env:TEMP 'driver-updater-bootstrapper-build.err
 $previousRustFlags = $env:RUSTFLAGS
 $previousBundleDir = $env:DRIVER_UPDATER_BUNDLE_DIR
 $previousPayloadName = $env:DRIVER_UPDATER_PAYLOAD_NAME
+$previousWebView2Name = $env:DRIVER_UPDATER_WEBVIEW2_NAME
 try {
     # Embed the UI, offline WebView2 installer and payload into one executable.
     $env:RUSTFLAGS = "$previousRustFlags -C target-feature=+crt-static".Trim()
     $env:DRIVER_UPDATER_BUNDLE_DIR = $output
     $env:DRIVER_UPDATER_PAYLOAD_NAME = $payloadName
+    $env:DRIVER_UPDATER_WEBVIEW2_NAME = $webview2Name
     $bootstrapperProcess = Start-Process cargo -ArgumentList @(
         'build',
         '--release',
@@ -179,6 +193,7 @@ try {
     $env:RUSTFLAGS = $previousRustFlags
     $env:DRIVER_UPDATER_BUNDLE_DIR = $previousBundleDir
     $env:DRIVER_UPDATER_PAYLOAD_NAME = $previousPayloadName
+    $env:DRIVER_UPDATER_WEBVIEW2_NAME = $previousWebView2Name
     Remove-Item -LiteralPath $bootstrapperOutLog, $bootstrapperErrLog -Force -ErrorAction SilentlyContinue
 }
 if (-not (Test-Path $bootstrapperExe)) {

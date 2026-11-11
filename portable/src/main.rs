@@ -83,10 +83,18 @@ fn registry_has_version(key: &str) -> bool {
     matches!(status, Ok(status) if status.success())
 }
 
+fn webview2_installer_name() -> &'static str {
+    if cfg!(target_arch = "x86") {
+        "MicrosoftEdgeWebView2RuntimeInstallerX86.exe"
+    } else if cfg!(target_arch = "aarch64") {
+        "MicrosoftEdgeWebview2Setup.exe"
+    } else {
+        "MicrosoftEdgeWebView2RuntimeInstallerX64.exe"
+    }
+}
+
 fn install_webview2(directory: &Path) -> Result<(), String> {
-    let installer = directory
-        .join("webview2")
-        .join("MicrosoftEdgeWebView2RuntimeInstallerX64.exe");
+    let installer = directory.join("webview2").join(webview2_installer_name());
     if !installer.is_file() {
         return Err(format!(
             "Microsoft Edge WebView2 Runtime is missing and the bundled installer is missing:\n{}",
