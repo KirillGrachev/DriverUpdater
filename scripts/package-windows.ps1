@@ -35,18 +35,38 @@ if (-not (Test-Path $exe)) {
 }
 Copy-Item $exe $portable
 
+$webview2Dir = Join-Path $portable 'webview2'
+$webview2Installer = Join-Path $root 'installer/webview2/MicrosoftEdgeWebView2RuntimeInstallerX64.exe'
+if ($arch -eq 'x64') {
+    if (-not (Test-Path $webview2Installer)) {
+        New-Item -ItemType Directory -Path (Split-Path $webview2Installer) -Force | Out-Null
+        $curl = Get-Command curl.exe -ErrorAction SilentlyContinue
+        if (-not $curl) { throw 'curl.exe is required to download the WebView2 offline installer' }
+        & $curl.Source --location --fail --retry 3 --output $webview2Installer 'https://go.microsoft.com/fwlink/?linkid=2124701'
+        if ($LASTEXITCODE -ne 0) { throw "WebView2 Runtime download failed with exit code $LASTEXITCODE" }
+    }
+    New-Item -ItemType Directory -Path $webview2Dir -Force | Out-Null
+    Copy-Item $webview2Installer (Join-Path $webview2Dir 'MicrosoftEdgeWebView2RuntimeInstallerX64.exe') -Force
+}
+
 $portableProject = Join-Path $root 'portable'
 $launcher = Join-Path $portableProject "target/$Target/release/DriverUpdaterPortable.exe"
 $cargoOut = Join-Path $env:TEMP "driver-updater-portable-$arch.out.log"
 $cargoErr = Join-Path $env:TEMP "driver-updater-portable-$arch.err.log"
-$cargoProcess = Start-Process cargo -ArgumentList @(
-    'build',
-    '--release',
-    '--manifest-path',
-    (Join-Path $portableProject 'Cargo.toml'),
-    '--target',
-    $Target
-) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $cargoOut -RedirectStandardError $cargoErr
+$previousRustFlags = $env:RUSTFLAGS
+try {
+    $env:RUSTFLAGS = "$previousRustFlags -C target-feature=+crt-static".Trim()
+    $cargoProcess = Start-Process cargo -ArgumentList @(
+        'build',
+        '--release',
+        '--manifest-path',
+        (Join-Path $portableProject 'Cargo.toml'),
+        '--target',
+        $Target
+    ) -NoNewWindow -Wait -PassThru -RedirectStandardOutput $cargoOut -RedirectStandardError $cargoErr
+} finally {
+    $env:RUSTFLAGS = $previousRustFlags
+}
 Remove-Item -LiteralPath $cargoOut, $cargoErr -Force -ErrorAction SilentlyContinue
 if ($cargoProcess.ExitCode -ne 0 -or -not (Test-Path $launcher)) {
     throw "Portable launcher was not built: $launcher"
@@ -60,9 +80,9 @@ Get-ChildItem $release -Filter "*.pdb" -File | ForEach-Object {
 $portableNote = @"
 Driver Updater portable build ($arch)
 
-This build needs Microsoft Edge WebView2 Runtime. It is already present on
-current Windows 10 and Windows 11 systems; otherwise install it from
-https://developer.microsoft.com/microsoft-edge/webview2/.
+The launcher checks Microsoft Edge WebView2 Runtime and installs the bundled
+offline runtime when it is missing, so this build works on clean Windows 10
+LTSC as well as normal Windows 10/11 systems.
 
 Run DriverUpdaterPortable.exe. It asks for administrator rights once per
 session, then starts Driver Updater elevated so driver installation and restore
